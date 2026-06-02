@@ -18,11 +18,42 @@ const DEFAULT_CONFIG: SupabaseConfig = {
   isEnabled: false,
 };
 
+let serverHasConfig = false;
+
+/**
+ * Checks server side configuration on initial load to see if environment variables are active.
+ */
+export async function checkServerConfig(): Promise<boolean> {
+  try {
+    const res = await fetch("/api/config");
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.isEnabled) {
+        serverHasConfig = true;
+        return true;
+      }
+    }
+  } catch (err) {
+    console.error("Gagal memeriksa konfigurasi server:", err);
+  }
+  return false;
+}
+
 /**
  * Gets the consolidated Supabase configuration from environment variables or custom localStorage values.
  */
 export function getSupabaseConfig(): SupabaseConfig {
-  // 1. Try to get from environment variables (useful for Vercel/production)
+  // 1. If server confirms it has active config, prefer that!
+  if (serverHasConfig) {
+    return {
+      url: "SINKRONISASI_OTOMATIS (Supabase Server-side)",
+      anonKey: "SINKRONISASI_OTOMATIS",
+      tableName: "bkpsdm_360_state",
+      isEnabled: true,
+    };
+  }
+
+  // 2. Try to get from environment variables (useful for Vercel/production)
   const metaEnv = (import.meta as any).env || {};
   const envUrl = metaEnv.VITE_SUPABASE_URL || "";
   const envKey = metaEnv.VITE_SUPABASE_ANON_KEY || "";
@@ -36,7 +67,7 @@ export function getSupabaseConfig(): SupabaseConfig {
     };
   }
 
-  // 2. Try to get from local configuration (useful for runtime testing in AI Studio or local)
+  // 3. Try to get from local configuration (useful for runtime testing in AI Studio or local)
   try {
     const raw = localStorage.getItem(LOCAL_CONFIG_KEY);
     if (raw) {
@@ -75,7 +106,7 @@ export function saveSupabaseConfig(config: Partial<SupabaseConfig>) {
  */
 export function getSupabaseClient(): SupabaseClient | null {
   const config = getSupabaseConfig();
-  if (!config.url || !config.anonKey || !config.isEnabled) {
+  if (!config.url || !config.anonKey || !config.isEnabled || config.url === "SINKRONISASI_OTOMATIS (Supabase Server-side)") {
     return null;
   }
   try {
@@ -95,36 +126,51 @@ export function getSupabaseClient(): SupabaseClient | null {
  */
 export async function testSupabaseConnection(url: string, anonKey: string, tableName: string = "bkpsdm_360_state"): Promise<{ success: boolean; message: string }> {
   try {
-    const client = createClient(url, anonKey, { auth: { persistSession: false } });
-    
-    // Test fetch by querying the table length or trying to retrieve current row
-    const { data, error } = await client
-      .from(tableName)
-      .select("id")
-      .limit(1);
-
-    if (error) {
-      if (error.code === "PGRST116" || error.message?.includes("does not exist")) {
-        return {
-          success: false,
-          message: `Koneksi berhasil ke Supabase, namun tabel '${tableName}' belum dibuat atau tidak dapat diakses di database Anda. Silakan jalankan script SQL migrasi terlebih dahulu.`,
-        };
-      }
-      return {
-        success: false,
-        message: `Koneksi gagal. Detail: ${error.message} (Code: ${error.code})`,
-      };
+    const res = await fetch("/api/test-db", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, anonKey, tableName }),
+    });
+    if (res.ok) {
+      const result = await res.json();
+      return result;
     }
-
-    return {
-      success: true,
-      message: "Koneksi berhasil! Database Supabase siap menerima dan menyimpan data penilaian BKPSDM Dairi.",
-    };
-  } catch (err: any) {
+    const errData = await res.json().catch(() => ({}));
     return {
       success: false,
-      message: `Gagal menghubungkan. Harap verifikasi URL dan Anon Key Anda. Detail error: ${err?.message || err}`,
+      message: errData.message || `HTTP error ${res.status}: Hubungi administrator.`
     };
+  } catch (err: any) {
+    try {
+      const client = createClient(url, anonKey, { auth: { persistSession: false } });
+      const { data, error } = await client
+        .from(tableName)
+        .select("id")
+        .limit(1);
+
+      if (error) {
+        if (error.code === "PGRST116" || error.message?.includes("does not exist")) {
+          return {
+            success: false,
+            message: `Koneksi berhasil ke Supabase, namun tabel '${tableName}' belum dibuat atau tidak dapat diakses di database Anda. Silakan jalankan script SQL migrasi terlebih dahulu.`,
+          };
+        }
+        return {
+          success: false,
+          message: `Koneksi gagal. Detail: ${error.message} (Code: ${error.code})`,
+        };
+      }
+
+      return {
+        success: true,
+        message: "Koneksi berhasil langsung dari browser!",
+      };
+    } catch (clientErr: any) {
+      return {
+        success: false,
+        message: `Gagal menghubungkan. Harap verifikasi URL dan Anon Key Anda. Detail error: ${err?.message || err}`,
+      };
+    }
   }
 }
 
@@ -132,6 +178,20 @@ export async function testSupabaseConnection(url: string, anonKey: string, table
  * Fetches the application state from Supabase.
  */
 export async function fetchRemoteState(): Promise<AppState | null> {
+  // 1. Try server-side proxy
+  try {
+    const res = await fetch("/api/state");
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.state) {
+        return data.state as AppState;
+      }
+    }
+  } catch (err) {
+    console.error("Gagal memuat state dari API server, beralih ke direct client-side fallback:", err);
+  }
+
+  // 2. Direct client-side fallback if configured locally
   const config = getSupabaseConfig();
   const client = getSupabaseClient();
   if (!client) return null;
@@ -161,6 +221,24 @@ export async function fetchRemoteState(): Promise<AppState | null> {
  * Saves the application state to Supabase.
  */
 export async function saveRemoteState(state: AppState): Promise<boolean> {
+  // 1. Try server-side proxy first
+  try {
+    const res = await fetch("/api/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ state }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success) {
+        return true;
+      }
+    }
+  } catch (err) {
+    console.error("Gagal menyimpan state ke API server, beralih ke direct client-side fallback:", err);
+  }
+
+  // 2. Direct client-side fallback if configured locally
   const config = getSupabaseConfig();
   const client = getSupabaseClient();
   if (!client) return false;

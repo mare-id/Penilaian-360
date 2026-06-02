@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Lock, Home, Users, ClipboardCheck, FileText, Star, AlertTriangle, BarChart3, Download, UserCheck, Settings, Menu, LogOut } from "lucide-react";
+import { Lock, Home, Users, ClipboardCheck, FileText, Star, AlertTriangle, BarChart3, Download, UserCheck, Settings, Menu, LogOut, RefreshCw, Check } from "lucide-react";
 import { DemoAccount, AppState } from "../types";
 import { demoAccounts } from "../data";
 import { Badge, Card, Button, Field, ThemeStyles } from "./UIComponents";
@@ -321,9 +321,23 @@ interface TopbarProps {
   title: string;
   user: DemoAccount;
   setOpen: (open: boolean) => void;
+  syncing?: boolean;
+  cloudSynced?: boolean;
+  syncError?: string | null;
+  cloudError?: string | null;
+  onRefreshCloud?: () => void;
 }
 
-export function Topbar({ title, user, setOpen }: TopbarProps) {
+export function Topbar({
+  title,
+  user,
+  setOpen,
+  syncing = false,
+  cloudSynced = false,
+  syncError = null,
+  cloudError = null,
+  onRefreshCloud
+}: TopbarProps) {
   const cloudConfig = getSupabaseConfig();
   return (
     <header className="h-16 bg-blue-950 border-b-4 border-slate-950 text-white flex items-center justify-between px-4 lg:px-6 shrink-0 select-none font-display shadow-[0_4px_0_0_rgba(15,23,42,1)] z-10">
@@ -354,9 +368,42 @@ export function Topbar({ title, user, setOpen }: TopbarProps) {
         </span>
 
         {cloudConfig.isEnabled && (
-          <span className="hidden md:inline-flex items-center gap-1 bg-sky-200 border-2 border-slate-950 text-sky-950 text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-            ☁️ Cloud Database (Supabase)
-          </span>
+          <div className="hidden md:flex items-center gap-2">
+            {syncing ? (
+              <span className="inline-flex items-center gap-1.5 bg-yellow-300 border-2 border-slate-950 text-slate-950 text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] animate-pulse">
+                <RefreshCw className="h-2.5 w-2.5 animate-spin duration-1000" />
+                Mengupdate Server...
+              </span>
+            ) : syncError ? (
+              <span title={syncError} className="inline-flex items-center gap-1 bg-red-400 border-2 border-slate-950 text-white text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                ⚠️ Gagal Sync ke Cloud
+              </span>
+            ) : cloudSynced ? (
+              <span className="inline-flex items-center gap-1 bg-emerald-400 border-2 border-slate-950 text-slate-950 text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <Check className="h-2.5 w-2.5 stroke-[3.5]" />
+                Tersinkronisasi Cloud
+              </span>
+            ) : cloudError ? (
+              <span className="inline-flex items-center gap-1 bg-amber-400 border-2 border-slate-950 text-slate-950 text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                Mode Offline
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 bg-sky-200 border-2 border-slate-950 text-sky-950 text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                ☁️ Cloud Supabase
+              </span>
+            )}
+
+            {onRefreshCloud && (
+              <button
+                type="button"
+                onClick={onRefreshCloud}
+                title="Refresh & ambil data terbaru dari cloud"
+                className="rounded-lg border-2 border-slate-950 bg-blue-600 p-1 hover:bg-blue-500 active:translate-y-0.5 active:shadow-none shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] text-white hover:text-yellow-200 transition-all cursor-pointer"
+              >
+                <RefreshCw className="h-2.5 w-2.5 stroke-[2.5]" />
+              </button>
+            )}
+          </div>
         )}
       </div>
 

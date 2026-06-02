@@ -23,7 +23,8 @@ import {
   testSupabaseConnection,
   saveRemoteState,
   fetchRemoteState,
-  getSupabaseSQLScript
+  getSupabaseSQLScript,
+  checkServerConfig
 } from "./utils/supabase";
 import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle } from "lucide-react";
 
@@ -516,8 +517,11 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
 // ---------------------------------------------
 export default function App() {
   const [loadingCloud, setLoadingCloud] = useState(false);
+  const [cloudLoaded, setCloudLoaded] = useState(false);
   const [cloudSynced, setCloudSynced] = useState(false);
   const [cloudError, setCloudError] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   const [state, setState] = useState<AppState>(() => {
     try {
@@ -537,30 +541,37 @@ export default function App() {
     }
   });
 
-  // Synchronise with Cloud on startup
-  useEffect(() => {
-    async function loadCloudData() {
+  // Synchronise with Cloud on startup or on demand
+  const forceFetchFromCloud = async () => {
+    setLoadingCloud(true);
+    setCloudError(null);
+    try {
+      await checkServerConfig();
       const config = getSupabaseConfig();
-      if (config.isEnabled && config.url && config.anonKey) {
-        setLoadingCloud(true);
-        setCloudError(null);
-        try {
-          const remote = await fetchRemoteState();
-          if (remote) {
-            setState(remote);
-            setCloudSynced(true);
-          } else {
-            setCloudError("Tabel Supabase kosong. Lakukan ekspor awal dari menu Setelan.");
-          }
-        } catch (err: any) {
-          console.error("Gagal sinkronisasi data cloud:", err);
-          setCloudError(err?.message || "Kesalahan koneksi.");
-        } finally {
-          setLoadingCloud(false);
+      if (config.isEnabled) {
+        const remote = await fetchRemoteState();
+        if (remote) {
+          setState(remote);
+          setCloudSynced(true);
+          toast("Berhasil memperbarui data terbaru dari database Supabase! ☁️");
+        } else {
+          setCloudError("Tabel Supabase kosong atau data belum terekspor.");
         }
+      } else {
+        setCloudLoaded(true);
       }
+    } catch (err: any) {
+      console.error("Gagal sinkronisasi data cloud:", err);
+      setCloudError(err?.message || "Kesalahan koneksi.");
+      toast(`Gagal memuat dari cloud: ${err?.message || "Koneksi terputus ke Supabase"}`);
+    } finally {
+      setLoadingCloud(false);
+      setCloudLoaded(true);
     }
-    loadCloudData();
+  };
+
+  useEffect(() => {
+    forceFetchFromCloud();
   }, []);
 
   useEffect(() => {
@@ -608,17 +619,34 @@ export default function App() {
     } else {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
-      // Save changes to cloud asynchronously if not currently loading
-      if (!loadingCloud) {
+      // Save changes to cloud asynchronously if loaded and not currently loading, using a 1-second debounce
+      if (cloudLoaded && !loadingCloud) {
         const config = getSupabaseConfig();
         if (config.isEnabled && config.url && config.anonKey) {
-          saveRemoteState(state).catch((err) => {
-            console.error("Kesalahan sinkronisasi data ke Supabase:", err);
-          });
+          setSyncing(true);
+          setSyncError(null);
+
+          const delayDebounceFn = setTimeout(async () => {
+            try {
+              const success = await saveRemoteState(state);
+              if (success) {
+                setCloudSynced(true);
+                setSyncError(null);
+              } else {
+                setSyncError("Gagal menyimpan ke database cloud (periksa jaringan/tabel Supabase).");
+              }
+            } catch (err: any) {
+              setSyncError(err?.message || "Masalah jaringan.");
+            } finally {
+              setSyncing(false);
+            }
+          }, 1000); // 1-second debounce to merge adjustments cleanly
+
+          return () => clearTimeout(delayDebounceFn);
         }
       }
     }
-  }, [state, loadingCloud]);
+  }, [state, loadingCloud, cloudLoaded]);
 
   const [user, setUser] = useState<DemoAccount | null>(() => {
     try {
@@ -719,7 +747,16 @@ export default function App() {
     <>
       <ThemeStyles />
       <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
-        <Topbar title={titles[active] || "Dashboard"} user={user} setOpen={setSidebarOpen} />
+        <Topbar
+          title={titles[active] || "Dashboard"}
+          user={user}
+          setOpen={setSidebarOpen}
+          syncing={syncing}
+          cloudSynced={cloudSynced}
+          syncError={syncError}
+          cloudError={cloudError}
+          onRefreshCloud={forceFetchFromCloud}
+        />
         {loadingCloud && (
           <div className="bg-sky-500 text-white text-center py-2 text-xs font-black uppercase flex items-center justify-center gap-2 tracking-wider border-b-2 border-slate-950 shadow-inner animate-pulse">
             <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0 stroke-[2.5]" />
