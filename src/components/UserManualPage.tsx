@@ -418,8 +418,8 @@ Skor_Akhir_100 = (Skor_Akhir_Dimensi / 5) * 100
 
         <!-- CONTOH 1 -->
         <div class="example-card">
-          <div class="example-header">KASUS SIMULASI 1: PNS Staf / Pejabat Pelaksana (Tanpa Bawahan Langsung)</div>
-          <p><strong>Subjek Pegawai:</strong> Susi Astuti, S.Kom (Pranata Komputer Ahli Pertama, Has Subordinates = False)</p>
+          <div class="example-header">KASUS SIMULASI 1: PNS Pejabat Pelaksana (Tanpa Bawahan Langsung)</div>
+          <p><strong>Subjek Pegawai:</strong> Robinson Silalahi, S.E (Penelaah Teknis Kebijakan, Has Subordinates = False)</p>
           <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Rekan Sejawat = ${state.period.weightsNoSub.Peer}% (Evaluasi Diri tidak dimasukkan dalam perhitungan skor)</p>
           <p><strong>Dimensi Pengukuran:</strong> Berorientasi Pelayanan (Merespons kebutuhan layanan dengan cepat dan tepat, Menunjukkan sikap ramah dalam memberikan pelayanan, Memberikan solusi atas kebutuhan atau keluhan pemangku kepentingan, Menindaklanjuti permintaan layanan secara jelas)</p>
           <ul>
@@ -451,8 +451,8 @@ Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 (Dibulatkan menjadi 87)
 
         <!-- CONTOH 2 -->
         <div class="example-card">
-          <div class="example-header">KASUS SIMULASI 2: Pejabat Struktural Pimpinan (Memiliki Bawahan Langsung)</div>
-          <p><strong>Subjek Pegawai:</strong> Samsul Arifin, S.Sos (Kepala Bidang SDM, Has Subordinates = True)</p>
+          <div class="example-header">KASUS SIMULASI 2: Pejabat Struktural (Memiliki Bawahan Langsung)</div>
+          <p><strong>Subjek Pegawai:</strong> Rikson B Sihombing, S.Psi (Kepala Bidang PPSDM, Has Subordinates = True)</p>
           <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsWithSub.Atasan}%, Sejawat = ${state.period.weightsWithSub.Peer}%, Bawahan = ${state.period.weightsWithSub.Bawahan || 0}%</p>
           <p><strong>Dimensi Pengukuran:</strong> Akuntabel (Menyelesaikan tugas sesuai tanggung jawab, Jujur dalam melaporkan hasil kerja, Mematuhi aturan dan prosedur kerja, Menggunakan sumber daya organisasi secara bertanggung jawab)</p>
           <ul>
@@ -491,12 +491,12 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00
         <!-- CONTOH 3 -->
         <div class="example-card">
           <div class="example-header">KASUS SIMULASI 3: Jabatan Fungsional Khusus (Tanpa Bawahan, Evaluasi Kurang Memuaskan)</div>
-          <p><strong>Subjek Pegawai:</strong> Dr. Heri (Dokter Ahli Madya Puskesmas Sidikalang, Has Subordinates = False)</p>
+          <p><strong>Subjek Pegawai:</strong> Richad Mika Sinaga, S.Tr.IP (Analis SDMA Ahli Pertama, Has Subordinates = False)</p>
           <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Rekan Sejawat = ${state.period.weightsNoSub.Peer}%</p>
           <p><strong>Dimensi Pengukuran:</strong> Adaptif (Terbuka terhadap perubahan, Cepat menyesuaikan diri dengan sistem atau kebijakan baru, Mencari cara kerja yang lebih efektif, Proaktif menghadapi masalah pekerjaan)</p>
           <ul>
             <li>
-              <strong>1. Penilaian Atasan Langsung (Kepala Puskesmas):</strong><br>
+              <strong>1. Penilaian Atasan Langsung (Kepala Bidang PPSDM):</strong><br>
               - Butir 1 (Terbuka Ubah) = 3, Butir 2 (Cepat Sesuai) = 2, Butir 3 (Cara Efektif) = 3, Butir 4 (Proaktif) = 2<br>
               <em>Rerata Atasan</em> = (3 + 2 + 3 + 2) / 4 = <strong>2.50</strong>
             </li>
