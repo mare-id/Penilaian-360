@@ -18,6 +18,7 @@ export function Login({ onLogin, state }: LoginProps) {
   const [nip, setNip] = useState("199001012010011004"); // Defaults to Dewi Lestari Berutu (ASN)
   const [password, setPassword] = useState("admin123");
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const dynamicAccounts = [
     ...(state?.admins || []).map((da) => ({
@@ -27,6 +28,8 @@ export function Login({ onLogin, state }: LoginProps) {
       role: da.role,
       name: da.name,
       userId: 0,
+      jabatan: "Administrator Sistem",
+      unit: "BKPSDM",
     })),
     ...(state?.employees || []).map((e) => ({
       nip: e.nip,
@@ -35,69 +38,33 @@ export function Login({ onLogin, state }: LoginProps) {
       role: e.role || "ASN",
       name: e.nama,
       userId: e.id,
+      jabatan: e.jabatan,
+      unit: e.unit,
     })),
   ];
 
-  const adminAccount = dynamicAccounts.find((a) => a.role === "Admin BKPSDM");
-  const employees = state?.employees || [];
-  const kepalaBadanEmp = employees.find((e) => e.jabatan.toLowerCase() === "kepala badan" || e.id === 1);
-  const atasanEmp = employees.find((e) => e.id !== kepalaBadanEmp?.id && e.hasSub);
-  const staffEmp1 = employees.find((e) => !e.hasSub && e.id !== kepalaBadanEmp?.id);
-  const staffEmp2 = employees.find((e) => !e.hasSub && e.id !== kepalaBadanEmp?.id && e.id !== staffEmp1?.id);
+  const sortedAccounts = [...dynamicAccounts].sort((a, b) => {
+    if (a.role === "Admin BKPSDM" && b.role !== "Admin BKPSDM") return -1;
+    if (a.role !== "Admin BKPSDM" && b.role === "Admin BKPSDM") return 1;
+    
+    const isKepalaA = a.jabatan?.toLowerCase() === "kepala badan" || a.userId === 1;
+    const isKepalaB = b.jabatan?.toLowerCase() === "kepala badan" || b.userId === 1;
+    if (isKepalaA && !isKepalaB) return -1;
+    if (!isKepalaA && isKepalaB) return 1;
+    
+    return a.name.localeCompare(b.name);
+  });
 
-  const trialAccounts: any[] = [];
-  if (adminAccount) {
-    trialAccounts.push({
-      ...adminAccount,
-      customRoleLabel: "Admin BKPSDM",
-      customSub: "Otoritas Sistem (Akses Utama)"
-    });
-  }
-  if (kepalaBadanEmp) {
-    const acc = dynamicAccounts.find((a) => a.nip === kepalaBadanEmp.nip);
-    if (acc) {
-      trialAccounts.push({
-        ...acc,
-        customRoleLabel: "ASN (Kepala Badan)",
-        customSub: `${kepalaBadanEmp.jabatan} • ${kepalaBadanEmp.unit}`
-      });
-    }
-  }
-  if (atasanEmp) {
-    const acc = dynamicAccounts.find((a) => a.nip === atasanEmp.nip);
-    if (acc) {
-      trialAccounts.push({
-        ...acc,
-        customRoleLabel: "ASN (Atasan Langsung)",
-        customSub: `${atasanEmp.jabatan} • ${atasanEmp.unit}`
-      });
-    }
-  }
-  if (staffEmp1) {
-    const acc = dynamicAccounts.find((a) => a.nip === staffEmp1.nip);
-    if (acc) {
-      trialAccounts.push({
-        ...acc,
-        customRoleLabel: "ASN (Pegawai)",
-        customSub: `${staffEmp1.jabatan} • ${staffEmp1.unit}`
-      });
-    }
-  }
-  if (staffEmp2) {
-    const acc = dynamicAccounts.find((a) => a.nip === staffEmp2.nip);
-    if (acc) {
-      trialAccounts.push({
-        ...acc,
-        customRoleLabel: "ASN (Pegawai)",
-        customSub: `${staffEmp2.jabatan} • ${staffEmp2.unit}`
-      });
-    }
-  }
-
-  if (trialAccounts.length === 0) {
-    trialAccounts.push(...dynamicAccounts.filter(a => a.role === "Admin BKPSDM").slice(0, 1));
-    trialAccounts.push(...dynamicAccounts.filter(a => a.role === "ASN").slice(0, 4));
-  }
+  const filteredAccounts = sortedAccounts.filter((a) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      a.name.toLowerCase().includes(term) ||
+      (a.nip && a.nip.includes(term)) ||
+      (a.username && a.username.toLowerCase().includes(term)) ||
+      (a.jabatan && a.jabatan.toLowerCase().includes(term)) ||
+      (a.unit && a.unit.toLowerCase().includes(term))
+    );
+  });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,30 +153,84 @@ export function Login({ onLogin, state }: LoginProps) {
             </form>
 
             <div className="mt-6 rounded-2xl bg-blue-50 p-4 border-2 border-slate-950 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <p className="mb-3 text-[10px] font-black uppercase tracking-wide text-slate-950 font-display">
-                Profil Cepat Uji Coba:
-              </p>
-              <div className="max-h-56 space-y-2.5 overflow-auto pr-1 select-none">
-                {trialAccounts.map((a) => (
-                  <button
-                    type="button"
-                    key={a.nip || a.username}
-                    onClick={() => {
-                      setNip(a.username || a.nip);
-                      setPassword("admin123");
-                      setError("");
-                    }}
-                    className="w-full rounded-xl border-2 border-slate-950 bg-white p-3.5 text-left text-xs hover:bg-blue-50 transition-all duration-100 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-none"
-                  >
-                    <div className="font-black text-slate-950 font-display flex items-center justify-between">
-                      <span className="uppercase text-[10.5px]">{a.customRoleLabel || a.role}</span>
-                      {!a.nip && <span className="rounded-full bg-teal-200 px-2 py-0.5 text-[8.5px] font-black text-slate-950 uppercase border-2 border-slate-950 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">SYSTEM</span>}
-                    </div>
-                    <div className="text-[11px] text-slate-800 font-bold mt-1.5 leading-snug">
-                      👤 {a.name} {a.customSub ? `• ${a.customSub}` : (a.nip ? `• NIP: ${a.nip}` : "• Otoritas Utama")}
-                    </div>
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10.5px] font-black uppercase tracking-wide text-slate-950 font-display">
+                  Login Cepat ASN
+                </p>
+                <span className="text-[9px] bg-slate-200 border-2 border-slate-950 px-2 py-0.5 rounded-full font-black text-slate-700">
+                  {filteredAccounts.length} Total
+                </span>
+              </div>
+              
+              {/* Search bar for quick selection */}
+              <div className="relative mb-3.5">
+                <input
+                  type="text"
+                  placeholder="Cari nama ASN / NIP / Unit..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full rounded-xl border-2 border-slate-950 bg-white px-3 py-2 text-xs font-black placeholder-slate-400 outline-none focus:border-blue-600 shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)] transition-colors duration-155"
+                />
+              </div>
+
+              <div className="max-h-72 space-y-2.5 overflow-auto pr-1 select-none">
+                {filteredAccounts.length === 0 ? (
+                  <p className="text-center text-xs font-bold text-slate-400 py-6 italic">
+                    Tidak ada ASN yang cocok
+                  </p>
+                ) : (
+                  filteredAccounts.map((a) => {
+                    const isSelected = nip === (a.username || a.nip);
+                    return (
+                      <button
+                        type="button"
+                        key={a.nip || a.username}
+                        onClick={() => {
+                          setNip(a.username || a.nip);
+                          setPassword(""); // User requests to just type the password
+                          setError("");
+                        }}
+                        className={`w-full rounded-xl border-2 border-slate-950 p-3.5 text-left text-xs transition-all duration-100 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-none ${
+                          isSelected 
+                            ? "bg-amber-100 border-amber-950 shadow-[2px_2px_0px_0px_rgba(245,158,11,1)] animate-pulse" 
+                            : "bg-white hover:bg-slate-50 border-slate-950"
+                        }`}
+                      >
+                        <div className="font-black text-slate-950 font-display flex items-center justify-between">
+                          <span className="uppercase text-[9px] tracking-wider text-slate-500">
+                            {a.jabatan || a.role}
+                          </span>
+                          {isSelected ? (
+                            <span className="rounded-full bg-emerald-500 text-white border-2 border-slate-950 px-2 py-0.5 text-[8px] font-black uppercase flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                              <Check className="h-2.5 w-2.5 stroke-[3]" /> AKTIF
+                            </span>
+                          ) : (
+                            a.role === "Admin BKPSDM" && (
+                              <span className="rounded-full bg-blue-600 text-white border-2 border-slate-950 px-2 py-0.5 text-[8px] font-black uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                                Sistem
+                              </span>
+                            )
+                          )}
+                        </div>
+                        <div className="text-[11.5px] text-slate-950 font-extrabold mt-1.5 leading-snug">
+                          👤 {a.name}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                          {a.nip && (
+                            <span className="text-[9px] text-slate-600 font-mono bg-slate-100 border border-slate-200 px-1 py-0.2 rounded font-bold">
+                              NIP. {a.nip}
+                            </span>
+                          )}
+                          {a.unit && (
+                            <span className="text-[9px] text-slate-700 bg-slate-100 border border-slate-200 px-1 py-0.2 rounded font-bold italic truncate max-w-[180px]">
+                              🏢 {a.unit}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </div>
           </Card>
