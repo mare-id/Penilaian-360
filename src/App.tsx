@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AppState, DemoAccount, Period, Assignment, Employee } from "./types";
 import { initialState } from "./data";
-import { ThemeStyles, Toast, Card, Field, Button } from "./components/UIComponents";
+import { ThemeStyles, Toast, Card, Field, Button, Badge } from "./components/UIComponents";
 import { Login, Sidebar, Topbar } from "./components/AuthComponents";
 import { DashboardView } from "./components/DashboardView";
 import { syncMandatoryAssignments, assignmentsEqual, isEligiblePeer } from "./utils";
@@ -26,9 +26,36 @@ import {
   getSupabaseSQLScript,
   checkServerConfig
 } from "./utils/supabase";
-import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle } from "lucide-react";
+import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle, Calendar, Trash2, Plus } from "lucide-react";
 
 const STORAGE_KEY = "bkpsdm-dairi-360-app-v1";
+
+const MONTHS_LIST = [
+  { value: "01", name: "Januari" },
+  { value: "02", name: "Februari" },
+  { value: "03", name: "Maret" },
+  { value: "04", name: "April" },
+  { value: "05", name: "Mei" },
+  { value: "06", name: "Juni" },
+  { value: "07", name: "Juli" },
+  { value: "08", name: "Agustus" },
+  { value: "09", name: "September" },
+  { value: "10", name: "Oktober" },
+  { value: "11", name: "November" },
+  { value: "12", name: "Desember" }
+];
+
+const QUARTERS_LIST = [
+  { value: "Q1", name: "Triwulan I (Januari - Maret)", start: "01-01", end: "03-31" },
+  { value: "Q2", name: "Triwulan II (April - Juni)", start: "04-01", end: "06-30" },
+  { value: "Q3", name: "Triwulan III (Juli - September)", start: "07-01", end: "09-30" },
+  { value: "Q4", name: "Triwulan IV (Oktober - Desember)", start: "10-01", end: "12-31" }
+];
+
+const getLastDayOfMonth = (year: number, monthStr: string) => {
+  const m = parseInt(monthStr, 10);
+  return new Date(year, m, 0).getDate();
+};
 
 // ---------------------------------------------
 // SETTINGS PAGE
@@ -40,7 +67,15 @@ interface SettingsPageProps {
 }
 
 function SettingsPage({ state, setState, toast }: SettingsPageProps) {
-  const [period, setPeriod] = useState<Period>(state.period);
+  const [period, setPeriod] = useState<Period>(() => ({
+    type: "Custom",
+    selectedMonth: "05",
+    selectedQuarter: "Q2",
+    selectedYear: 2026,
+    ...state.period
+  }));
+
+  const [copyDemoData, setCopyDemoData] = useState(true);
 
   // Supabase states
   const [dbConfig, setDbConfig] = useState(() => getSupabaseConfig());
@@ -55,6 +90,107 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
   const [anonKeyInput, setAnonKeyInput] = useState(dbConfig.anonKey);
   const [tableInput, setTableInput] = useState(dbConfig.tableName);
   const [enabledInput, setEnabledInput] = useState(dbConfig.isEnabled);
+
+  const setPeriodType = (type: "Bulanan" | "Triwulan" | "Custom") => {
+    const year = period.selectedYear || 2026;
+    let name = period.name;
+    let start = period.start;
+    let end = period.end;
+    let selectedMonth = period.selectedMonth || "05";
+    let selectedQuarter = period.selectedQuarter || "Q2";
+
+    if (type === "Bulanan") {
+      const monthObj = MONTHS_LIST.find(m => m.value === selectedMonth) || MONTHS_LIST[4];
+      const lastDay = getLastDayOfMonth(year, monthObj.value);
+      start = `${year}-${monthObj.value}-01`;
+      end = `${year}-${monthObj.value}-${lastDay < 10 ? '0' : ''}${lastDay}`;
+      name = `Periode Bulanan ${monthObj.name} ${year}`;
+    } else if (type === "Triwulan") {
+      const qObj = QUARTERS_LIST.find(q => q.value === selectedQuarter) || QUARTERS_LIST[1];
+      const startParts = qObj.start.split("-");
+      const endParts = qObj.end.split("-");
+      start = `${year}-${startParts[0]}-${startParts[1]}`;
+      end = `${year}-${endParts[0]}-${endParts[1]}`;
+      name = `Periode ${qObj.name} ${year}`;
+    }
+
+    setPeriod({
+      ...period,
+      type,
+      name,
+      start,
+      end,
+      selectedMonth,
+      selectedQuarter,
+      selectedYear: year
+    });
+  };
+
+  const handleMonthChange = (monthVal: string) => {
+    const year = period.selectedYear || 2026;
+    const monthObj = MONTHS_LIST.find(m => m.value === monthVal) || MONTHS_LIST[4];
+    const lastDay = getLastDayOfMonth(year, monthVal);
+    const start = `${year}-${monthVal}-01`;
+    const end = `${year}-${monthVal}-${lastDay < 10 ? '0' : ''}${lastDay}`;
+    const name = `Periode Bulanan ${monthObj.name} ${year}`;
+
+    setPeriod({
+      ...period,
+      selectedMonth: monthVal,
+      name,
+      start,
+      end
+    });
+  };
+
+  const handleQuarterChange = (quarterVal: string) => {
+    const year = period.selectedYear || 2026;
+    const qObj = QUARTERS_LIST.find(q => q.value === quarterVal) || QUARTERS_LIST[1];
+    const startParts = qObj.start.split("-");
+    const endParts = qObj.end.split("-");
+    const start = `${year}-${startParts[0]}-${startParts[1]}`;
+    const end = `${year}-${endParts[0]}-${endParts[1]}`;
+    const name = `Periode ${qObj.name} ${year}`;
+
+    setPeriod({
+      ...period,
+      selectedQuarter: quarterVal,
+      name,
+      start,
+      end
+    });
+  };
+
+  const handleYearChange = (yearVal: number) => {
+    let name = period.name;
+    let start = period.start;
+    let end = period.end;
+
+    if (period.type === "Bulanan") {
+      const monthVal = period.selectedMonth || "05";
+      const monthObj = MONTHS_LIST.find(m => m.value === monthVal) || MONTHS_LIST[4];
+      const lastDay = getLastDayOfMonth(yearVal, monthVal);
+      start = `${yearVal}-${monthVal}-01`;
+      end = `${yearVal}-${monthVal}-${lastDay < 10 ? '0' : ''}${lastDay}`;
+      name = `Periode Bulanan ${monthObj.name} ${yearVal}`;
+    } else if (period.type === "Triwulan") {
+      const quarterVal = period.selectedQuarter || "Q2";
+      const qObj = QUARTERS_LIST.find(q => q.value === quarterVal) || QUARTERS_LIST[1];
+      const startParts = qObj.start.split("-");
+      const endParts = qObj.end.split("-");
+      start = `${yearVal}-${startParts[0]}-${startParts[1]}`;
+      end = `${yearVal}-${endParts[0]}-${endParts[1]}`;
+      name = `Periode ${qObj.name} ${yearVal}`;
+    }
+
+    setPeriod({
+      ...period,
+      selectedYear: yearVal,
+      name,
+      start,
+      end
+    });
+  };
 
   const saveConfig = () => {
     const updated = {
@@ -161,23 +297,159 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
       return toast("Tanggal selesai harus melampaui tanggal mulai.");
     }
 
-    setState((s) => ({ ...s, period }));
-    toast("Setelan periodik sistem berhasil diperbarui.");
+    setState((s) => {
+      const currentList = s.periods || [];
+      const existsIndex = currentList.findIndex(p => p.id === period.id);
+      let updatedList = [...currentList];
+
+      if (existsIndex >= 0) {
+        updatedList[existsIndex] = period;
+      } else {
+        updatedList.push(period);
+      }
+
+      const isActiveEdited = s.period.id === period.id;
+      return {
+        ...s,
+        period: isActiveEdited ? period : s.period,
+        periods: updatedList
+      };
+    });
+
+    toast(`Setelan periodik '${period.name}' berhasil disimpan.`);
   };
+
+  const saveAsNew = () => {
+    const w = period.weightsWithSub;
+    const n = period.weightsNoSub;
+
+    if (w.Atasan + w.Peer + (w.Bawahan || 0) !== 100) {
+      return toast("Total bobot ASN dengan bawahan harus 100%.");
+    }
+    if (n.Atasan + n.Peer !== 100) {
+      return toast("Total bobot ASN tanpa bawahan harus 100%.");
+    }
+    if (period.minPeer < 1 || period.maxPeer > 12 || period.minPeer > period.maxPeer) {
+      return toast("Aturan rekan sejawat (Peer) harus valid (Minimal 1, maksimal 12).");
+    }
+    if (!period.maxBawahan || period.maxBawahan < 1 || period.maxBawahan > 30) {
+      return toast("Batas maksimal bawahan penilai atasannya wajib bernilai 1 s.d. 30.");
+    }
+    if (period.end <= period.start) {
+      return toast("Tanggal selesai harus melampaui tanggal mulai.");
+    }
+
+    const currentList = state.periods || [];
+    const newId = Math.max(0, ...currentList.map(p => p.id)) + 1;
+    const newPeriodObj = {
+      ...period,
+      id: newId
+    };
+
+    setState((s) => {
+      const updatedList = [...(s.periods || []), newPeriodObj];
+      let newAssignments = [...s.assignments];
+      let newResponses = [...s.responses];
+
+      if (copyDemoData) {
+        const sourcePeriodId = s.period.id;
+        const subset = s.assignments.filter(a => a.periodId === sourcePeriodId);
+        
+        subset.forEach((sub) => {
+          const newAssId = Math.max(0, ...newAssignments.map(x => x.id)) + 1;
+          newAssignments.push({
+            ...sub,
+            id: newAssId,
+            periodId: newId
+          });
+
+          const resp = s.responses.find(r => r.assignmentId === sub.id);
+          if (resp) {
+            newResponses.push({
+              ...resp,
+              assignmentId: newAssId
+            });
+          }
+        });
+      }
+
+      return {
+        ...s,
+        period: newPeriodObj,
+        periods: updatedList,
+        assignments: newAssignments,
+        responses: newResponses
+      };
+    });
+
+    setPeriod(newPeriodObj);
+    toast(`Periode baru '${newPeriodObj.name}' berhasil disimpan dan dijadikan periode aktif!`);
+  };
+
+  const makeActive = (p: Period) => {
+    setState((s) => ({
+      ...s,
+      period: p
+    }));
+    setPeriod(p);
+    toast(`Periode '${p.name}' sekarang aktif dan digunakan secara global.`);
+  };
+
+  const deletePeriod = (p: Period) => {
+    if (p.id === state.period.id) {
+      return toast("Tidak dapat menghapus periode yang saat ini sedang aktif secara global.");
+    }
+    if (!confirm(`Hapus periode '${p.name}' beserta seluruh target penilaian & respons di dalamnya?`)) {
+      return;
+    }
+
+    setState((s) => {
+      const updatedList = (s.periods || []).filter(item => item.id !== p.id);
+      const updatedAssignments = s.assignments.filter(a => a.periodId !== p.id);
+      const updatedResponses = s.responses.filter(r => !s.assignments.some(a => a.periodId === p.id && a.id === r.assignmentId));
+      return {
+        ...s,
+        periods: updatedList,
+        assignments: updatedAssignments,
+        responses: updatedResponses
+      };
+    });
+
+    toast(`Periode '${p.name}' berhasil dihapus.`);
+  };
+
+  const activePeriodsList = state.periods || [];
 
   return (
     <div className="space-y-6">
       {/* SECTION 1: SYSTEM PERIOD SETTINGS */}
       <Card>
-        <h2 className="text-lg font-black font-display mb-2 text-slate-900">Setelan Periode & Kepatuhan</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Judul Periode">
-            <input
-              className="w-full rounded-xl border p-3 font-semibold text-sm"
-              value={period.name}
-              onChange={(e) => setPeriod({ ...period, name: e.target.value })}
-            />
+        <div className="flex items-center justify-between border-b pb-3 mb-4">
+          <div>
+            <h2 className="text-lg font-black font-display text-slate-900 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-slate-700" />
+              Setelan Periode & Kepatuhan
+            </h2>
+            <p className="text-xs text-slate-500 font-medium">Atur tipe periode penilaian: triwulanan, bulanan, atau tentukan rentang tanggal sendiri.</p>
+          </div>
+          <Badge className="bg-sky-100 text-sky-800 border-none text-xs font-bold leading-none py-1.5 px-2.5">
+            Periode Aktif ID: {state.period.id}
+          </Badge>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 mb-4">
+          <Field label="Tipe Periode">
+            <select
+              className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
+              value={period.type || "Custom"}
+              onChange={(e) => setPeriodType(e.target.value as any)}
+            >
+              <option value="Custom">Manual (Rentang Tanggal Kustom)</option>
+              <option value="Bulanan">Bulanan (Dropdown Bulan & Tahun)</option>
+              <option value="Triwulan">Triwulan (Dropdown Akumulasi 3 Bulan)</option>
+            </select>
           </Field>
+
           <Field label="Status Operasional">
             <select
               className="w-full rounded-xl border p-3 font-semibold text-sm bg-white animate-scale-up"
@@ -187,25 +459,99 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
               <option value="Draft">Draft</option>
               <option value="Aktif">Aktif</option>
               <option value="Ditutup">Ditutup</option>
-              <option value="Final">Final</option>
+              <option value="Final">Final (Laporan Dikunci)</option>
             </select>
           </Field>
-          <Field label="Mulai Tanggal">
+
+          {/* Conditional Controls based on selected type */}
+          {period.type === "Bulanan" && (
+            <>
+              <Field label="Pilih Bulan">
+                <select
+                  className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
+                  value={period.selectedMonth || "05"}
+                  onChange={(e) => handleMonthChange(e.target.value)}
+                >
+                  {MONTHS_LIST.map((m) => (
+                    <option key={m.value} value={m.value}>{m.name}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Pilih Tahun">
+                <input
+                  type="number"
+                  className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
+                  value={period.selectedYear || 2026}
+                  onChange={(e) => handleYearChange(parseInt(e.target.value, 10) || 2026)}
+                />
+              </Field>
+            </>
+          )}
+
+          {period.type === "Triwulan" && (
+            <>
+              <Field label="Pilih Kuartal / Triwulan">
+                <select
+                  className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
+                  value={period.selectedQuarter || "Q2"}
+                  onChange={(e) => handleQuarterChange(e.target.value)}
+                >
+                  {QUARTERS_LIST.map((q) => (
+                    <option key={q.value} value={q.value}>{q.name}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Pilih Tahun">
+                <input
+                  type="number"
+                  className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
+                  value={period.selectedYear || 2026}
+                  onChange={(e) => handleYearChange(parseInt(e.target.value, 10) || 2026)}
+                />
+              </Field>
+            </>
+          )}
+
+          <Field label="Judul Periode">
             <input
-              type="date"
-              className="w-full rounded-xl border p-3 font-semibold text-sm"
-              value={period.start}
-              onChange={(e) => setPeriod({ ...period, start: e.target.value })}
+              className={`w-full rounded-xl border p-3 font-semibold text-sm ${period.type !== "Custom" ? "bg-slate-50 text-slate-600" : ""}`}
+              value={period.name}
+              disabled={period.type !== "Custom"}
+              onChange={(e) => setPeriod({ ...period, name: e.target.value })}
+              placeholder="Masukkan judul untuk tipe manual"
             />
           </Field>
-          <Field label="Selesai Tanggal">
-            <input
-              type="date"
-              className="w-full rounded-xl border p-3 font-semibold text-sm"
-              value={period.end}
-              onChange={(e) => setPeriod({ ...period, end: e.target.value })}
-            />
-          </Field>
+
+          {period.type === "Custom" && (
+            <>
+              <Field label="Mulai Tanggal">
+                <input
+                  type="date"
+                  className="w-full rounded-xl border p-3 font-semibold text-sm"
+                  value={period.start}
+                  onChange={(e) => setPeriod({ ...period, start: e.target.value })}
+                />
+              </Field>
+              <Field label="Selesai Tanggal">
+                <input
+                  type="date"
+                  className="w-full rounded-xl border p-3 font-semibold text-sm"
+                  value={period.end}
+                  onChange={(e) => setPeriod({ ...period, end: e.target.value })}
+                />
+              </Field>
+            </>
+          )}
+
+          {period.type !== "Custom" && (
+            <div className="col-span-1 md:col-span-2 rounded-2xl bg-amber-50 md:p-4 p-3 border border-amber-100 flex items-start gap-2.5 font-display text-sm text-amber-800">
+              <HelpCircle className="w-4 h-4 mt-0.5 shrink-0" />
+              <div>
+                Rentang Pengisian Periode ini: <strong>{period.start}</strong> s.d <strong>{period.end}</strong> (Otomatis berdasarkan pilihan drop down).
+              </div>
+            </div>
+          )}
+
           <Field label="Minimal Peer Rater (Rekan Sejawat)">
             <input
               type="number"
@@ -315,8 +661,111 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Button onClick={save}>Simpan Setelan Sistem</Button>
+        <div className="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="copy_demo"
+              className="w-4.5 h-4.5 rounded text-sky-600 focus:ring-sky-500 border-slate-300"
+              checked={copyDemoData}
+              onChange={(e) => setCopyDemoData(e.target.checked)}
+            />
+            <label htmlFor="copy_demo" className="text-xs font-bold text-slate-700 font-display select-none cursor-pointer">
+              Salin data rater & kuesioner dari periode default (sangat dianjurkan untuk pengujian instan)
+            </label>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={save} variant="secondary">Simpan Setelan</Button>
+            <Button onClick={saveAsNew} className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1">
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              Buat & Aktifkan Periode Baru
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* SECTION 2.5: LIST OF STORED PERIODS */}
+      <Card>
+        <div className="border-b pb-3 mb-4">
+          <h2 className="text-md font-black font-display text-slate-900">Daftar Manajemen Periode (Riwayat Sistem)</h2>
+          <p className="text-xs text-slate-500 font-medium">Lihat seluruh periode bulanan, triwulan, maupun custom yang tersimpan dalam sistem. Rekap laporan dapat diambil berdasarkan salah satu periode berikut.</p>
+        </div>
+
+        <div className="overflow-auto max-h-[300px] font-display">
+          <table className="w-full text-left text-xs text-slate-700 border-collapse">
+            <thead>
+              <tr className="border-b uppercase tracking-wide text-slate-400 font-black">
+                <th className="py-2.5">Nama Periode</th>
+                <th>Tipe</th>
+                <th>Mulai s.d Selesai</th>
+                <th>Status</th>
+                <th className="text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {activePeriodsList.map((p) => {
+                const isActive = p.id === state.period.id;
+                return (
+                  <tr key={p.id} className={`border-b transition-colors hover:bg-slate-50 ${isActive ? "bg-sky-50/50" : ""}`}>
+                    <td className="py-3 font-extrabold text-slate-950 flex items-center gap-1.5">
+                      {p.name}
+                      {isActive && (
+                        <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                          Aktif Global
+                        </span>
+                      )}
+                    </td>
+                    <td className="font-bold text-slate-500">{p.type || "Custom"}</td>
+                    <td className="font-black text-slate-800">{p.start} s.d {p.end}</td>
+                    <td>
+                      <span className={`inline-block text-[10px] uppercase font-black px-2 py-0.5 rounded ${
+                        p.status === "Aktif" ? "bg-emerald-500/10 text-emerald-600" :
+                        p.status === "Final" ? "bg-slate-500/10 text-slate-600" :
+                        p.status === "Draft" ? "bg-amber-500/10 text-amber-600" : "bg-sky-500/10 text-sky-600"
+                      }`}>
+                        {p.status}
+                      </span>
+                    </td>
+                    <td className="text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {!isActive ? (
+                          <>
+                            <button
+                              onClick={() => makeActive(p)}
+                              className="px-2.5 py-1 text-[10px] font-black bg-white hover:bg-slate-100 border text-slate-800 rounded-md transition-all shadow-sm"
+                            >
+                              Aktifkan
+                            </button>
+                            <button
+                              onClick={() => deletePeriod(p)}
+                              className="p-1 hover:bg-red-50 text-red-600 rounded-md transition-colors"
+                              title="Hapus periode"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => setPeriod(p)}
+                            className="px-2.5 py-1 text-[10px] font-black bg-slate-900 text-white rounded-md transition-all"
+                          >
+                            Edit Setelan
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {activePeriodsList.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-4 text-center text-slate-400 font-bold">
+                    Tidak ada log riwayat periode tersimpan. Hubungkan Supabase atau simpan setelan untuk mencatat.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </Card>
 

@@ -147,7 +147,53 @@ export const initialState: AppState = {
     maxBawahan: 5,
     weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
     weightsNoSub: { Atasan: 60, Peer: 40 },
+    type: "Custom",
   },
+  periods: [
+    {
+      id: 1,
+      name: "Periode Penilaian Perilaku 2026",
+      start: "2026-05-01",
+      end: "2026-06-15",
+      status: "Aktif",
+      minPeer: 2,
+      maxPeer: 4,
+      maxBawahan: 5,
+      weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
+      weightsNoSub: { Atasan: 60, Peer: 40 },
+      type: "Custom"
+    },
+    {
+      id: 2,
+      name: "Periode Bulanan Mei 2026",
+      start: "2026-05-01",
+      end: "2026-05-31",
+      status: "Final",
+      minPeer: 2,
+      maxPeer: 4,
+      maxBawahan: 5,
+      weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
+      weightsNoSub: { Atasan: 60, Peer: 40 },
+      type: "Bulanan",
+      selectedMonth: "05",
+      selectedYear: 2026
+    },
+    {
+      id: 3,
+      name: "Periode Triwulan I 2026",
+      start: "2026-01-01",
+      end: "2026-03-31",
+      status: "Final",
+      minPeer: 2,
+      maxPeer: 4,
+      maxBawahan: 5,
+      weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
+      weightsNoSub: { Atasan: 60, Peer: 40 },
+      type: "Triwulan",
+      selectedQuarter: "Q1",
+      selectedYear: 2026
+    }
+  ],
   admins: [
     { id: "admin", username: "admin", name: "Administrator BKPSDM Utama", password: "admin123", role: "Admin BKPSDM" }
   ],

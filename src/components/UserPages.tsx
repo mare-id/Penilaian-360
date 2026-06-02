@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { EyeOff, Search, Users, CheckCircle2, AlertTriangle, ClipboardCheck, Lock, ChevronRight, BarChart3, FileText, ArrowUpCircle, ArrowDownCircle, UsersRound } from "lucide-react";
-import { AppState, Employee, Assignment, Response, Objection, PendingRaters, DemoAccount } from "../types";
+import { AppState, Employee, Assignment, Response, Objection, PendingRaters, DemoAccount, Period } from "../types";
 import { dimensions, orgUnitCatalog } from "../data";
 import { Badge, Card, Button, Field, ProgressBar, Empty, StatCard } from "./UIComponents";
 import { calculateResult, categoryClass, statusClass, dimensionScores, average, unitStats, buildAnomalies, isEligiblePeer } from "../utils";
@@ -1157,8 +1157,8 @@ export function ProgressPage({ state }: { state: AppState }) {
 // ---------------------------------------------
 // REPORTS & ANOMALY PAGE
 // ---------------------------------------------
-export function UnitProgress({ state, compact = false }: { state: AppState; compact?: boolean }) {
-  const stats = unitStats(state);
+export function UnitProgress({ state, compact = false, period }: { state: AppState; compact?: boolean; period?: Period }) {
+  const stats = unitStats(state, period);
   return (
     <div className="space-y-3 font-display">
       {stats.slice(0, compact ? 5 : stats.length).map((u) => (
@@ -1184,7 +1184,21 @@ export function UnitProgress({ state, compact = false }: { state: AppState; comp
 
 export function Reports({ state, toast }: { state: AppState; toast: (msg: string) => void }) {
   const [tab, setTab] = useState("individu");
-  const anomalies = buildAnomalies(state);
+
+  // Multi-period lists and selection state
+  const periodsList = state.periods && state.periods.length > 0 ? state.periods : [state.period];
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>(state.period);
+
+  React.useEffect(() => {
+    const found = (state.periods || []).find(p => p.id === state.period.id) || state.period;
+    setSelectedPeriod(found);
+  }, [state.period, state.periods]);
+
+  const anomalies = buildAnomalies(state, selectedPeriod);
+
+  // Stats mapped to the selected period range
+  const periodAssignments = state.assignments.filter(a => a.periodId === selectedPeriod.id);
+  const periodResponses = state.responses.filter(r => periodAssignments.some(a => a.id === r.assignmentId));
 
   const downloadCSV = () => {
     let title = "";
@@ -1192,10 +1206,10 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
     let rows: string[][] = [];
 
     if (tab === "individu") {
-      title = "Rekap_Laporan_Perilaku_Individu_ASN";
+      title = `Rekap_Laporan_Perilaku_Individu_ASN_Periode_${selectedPeriod.id}`;
       headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori"];
       rows = state.employees.map((e, idx) => {
-        const result = calculateResult(e, state.assignments, state.responses, state.period);
+        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod);
         return [
           (idx + 1).toString(),
           e.nama,
@@ -1212,9 +1226,9 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
         ];
       });
     } else if (tab === "unit") {
-      title = "Laporan_Kepatuhan_Unit_Kerja";
+      title = `Laporan_Kepatuhan_Unit_Kerja_Periode_${selectedPeriod.id}`;
       headers = ["No", "Nama Unit", "Total ASN", "Total Target Penilaian", "Penilaian Selesai", "Selesai (%)", "Kepatuhan Nilai Rata-rata", "Status Kepatuhan"];
-      const stats = unitStats(state);
+      const stats = unitStats(state, selectedPeriod);
       rows = stats.map((u, idx) => [
         (idx + 1).toString(),
         u.unit,
@@ -1226,15 +1240,17 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
         u.status
       ]);
     } else if (tab === "bkpsdm") {
-      title = "Ringkasan_Eksekutif_Lembaga_BKPSDM";
+      title = `Ringkasan_Eksekutif_Lembaga_BKPSDM_Periode_${selectedPeriod.id}`;
       headers = ["Metrik", "Nilai/Jumlah"];
       rows = [
+        ["Periode Penilaian", `${selectedPeriod.name} (${selectedPeriod.type || "Kustom"})`],
+        ["Rentang Filter Tanggal", `${selectedPeriod.start} s.d ${selectedPeriod.end}`],
         ["Total Pegawai Terdaftar", `${state.employees.length} Pegawai`],
-        ["Jumlah Kuesioner Terisi", `${state.responses.length} Kuesioner`],
-        ["Target Penilaian yang Belum Diisi", `${state.assignments.length - state.responses.length} Target`]
+        ["Jumlah Kuesioner Terisi Pada Periode Ini", `${periodResponses.length} Kuesioner`],
+        ["Target Penilaian yang Belum Diisi Pada Periode Ini", `${periodAssignments.length - periodResponses.length} Target`]
       ];
     } else if (tab === "anomali") {
-      title = "Audit_Hasil_Penilaian_Flag_Anomali";
+      title = `Audit_Hasil_Penilaian_Flag_Anomali_Periode_${selectedPeriod.id}`;
       headers = ["No", "Nama Pegawai", "Tipe Anomali", "Total Pengisian", "Tingkat Keparahan", "Saran Tindak Lanjut"];
       rows = anomalies.map((a, idx) => {
         const ev = state.employees.find((e) => e.id === Number(a.id));
@@ -1263,7 +1279,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast(`Berhasil mengunduh laporan ${tab.toUpperCase()} dalam format CSV 📊`);
+    toast(`Berhasil mengunduh laporan ${tab.toUpperCase()} periode ${selectedPeriod.name} dalam format CSV 📊`);
   };
 
   const downloadExcel = () => {
@@ -1272,10 +1288,10 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
     let rows: string[][] = [];
 
     if (tab === "individu") {
-      title = "Rekap_Laporan_Perilaku_Individu_ASN";
+      title = `Rekap Laporan Perilaku Individu ASN (${selectedPeriod.name})`;
       headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori"];
       rows = state.employees.map((e, idx) => {
-        const result = calculateResult(e, state.assignments, state.responses, state.period);
+        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod);
         return [
           (idx + 1).toString(),
           e.nama,
@@ -1292,9 +1308,9 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
         ];
       });
     } else if (tab === "unit") {
-      title = "Laporan_Kepatuhan_Unit_Kerja";
+      title = `Laporan Kepatuhan Unit Kerja (${selectedPeriod.name})`;
       headers = ["No", "Nama Unit", "Total ASN", "Total Target Penilaian", "Penilaian Selesai", "Selesai (%)", "Kepatuhan Nilai Rata-rata", "Status Kepatuhan"];
-      const stats = unitStats(state);
+      const stats = unitStats(state, selectedPeriod);
       rows = stats.map((u, idx) => [
         (idx + 1).toString(),
         u.unit,
@@ -1306,15 +1322,17 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
         u.status
       ]);
     } else if (tab === "bkpsdm") {
-      title = "Ringkasan_Eksekutif_Lembaga_BKPSDM";
+      title = `Ringkasan Eksekutif Lembaga BKPSDM (${selectedPeriod.name})`;
       headers = ["Metrik", "Nilai/Jumlah"];
       rows = [
+        ["Periode Penilaian", `${selectedPeriod.name} (${selectedPeriod.type || "Kustom"})`],
+        ["Rentang Filter Tanggal", `${selectedPeriod.start} s.d ${selectedPeriod.end}`],
         ["Total Pegawai Terdaftar", `${state.employees.length} Pegawai`],
-        ["Jumlah Kuesioner Terisi", `${state.responses.length} Kuesioner`],
-        ["Target Penilaian yang Belum Diisi", `${state.assignments.length - state.responses.length} Kuesioner`]
+        ["Jumlah Kuesioner Terisi Pada Periode Ini", `${periodResponses.length} Kuesioner`],
+        ["Target Penilaian yang Belum Diisi Pada Periode Ini", `${periodAssignments.length - periodResponses.length} Kuesioner`]
       ];
     } else if (tab === "anomali") {
-      title = "Audit_Hasil_Penilaian_Flag_Anomali";
+      title = `Audit Hasil Penilaian Flag Anomali (${selectedPeriod.name})`;
       headers = ["No", "Nama Pegawai", "Tipe Anomali", "Total Pengisian", "Tingkat Keparahan", "Saran Tindak Lanjut"];
       rows = anomalies.map((a, idx) => {
         const ev = state.employees.find((e) => e.id === Number(a.id));
@@ -1329,7 +1347,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       });
     }
 
-    const tabName = tab.toUpperCase();
+    const tabName = tab.toUpperCase().slice(0, 30);
     const htmlContent = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head>
@@ -1357,7 +1375,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
         </style>
       </head>
       <body>
-        <div class="title">${title.replace(/_/g, " ")}</div>
+        <div class="title">${title}</div>
         <table>
           <thead>
             <tr>
@@ -1376,11 +1394,11 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `${title}_${new Date().toISOString().slice(0, 10)}.xls`);
+    link.setAttribute("download", `${title.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.xls`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast(`Berhasil mengunduh laporan ${tab.toUpperCase()} dalam format Excel 💚`);
+    toast(`Berhasil mengunduh laporan ${tab.toUpperCase()} periode ${selectedPeriod.name} dalam format Excel 💚`);
   };
 
   const downloadPDF = () => {
@@ -1392,7 +1410,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       title = "Rekap Laporan Perilaku Individu ASN";
       headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator", "Nilai Agregat", "Kategori"];
       rows = state.employees.map((e, idx) => {
-        const result = calculateResult(e, state.assignments, state.responses, state.period);
+        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod);
         return [
           (idx + 1).toString(),
           e.nama,
@@ -1407,7 +1425,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
     } else if (tab === "unit") {
       title = "Laporan Kepatuhan Pengisian Per Unit";
       headers = ["No", "Nama Unit", "Total ASN", "Total Target", "Selesai", "Kepatuhan %", "Rata-rata Nilai", "Status"];
-      const stats = unitStats(state);
+      const stats = unitStats(state, selectedPeriod);
       rows = stats.map((u, idx) => [
         (idx + 1).toString(),
         u.unit,
@@ -1423,8 +1441,8 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       headers = ["Metrik", "Nilai / Jumlah"];
       rows = [
         ["Total Pegawai Terdaftar", `${state.employees.length} Pegawai`],
-        ["Jumlah Kuesioner Terisi", `${state.responses.length} Kuesioner`],
-        ["Target Penilaian yang Belum Diisi", `${state.assignments.length - state.responses.length} Target`]
+        ["Jumlah Kuesioner Terisi Pada Periode ini", `${periodResponses.length} Kuesioner`],
+        ["Target Penilaian yang Belum Diisi Pada Periode ini", `${periodAssignments.length - periodResponses.length} Target`]
       ];
     } else if (tab === "anomali") {
       title = "Audit Hasil Penilaian - Flag Anomali";
@@ -1560,6 +1578,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           <div class="logo-placeholder" style="font-size: 14px; margin-top: 5px;">BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA (BKPSDM)</div>
           <div class="subtitle">Jl. Sisingamangaraja No. 3 Sidikalang Kode Pos 22211 - Telepon (0627) 21010</div>
           <div class="title" style="margin-top: 15px; border-top: 1px solid #475569; padding-top: 10px;">${title}</div>
+          <div style="font-size: 11px; margin-top: 5px; color: #475569; font-weight: bold;">Periode: ${selectedPeriod.name} (${selectedPeriod.start} s.d ${selectedPeriod.end})</div>
         </div>
 
         <div class="meta-info">
@@ -1608,11 +1627,48 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       }, 1000);
     }, 500);
 
-    toast(`Membuka menu cetak PDF untuk ${title} 📄`);
+    toast(`Membuka menu cetak PDF ${title} untuk periode ${selectedPeriod.name} 📄`);
   };
 
   return (
     <div className="space-y-6">
+      {/* Dynamic Period Filter Bar */}
+      <Card className="border border-sky-100 bg-sky-50/20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 font-display">
+          <div>
+            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+              <ClipboardCheck className="w-4 h-4 text-sky-600 stroke-[2.5]" />
+              Saringan Berdasarkan Periode
+            </h3>
+            <p className="text-xs text-slate-500 font-medium">Ubah pilihan saringan periode di bawah ini untuk menampilkan rekap, statistik kelulusan, audit anomali, s.d cetak laporan sesuai sasaran.</p>
+          </div>
+          <div className="w-full md:w-[320px]">
+            <select
+              className="w-full rounded-xl border border-slate-200 p-3 font-semibold text-sm bg-white shadow-sm focus:ring-sky-500 focus:border-sky-500"
+              value={selectedPeriod.id}
+              onChange={(e) => {
+                const found = periodsList.find(p => p.id === Number(e.target.value));
+                if (found) setSelectedPeriod(found);
+              }}
+            >
+              {periodsList.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.type || "Custom"})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 border-t pt-3 text-xs text-slate-500 font-medium">
+          <div>Tipe Rentang: <span className="font-extrabold text-slate-800">{selectedPeriod.type || "Custom / Manual"}</span></div>
+          <div>Mulai Selesai: <span className="font-extrabold text-slate-800">{selectedPeriod.start} s.d {selectedPeriod.end}</span></div>
+          <div>Status Penilaian: <span className={`font-black uppercase text-[10px] px-2 py-0.5 rounded-full ${
+            selectedPeriod.status === "Aktif" ? "bg-emerald-100 text-emerald-800" :
+            selectedPeriod.status === "Final" ? "bg-slate-100 text-slate-700" : "bg-amber-100 text-amber-800"
+          }`}>{selectedPeriod.status}</span></div>
+        </div>
+      </Card>
+
       <Card>
         <div className="flex flex-wrap gap-2">
           {([
@@ -1630,7 +1686,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
 
       <Card>
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-lg font-black font-display">
+          <h2 className="text-lg font-black font-display text-slate-900">
             {tab === "individu"
               ? "Rekap Laporan Perilaku Individu ASN"
               : tab === "unit"
@@ -1661,7 +1717,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
               </thead>
               <tbody>
                 {state.employees.map((e) => {
-                  const result = calculateResult(e, state.assignments, state.responses, state.period);
+                  const result = calculateResult(e, state.assignments, state.responses, selectedPeriod);
                   return (
                     <tr key={e.id} className="border-b border-slate-100">
                       <td className="py-3">
@@ -1683,13 +1739,13 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           </div>
         )}
 
-        {tab === "unit" && <UnitProgress state={state} />}
+        {tab === "unit" && <UnitProgress state={state} period={selectedPeriod} />}
 
         {tab === "bkpsdm" && (
           <div className="grid gap-4 md:grid-cols-3">
             <StatCard icon={Users} label="Total Pegawai Terdaftar" value={state.employees.length} />
-            <StatCard icon={CheckCircle2} label="Jumlah Kuesioner Terisi" value={state.responses.length} tone="emerald" />
-            <StatCard icon={AlertTriangle} label="Target Penilaian yang Belum Diisi" value={state.assignments.length - state.responses.length} tone="red" />
+            <StatCard icon={CheckCircle2} label="Jumlah Kuesioner Terisi (Periode)" value={periodResponses.length} tone="emerald" />
+            <StatCard icon={AlertTriangle} label="Target Penilaian yang Belum Diisi (Periode)" value={periodAssignments.length - periodResponses.length} tone="red" />
           </div>
         )}
 

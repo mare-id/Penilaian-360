@@ -86,6 +86,10 @@ export interface Period {
   maxBawahan?: number;
   weightsWithSub: Weights;
   weightsNoSub: Weights;
+  type?: "Bulanan" | "Triwulan" | "Custom";
+  selectedMonth?: string;
+  selectedQuarter?: string;
+  selectedYear?: number;
 }
 
 export interface AdminUser {
@@ -105,6 +109,7 @@ export interface AppState {
   orgUnits: OrgUnit[];
   jobs: Job[];
   period: Period;
+  periods?: Period[];
   admins?: AdminUser[];
 }
 

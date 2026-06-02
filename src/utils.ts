@@ -50,7 +50,7 @@ export function scoreFromResponse(response?: Response, includeLeadership = true)
 }
 
 export function calculateResult(employee: Employee, assignments: Assignment[], responses: Response[], period?: Period) {
-  const relevant = assignments.filter((a) => a.evalueeId === employee.id && a.approved);
+  const relevant = assignments.filter((a) => a.evalueeId === employee.id && a.approved && (!period || a.periodId === period.id));
   const includeLeadership = ["Struktural", "JPT Pratama", "Administrator", "Pengawas"].includes(employee.jenis) || employee.hasSub;
   const byType: Record<string, number[]> = {};
 
@@ -103,13 +103,13 @@ export function calculateResult(employee: Employee, assignments: Assignment[], r
   };
 }
 
-export function dimensionScores(employee: Employee, assignments: Assignment[], responses: Response[]) {
+export function dimensionScores(employee: Employee, assignments: Assignment[], responses: Response[], period?: Period) {
   const includeLeadership = ["Struktural", "JPT Pratama", "Administrator", "Pengawas"].includes(employee.jenis) || employee.hasSub;
   return dimensions
     .filter((d) => includeLeadership || !d.leadershipOnly)
     .map((d) => {
       const scores = assignments
-        .filter((a) => a.evalueeId === employee.id && a.approved && a.type !== "Diri")
+        .filter((a) => a.evalueeId === employee.id && a.approved && a.type !== "Diri" && (!period || a.periodId === period.id))
         .map((a) => responses.find((r) => r.assignmentId === a.id)?.scores[d.key])
         .filter((v): v is number => typeof v === "number");
       const score = Math.round((average(scores) / 5) * 100) || 0;
@@ -117,14 +117,15 @@ export function dimensionScores(employee: Employee, assignments: Assignment[], r
     });
 }
 
-export function unitStats(state: AppState) {
+export function unitStats(state: AppState, period?: Period) {
+  const activePeriod = period || state.period;
   const activeUnits = (state.orgUnits && state.orgUnits.length > 0 ? state.orgUnits : orgUnitCatalog).map((u) => u.name);
   return activeUnits.map((unit) => {
     const emp = state.employees.filter((e) => e.unit === unit);
-    const assignments = state.assignments.filter((a) => emp.some((e) => e.id === a.evalueeId));
+    const assignments = state.assignments.filter((a) => emp.some((e) => e.id === a.evalueeId) && (!activePeriod || a.periodId === activePeriod.id));
     const completed = assignments.filter((a) => state.responses.some((r) => r.assignmentId === a.id)).length;
     const pct = Math.round((completed / Math.max(1, assignments.length)) * 100);
-    const results = emp.map((e) => calculateResult(e, state.assignments, state.responses, state.period).final).filter(Boolean);
+    const results = emp.map((e) => calculateResult(e, state.assignments, state.responses, activePeriod).final).filter(Boolean);
     return {
       unit,
       totalAsn: emp.length,
@@ -137,13 +138,15 @@ export function unitStats(state: AppState) {
   });
 }
 
-export function buildAnomalies(state: AppState) {
+export function buildAnomalies(state: AppState, period?: Period) {
+  const activePeriod = period || state.period;
   const anomalies: Array<{ id: string; type: string; severity: string; count: number }> = [];
   const byEvaluator: Record<string, Response[]> = {};
 
   state.responses.forEach((r) => {
     const a = state.assignments.find((x) => x.id === r.assignmentId);
     if (!a) return;
+    if (activePeriod && a.periodId !== activePeriod.id) return;
     byEvaluator[a.evaluatorId] = byEvaluator[a.evaluatorId] || [];
     byEvaluator[a.evaluatorId].push(r);
   });
