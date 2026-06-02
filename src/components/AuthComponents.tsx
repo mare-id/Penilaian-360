@@ -4,6 +4,7 @@ import { DemoAccount, AppState } from "../types";
 import { demoAccounts } from "../data";
 import { Badge, Card, Button, Field, ThemeStyles } from "./UIComponents";
 import { getSupabaseConfig } from "../utils/supabase";
+import { BkpsdmLogo } from "./BkpsdmLogo";
 
 // ---------------------------------------------
 // LOGIN COMPONENT
@@ -126,11 +127,12 @@ export function Login({ onLogin, state }: LoginProps) {
             <span className="inline-flex items-center rounded-full border-2 border-slate-950 bg-blue-600 text-white px-3 py-1 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
               Sistem BKPSDM Kabupaten Dairi 👑
             </span>
-            <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-6xl font-display leading-tight">
-                BKPSDM Dairi <span className="bg-yellow-300 border-2 border-slate-950 px-2 py-1 rounded-2xl rotate-[-2deg] inline-block shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">360° Appraisal</span>
-              </h1>
-              <p className="mt-8 max-w-2xl text-lg leading-relaxed text-slate-800 font-bold font-display">
+            <div className="flex flex-col items-start gap-3">
+              <BkpsdmLogo size="lg" variant="colored" className="transform hover:scale-[1.02] transition-transform duration-300" />
+              <div className="inline-block mt-3 bg-yellow-300 text-slate-950 border-2 border-slate-950 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest rotate-[-1.5deg] shadow-[3.5px_3.5px_0px_0px_rgba(0,0,0,1)] rounded-xl">
+                🚀 360° APPRAISAL SYSTEM
+              </div>
+              <p className="mt-4 max-w-2xl text-md leading-relaxed text-slate-800 font-bold font-display">
                 Aplikasi penilaian perilaku berbasis BerAKHLAK yang transparan, anonim, aman, dan memicu rekomendasi pembinaan fungsional secara real-time. 🔥
               </p>
             </div>
@@ -352,14 +354,12 @@ export function Topbar({
         </button>
         
         {/* Logo and title */}
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-yellow-300 border-2 border-slate-950 rounded-xl flex items-center justify-center p-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-            <span className="text-sm">⭐️</span>
-          </div>
-          <div>
-            <h1 className="text-xs lg:text-sm font-black tracking-tight uppercase leading-tight text-white font-display">E-Kinerja 360</h1>
-            <p className="text-[9px] text-yellow-300 leading-none uppercase tracking-widest font-black">BKPSDM Dairi</p>
-          </div>
+        <div className="flex items-center gap-2.5">
+          <BkpsdmLogo size="sm" variant="light" />
+          <div className="h-6 border-r border-blue-900 hidden sm:block" />
+          <span className="hidden sm:inline-flex items-center bg-yellow-300 border-2 border-slate-950 text-slate-950 text-[8px] px-2 py-0.5 rounded-md font-black uppercase tracking-wider shadow-[1.5px_1.5px_0px_0px_rgba(0,0,0,1)]">
+            E-KINERJA 360
+          </span>
         </div>
 
         {/* Active view identifier badge */}
