@@ -983,10 +983,10 @@ export default function App() {
       if (!parsed.admins) {
         parsed.admins = initialState.admins;
       }
-      const synced = syncMandatoryAssignments(parsed.employees, parsed.assignments, parsed.period?.maxBawahan || 5);
+      const synced = syncMandatoryAssignments(parsed.employees, parsed.assignments, parsed.period?.maxBawahan || 5, parsed.period?.id || 2);
       return { ...parsed, assignments: synced };
     } catch {
-      const synced = syncMandatoryAssignments(initialState.employees, initialState.assignments, initialState.period?.maxBawahan || 5);
+      const synced = syncMandatoryAssignments(initialState.employees, initialState.assignments, initialState.period?.maxBawahan || 5, initialState.period?.id || 2);
       return { ...initialState, admins: initialState.admins, assignments: synced };
     }
   });
@@ -1025,7 +1025,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const synced = syncMandatoryAssignments(state.employees, state.assignments, state.period?.maxBawahan || 5);
+    const synced = syncMandatoryAssignments(state.employees, state.assignments, state.period?.maxBawahan || 5, state.period?.id || 2);
     
     // Sinkronkan juga pendingRaters agar proposedIds hanya berisi peer setingkat (jenis)
     // yang masih valid di employees saat ini.

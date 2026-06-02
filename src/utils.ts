@@ -168,7 +168,7 @@ export function buildAnomalies(state: AppState, period?: Period) {
   return anomalies;
 }
 
-export function syncMandatoryAssignments(employees: Employee[], currentAssignments: Assignment[], maxBawahan: number = 100): Assignment[] {
+export function syncMandatoryAssignments(employees: Employee[], currentAssignments: Assignment[], maxBawahan: number = 100, periodId: number = 2): Assignment[] {
   // Update hasSub dynamically based on actual subordinates in the organization tree
   employees.forEach((emp) => {
     emp.hasSub = employees.some((e) => e.atasanId === emp.id);
@@ -259,12 +259,12 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
         if (isAllowed) {
           // Look for existing assignment where boss is evaluated by emp as Bawahan
           const exists = assignments.some(
-            (a) => a.evalueeId === boss.id && a.evaluatorId === emp.id && a.type === "Bawahan"
+            (a) => a.evalueeId === boss.id && a.evaluatorId === emp.id && a.type === "Bawahan" && a.periodId === periodId
           );
           if (!exists) {
             assignments.push({
-              id: 100000 + boss.id * 1000 + emp.id,
-              periodId: 1,
+              id: periodId * 100000 + boss.id * 1000 + emp.id,
+              periodId: periodId,
               evalueeId: boss.id,
               evaluatorId: emp.id,
               type: "Bawahan",
@@ -276,12 +276,12 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
 
         // 2. Rule 2: Every boss must review their subordinates (Atasan evaluates Bawahan)
         const existsAtasan = assignments.some(
-          (a) => a.evalueeId === emp.id && a.evaluatorId === boss.id && a.type === "Atasan"
+          (a) => a.evalueeId === emp.id && a.evaluatorId === boss.id && a.type === "Atasan" && a.periodId === periodId
         );
         if (!existsAtasan) {
           assignments.push({
-            id: 300000 + emp.id * 1000 + boss.id,
-            periodId: 1,
+            id: periodId * 100000 + 50000 + emp.id * 1000 + boss.id,
+            periodId: periodId,
             evalueeId: emp.id,
             evaluatorId: boss.id,
             type: "Atasan",

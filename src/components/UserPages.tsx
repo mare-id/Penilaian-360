@@ -396,7 +396,7 @@ export function Verification({ state, setState, user, toast }: PageProps) {
 // ---------------------------------------------
 export function Assessment({ state, setState, user, toast }: PageProps) {
   const employee = state.employees.find((e) => e.id === user.userId);
-  const assignments = state.assignments.filter((a) => a.evaluatorId === employee?.id);
+  const assignments = state.assignments.filter((a) => a.evaluatorId === employee?.id && a.periodId === state.period.id);
   const [activeAssignment, setActiveAssignment] = useState<Assignment | null>(null);
 
   if (activeAssignment) {
@@ -880,7 +880,7 @@ export function Results({ state, user }: { state: AppState; user: DemoAccount })
   const employee = state.employees.find((e) => e.id === selectedId) || current;
 
   const result = calculateResult(employee, state.assignments, state.responses, state.period);
-  const dims = dimensionScores(employee, state.assignments, state.responses);
+  const dims = dimensionScores(employee, state.assignments, state.responses, state.period);
   
   const scoredDims = dims.filter((d) => d.score > 0);
   const weakest = scoredDims.length > 0 ? [...scoredDims].sort((a, b) => a.score - b.score)[0] : undefined;
@@ -888,7 +888,7 @@ export function Results({ state, user }: { state: AppState; user: DemoAccount })
   const recommendations = recommendationFor(weakest?.key);
 
   const currentComments = state.assignments
-    .filter((a) => a.evalueeId === employee.id && a.approved)
+    .filter((a) => a.evalueeId === employee.id && a.approved && a.periodId === state.period.id)
     .map((a) => state.responses.find((r) => r.assignmentId === a.id)?.comments)
     .filter((c): c is string => !!c);
 
