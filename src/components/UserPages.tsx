@@ -317,7 +317,7 @@ export function Verification({ state, setState, user, toast }: PageProps) {
     setState((s) => {
       const newAssignments: Assignment[] = item.proposedIds.map((pid) => ({
         id: Date.now() + pid,
-        periodId: 1,
+        periodId: s.period.id,
         evalueeId: item.evalueeId,
         evaluatorId: pid,
         type: "Peer",
@@ -1011,7 +1011,7 @@ export function Objections({ state, setState, user, toast }: PageProps) {
         ...s.objections,
         {
           id: Date.now(),
-          periodId: 1,
+          periodId: s.period.id,
           evalueeId: employee.id,
           type: form.type,
           reason: form.reason.trim(),

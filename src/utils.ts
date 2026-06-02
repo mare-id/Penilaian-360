@@ -293,7 +293,32 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
     }
   });
 
-  return assignments;
+  // Deduplicate before returning
+  const seen = new Set<string>();
+  const uniqueAssignments: Assignment[] = [];
+  assignments.forEach((a) => {
+    const key = `${a.periodId}-${a.evalueeId}-${a.evaluatorId}-${a.type}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueAssignments.push(a);
+    } else {
+      // If we see a duplicate, we might prefer one with higher progress status
+      const existingIdx = uniqueAssignments.findIndex(
+        (x) => `${x.periodId}-${x.evalueeId}-${x.evaluatorId}-${x.type}` === key
+      );
+      if (existingIdx !== -1) {
+        const existing = uniqueAssignments[existingIdx];
+        const statusPriority: Record<string, number> = { "Selesai": 3, "Sedang Diisi": 2, "Belum Mulai": 1 };
+        const pExisting = statusPriority[existing.status] || 0;
+        const pCurrent = statusPriority[a.status] || 0;
+        if (pCurrent > pExisting) {
+          uniqueAssignments[existingIdx] = a;
+        }
+      }
+    }
+  });
+
+  return uniqueAssignments;
 }
 
 export function assignmentsEqual(a: Assignment[], b: Assignment[]): boolean {
