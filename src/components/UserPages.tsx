@@ -1313,25 +1313,45 @@ interface ChangePasswordProps {
 }
 
 export function ChangePasswordPage({ state, setState, user, setUser, toast }: ChangePasswordProps) {
-  const employee = state.employees.find((e) => e.id === user.userId);
+  const isAdmin = user.role === "Admin BKPSDM";
+  const employee = !isAdmin ? state.employees.find((e) => e.id === user.userId) : null;
+  const adminAccount = isAdmin ? (state.admins || []).find((a) => a.username === (user.username || "admin")) : null;
+
   const [form, setForm] = useState({ current: "", next: "", confirm: "" });
   const [show, setShow] = useState(false);
 
   const save = () => {
-    if (!employee) return toast("Sesi akun tidak valid.");
-    const currentPassword = employee.password || "admin123";
-    if (form.current !== currentPassword) return toast("Password lama anda keliru.");
-    if (!form.next || form.next.length < 6) return toast("Password baru harus minimal 6 karakter.");
-    if (form.next !== form.confirm) return toast("Password konfirmasi anda belum sama.");
-    if (form.next === currentPassword) return toast("Password baru tidak boleh sama dengan password lama.");
+    if (isAdmin) {
+      if (!adminAccount) return toast("Sesi admin tidak ditemukan.");
+      const currentPassword = adminAccount.password || "admin123";
+      if (form.current !== currentPassword) return toast("Password lama anda keliru.");
+      if (!form.next || form.next.length < 6) return toast("Password baru harus minimal 6 karakter.");
+      if (form.next !== form.confirm) return toast("Password konfirmasi anda belum sama.");
+      if (form.next === currentPassword) return toast("Password baru tidak boleh sama dengan password lama.");
 
-    setState((s) => ({
-      ...s,
-      employees: s.employees.map((e) => (e.id === employee.id ? { ...e, password: form.next } : e)),
-    }));
-    setUser({ ...user, password: form.next });
-    setForm({ current: "", next: "", confirm: "" });
-    toast("Password Anda berhasil diperbarui.");
+      setState((s) => ({
+        ...s,
+        admins: (s.admins || []).map((a) => (a.username === adminAccount.username ? { ...a, password: form.next } : a)),
+      }));
+      setUser({ ...user, password: form.next });
+      setForm({ current: "", next: "", confirm: "" });
+      toast("Password Admin berhasil diperbarui.");
+    } else {
+      if (!employee) return toast("Sesi akun tidak valid.");
+      const currentPassword = employee.password || "admin123";
+      if (form.current !== currentPassword) return toast("Password lama anda keliru.");
+      if (!form.next || form.next.length < 6) return toast("Password baru harus minimal 6 karakter.");
+      if (form.next !== form.confirm) return toast("Password konfirmasi anda belum sama.");
+      if (form.next === currentPassword) return toast("Password baru tidak boleh sama dengan password lama.");
+
+      setState((s) => ({
+        ...s,
+        employees: s.employees.map((e) => (e.id === employee.id ? { ...e, password: form.next } : e)),
+      }));
+      setUser({ ...user, password: form.next });
+      setForm({ current: "", next: "", confirm: "" });
+      toast("Password Anda berhasil diperbarui.");
+    }
   };
 
   return (
