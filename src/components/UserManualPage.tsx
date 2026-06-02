@@ -42,6 +42,8 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
   const handleDownloadDoc = () => {
     toast("Menyusun panduan lengkap E-Kinerja 360 dalam format Word... 📄");
 
+    const isAdminRole = user.role === "Admin BKPSDM";
+
     const header = `
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head>
@@ -188,6 +190,32 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           .page-break {
             page-break-before: always;
           }
+          .formula-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px;
+            margin: 8pt 0;
+            border-radius: 6px;
+            font-size: 10pt;
+            color: #0f172a;
+            white-space: pre-wrap;
+          }
+          .example-card {
+            background-color: #fdfdfd;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15pt 0;
+          }
+          .example-header {
+            font-weight: bold;
+            font-size: 11pt;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+          }
         </style>
       </head>
       <body>
@@ -263,7 +291,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
         <ul>
           <li><strong>Atasan Langsung:</strong> Ditentukan secara otomatis dan mandatory berdasarkan data struktural atasan di profil.</li>
           <li><strong>Diri Sendiri (Self):</strong> Wajib diisi oleh ASN bersangkutan secara mandiri.</li>
-          <li><strong>Rekan Sejawat (Peer):</strong> Diajukan oleh ASN bersangkutan minimal sesuai batas ketentuan (misal {minPeer} orang) yang merupakan ASN satu unit kerja dengan klasifikasi jabatan yang setara. Usulan ini harus disetujui Atasan Langsung Anda.</li>
+          <li><strong>Rekan Sejawat (Peer):</strong> Diajukan oleh ASN bersangkutan minimal sesuai batas ketentuan (misal ${state.period.minPeer} orang) yang merupakan ASN satu unit kerja dengan klasifikasi jabatan yang setara. Usulan ini harus disetujui Atasan Langsung Anda.</li>
           <li><strong>Bawahan Langsung:</strong> Jika ASN menjabat posisi berpimpinan pangkat struktural (hasSub = true), bawahannya secara otomatis didaftarkan oleh sistem sebagai penilai wajib.</li>
         </ul>
 
@@ -312,7 +340,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
             <tr class="tr-even">
               <td><strong>Rekan Sejawat (Peer)</strong></td>
               <td>Kamera harian interaksi kerja, budaya kolaborasi se-level.</td>
-              <td>Ditentukan admin ({state.period.minPeer} s.d {state.period.maxPeer} orang)</td>
+              <td>Ditentukan admin (${state.period.minPeer} s.d ${state.period.maxPeer} orang)</td>
             </tr>
             <tr>
               <td><strong>Bawahan Langsung</strong></td>
@@ -337,43 +365,184 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           <li><strong>Skor 1: Sangat Jarang / Sangat Kurang</strong> - Hampir tidak pernah berperilaku positif.</li>
         </ul>
 
-        <h2>2.3 Formula & Perhitungan Skor Rata-rata per Dimensi</h2>
-        <p>Terdapat dua butir pertanyaan untuk tiap dimensi BerAKHLAK. Skor rater tertentu untuk satu dimensi dihitung dengan rata-rata aritmatika sederhana:</p>
-        <p style="text-align: center; font-weight: bold; font-family: Courier New;">
-          Skor Dimensi Rater = (Butir_1 + Butir_2) / 2
-        </p>
-        <p>Selanjutnya, jika terdapat beberapa rater pada kategori kelompok rater yang sama (misal terdapat 3 Rekan Sejawat yang mengisi), maka dicari rata-rata agregat dari ke-3 rekan tersebut:</p>
-        <p style="text-align: center; font-weight: bold; font-family: Courier New;">
-          Skor Kategori Sejawat = (Rata-rata Peer1 + Rata-rata Peer2 + Rata-rata Peer3) / 3
-        </p>
+        <h2>2.3 Rumus Matematika Perhitungan Aljabar Skor Perilaku</h2>
+        <p>Perhitungan skor E-Kinerja 360 dilakukan melalui 3 tahap matematis berurutan:</p>
 
-        <h2>2.4 Pembobotan Penilaian Akhir (Skor Agregat)</h2>
-        <p>Penilaian akhir membedakan beban kontribusi tiap kelompok rater berdasarkan kepemilikan bawahan langsung:</p>
+        <h3>Tahap A: Skor Rata-rata Dimensi per Rater Individu</h3>
+        <p>Terdapat 7 dimensi utama (Berorientasi Pelayanan, Akuntabel, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif). Setiap dimensi terdiri dari 2 butir kuesioner. Maka rumus kuesioner dasar:</p>
+        <div class="formula-box">
+Skor_Dimensi_Rater = (Butir_1 + Butir_2) / 2
+        </div>
 
-        <h3>Kasus A: Pegawai yang MEMILIKI Bawahan Langsung (Has Subordinates)</h3>
-        <p>Skor agregasi dihitung menggunakan bobot persentase standar berikut:</p>
+        <h3>Tahap B: Skor Rata-rata Agregat Per Kategori Kelompok Rater</h3>
+        <p>Bila terdapat beberapa rater dalam kelompok rater yang sejenis (contoh: 3 Rekan Sejawat yang mengisi), dicarilah nilai rata-rata kelompok (Group Mean Index):</p>
+        <div class="formula-box">
+Skor_Kategori_Kelompok = (Rata-rata_Rater_1 + Rata-rata_Rater_2 + ... + Rata-rata_Rater_n) / n
+        </div>
+
+        <h3>Tahap C: Perhitungan Skor Akhir Agregat Berbobot</h3>
+        <p>Skor Akhir per Dimensi didapatkan dengan mengalikan Skor Kategori Kelompok dengan persentase bobot masing-masing sesuai profil kepemilikan bawahan langsung:</p>
+        
+        <div class="formula-box">
+// RUMUS RENCANA BEBAN PEGAWAI DENGAN BAWAHAN (Has Subordinates: TRUE)
+Skor_Akhir_Dimensi = 
+   (Skor_Atasan * Weight_Atasan) + 
+   (Skor_Sejawat_Agregat * Weight_Peer) + 
+   (Skor_Bawahan_Agregat * Weight_Bawahan) + 
+   (Skor_Evaluasi_Diri * Weight_Self)
+
+// RUMUS RENCANA BEBAN PEGAWAI TANPA BAWAHAN (Has Subordinates: FALSE)
+Skor_Akhir_Dimensi = 
+   (Skor_Atasan * Weight_Atasan) + 
+   (Skor_Sejawat_Agregat * Weight_Peer) + 
+   (Skor_Evaluasi_Diri * Weight_Self)
+        </div>
+
+        <h3>Tahap D: Skor Indeks Perilaku Gabungan Akhir</h3>
+        <p>Skor akhir total didapatkan dari rata-rata 7 dimensi BerAKHLAK yang telah dibobot:</p>
+        <div class="formula-box">
+Skor_Indeks_Perilaku_Total = (Σ Skor_Akhir_Dimensi_j dari j=1 s.d 7) / 7
+        </div>
+
+        <h2>2.4 Pembobotan Penilaian Sesuai Konfigurasi Sistem</h2>
+        <p>Saat ini, persentase pembobotan yang dikonfigurasi pada sistem adalah:</p>
+
+        <h3>Kasus Pegawai MEMILIKI Bawahan Langsung (Has Subordinates)</h3>
         <ul>
-          <li>Bobot Nilai Atasan Langsung: <strong>${state.period.weightsWithSub.Atasan}%</strong></li>
-          <li>Bobot Nilai Rekan Sejawat (Peer): <strong>${state.period.weightsWithSub.Peer}%</strong></li>
-          <li>Bobot Nilai Bawahan Langsung: <strong>${state.period.weightsWithSub.Bawahan || 0}%</strong></li>
-          <li>Bobot Evaluasi Diri Sendiri (Self): <strong>${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%</strong></li>
+          <li>Bobot Nilai Atasan Langsung (Weight_Atasan): <strong>${state.period.weightsWithSub.Atasan}%</strong></li>
+          <li>Bobot Nilai Rekan Sejawat (Weight_Peer): <strong>${state.period.weightsWithSub.Peer}%</strong></li>
+          <li>Bobot Nilai Bawahan Langsung (Weight_Bawahan): <strong>${state.period.weightsWithSub.Bawahan || 0}%</strong></li>
+          <li>Bobot Evaluasi Diri Sendiri (Weight_Self): <strong>${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%</strong></li>
         </ul>
-        <p style="font-size: 10pt; font-style: italic;">
-          Rumus: Skor Akhir = (SkorAtasan * ${state.period.weightsWithSub.Atasan}%) + (SkorPeer * ${state.period.weightsWithSub.Peer}%) + (SkorBawahan * ${state.period.weightsWithSub.Bawahan || 0}%) + (SkorSelf * ${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%)
-        </p>
 
-        <h3>Kasus B: Pegawai yang TIDAK MEMILIKI Bawahan Langsung (No Subordinates)</h3>
-        <p>Skor agregasi otomatis diredistribusikan tanpa unsur bobot bawahan:</p>
+        <h3>Kasus Pegawai TIDAK MEMILIKI Bawahan Langsung (No Subordinates)</h3>
         <ul>
-          <li>Bobot Nilai Atasan Langsung: <strong>${state.period.weightsNoSub.Atasan}%</strong></li>
-          <li>Bobot Nilai Rekan Sejawat (Peer): <strong>${state.period.weightsNoSub.Peer}%</strong></li>
-          <li>Bobot Evaluasi Diri Sendiri (Self): <strong>${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%</strong></li>
+          <li>Bobot Nilai Atasan Langsung (Weight_Atasan): <strong>${state.period.weightsNoSub.Atasan}%</strong></li>
+          <li>Bobot Nilai Rekan Sejawat (Weight_Peer): <strong>${state.period.weightsNoSub.Peer}%</strong></li>
+          <li>Bobot Evaluasi Diri Sendiri (Weight_Self): <strong>${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%</strong></li>
         </ul>
-        <p style="font-size: 10pt; font-style: italic;">
-          Rumus: Skor Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (SkorPeer * ${state.period.weightsNoSub.Peer}%) + (SkorSelf * ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)
-        </p>
 
-        <h2>2.5 Klasifikasi Kategori Penilaian Perilaku</h2>
+        <h2>2.5 CONTOH KASUS SIMULASI NYATA DENGAN VARIASI BERBEDA</h2>
+
+        <!-- CONTOH 1 -->
+        <div class="example-card">
+          <div class="example-header">KASUS SIMULASI 1: PNS Staf / Pejabat Pelaksana (Tanpa Bawahan Langsung)</div>
+          <p><strong>Subjek Pegawai:</strong> Susi Astuti, S.Kom (Pranata Komputer Ahli Pertama, Has Subordinates = False)</p>
+          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Sejawat = ${state.period.weightsNoSub.Peer}%, Evaluasi Diri = ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%</p>
+          <p><strong>Studi Dimensi:</strong> Berorientasi Pelayanan</p>
+          <ul>
+            <li>
+              <strong>1. Input Nilai Atasan Langsung (1 Rater):</strong><br>
+              Butir 1 (Memahami Kebutuhan) = 5, Butir 2 (Ramah & Terbuka) = 4<br>
+              <em>Rerata Atasan</em> = (5 + 4) / 2 = <strong>4.50</strong>
+            </li>
+            <br>
+            <li>
+              <strong>2. Input Nilai Rekan Sejawat (3 Rater):</strong><br>
+              - Rekan Sejawat 1: Butir 1 = 4, Butir 2 = 4 (Rata-rata = 4.00)<br>
+              - Rekan Sejawat 2: Butir 1 = 5, Butir 2 = 3 (Rata-rata = 4.00)<br>
+              - Rekan Sejawat 3: Butir 1 = 4, Butir 2 = 5 (Rata-rata = 4.50)<br>
+              <em>Rata-rata Kelompok Sejawat</em> = (4.00 + 4.00 + 4.50) / 3 = <strong>4.17</strong>
+            </li>
+            <br>
+            <li>
+              <strong>3. Input Evaluasi Diri Mandiri (Self):</strong><br>
+              Butir 1 = 5, Butir 2 = 5<br>
+              <em>Rerata Mandiri</em> = (5 + 5) / 2 = <strong>5.00</strong>
+            </li>
+          </ul>
+          
+          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot:</strong></p>
+          <div class="formula-box">
+Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%) + (Skor_Self * ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)
+Skor_Dimensi = (4.50 * 0.50) + (4.17 * 0.40) + (5.00 * 0.10)
+Skor_Dimensi = 2.25 + 1.668 + 0.50 = 4.418
+          </div>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>4.42</strong> (Kategori Capaian: <strong>BAIK</strong> karena berada di interval 3.51 - 4.50).</p>
+        </div>
+
+        <!-- CONTOH 2 -->
+        <div class="example-card">
+          <div class="example-header">KASUS SIMULASI 2: Pejabat Struktural Pimpinan (Memiliki Bawahan Langsung)</div>
+          <p><strong>Subjek Pegawai:</strong> Samsul Arifin, S.Sos (Kepala Bidang SDM, Has Subordinates = True)</p>
+          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsWithSub.Atasan}%, Sejawat = ${state.period.weightsWithSub.Peer}%, Bawahan = ${state.period.weightsWithSub.Bawahan || 0}%, Evaluasi Diri = ${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%</p>
+          <p><strong>Studi Dimensi:</strong> Akuntabel</p>
+          <ul>
+            <li>
+              <strong>1. Input Nilai Atasan Langsung (Kepala Badan):</strong><br>
+              Butir 1 (Integritas) = 4, Butir 2 (Disiplin Tugas) = 4<br>
+              <em>Rerata Atasan</em> = (4 + 4) / 2 = <strong>4.00</strong>
+            </li>
+            <br>
+            <li>
+              <strong>2. Input Nilai Rekan Sejawat (2 Rater):</strong><br>
+              - Rekan 1: Butir 1 = 4, Butir 2 = 5 (Rerata = 4.50)<br>
+              - Rekan 2: Butir 1 = 3, Butir 2 = 4 (Rerata = 3.50)<br>
+              <em>Rata-rata Kelompok Sejawat</em> = (4.50 + 3.50) / 2 = <strong>4.00</strong>
+            </li>
+            <br>
+            <li>
+              <strong>3. Input Nilai Bawahan Langsung (2 Rater):</strong><br>
+              - Bawahan 1: Butir 1 = 5, Butir 2 = 5 (Rerata = 5.00)<br>
+              - Bawahan 2: Butir 1 = 4, Butir 2 = 5 (Rerata = 4.50)<br>
+              <em>Rata-rata Kelompok Bawahan</em> = (5.00 + 4.50) / 2 = <strong>4.75</strong>
+            </li>
+            <br>
+            <li>
+              <strong>4. Input Evaluasi Diri (Self):</strong><br>
+              Butir 1 = 4, Butir 2 = 3<br>
+              <em>Rerata Mandiri</em> = (4 + 3) / 2 = <strong>3.50</strong>
+            </li>
+          </ul>
+          
+          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot:</strong></p>
+          <div class="formula-box">
+Skor_Dimensi = (Skor_Atasan * ${state.period.weightsWithSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsWithSub.Peer}%) + (Skor_Bawahan * ${state.period.weightsWithSub.Bawahan || 0}%) + (Skor_Self * ${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%)
+Skor_Dimensi = (4.00 * 0.40) + (4.00 * 0.30) + (4.75 * 0.20) + (3.50 * 0.10)
+Skor_Dimensi = 1.60 + 1.20 + 0.95 + 0.35 = 4.100
+          </div>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>4.10</strong> (Kategori Capaian: <strong>BAIK</strong> karena berada di interval 3.51 - 4.50).</p>
+        </div>
+
+        <!-- CONTOH 3 -->
+        <div class="example-card">
+          <div class="example-header">KASUS SIMULASI 3: Jabatan Fungsional Khusus (Tanpa Bawahan, Evaluasi Kurang Memuaskan)</div>
+          <p><strong>Subjek Pegawai:</strong> Dr. Heri (Dokter Ahli Madya Puskesmas Sidikalang, Has Subordinates = False)</p>
+          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Sejawat = ${state.period.weightsNoSub.Peer}%, Evaluasi Diri = ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%</p>
+          <p><strong>Studi Dimensi:</strong> Adaptif</p>
+          <ul>
+            <li>
+              <strong>1. Input Nilai Atasan Langsung (Kepala Puskesmas):</strong><br>
+              Butir 1 (Keluwesan Penyesuaian) = 3, Butir 2 (Terobosan Inovatif) = 2<br>
+              <em>Rerata Atasan</em> = (3 + 2) / 2 = <strong>2.50</strong>
+            </li>
+            <br>
+            <li>
+              <strong>2. Input Nilai Rekan Sejawat (3 Rater):</strong><br>
+              - Rekan Sejawat 1: Butir 1 = 2, Butir 2 = 2 (Rerata = 2.00)<br>
+              - Rekan Sejawat 2: Butir 1 = 3, Butir 2 = 2 (Rerata = 2.50)<br>
+              - Rekan Sejawat 3: Butir 1 = 2, Butir 2 = 1 (Rerata = 1.50)<br>
+              <em>Rata-rata Kelompok Sejawat</em> = (2.00 + 2.50 + 1.50) / 3 = <strong>2.00</strong>
+            </li>
+            <br>
+            <li>
+              <strong>3. Input Evaluasi Diri (Self - Menunjukkan Bias Overconfidence):</strong><br>
+              Butir 1 = 4, Butir 2 = 4<br>
+              <em>Rerata Mandiri</em> = (4 + 4) / 2 = <strong>4.00</strong>
+            </li>
+          </ul>
+          
+          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot:</strong></p>
+          <div class="formula-box">
+Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%) + (Skor_Self * ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)
+Skor_Dimensi = (2.50 * 0.50) + (2.00 * 0.40) + (4.00 * 0.10)
+Skor_Dimensi = 1.25 + 0.80 + 0.40 = 2.450
+          </div>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>2.45</strong> (Kategori Capaian: <strong>KURANG</strong> karena berada di interval 1.51 - 2.50).</p>
+          <p><em>Rekomendasi Tindak Lanjut:</em> Pegawai diharuskan masuk ke program coaching manajemen perilaku adaptif dinas, serta peninjau kelayakan oleh tim penilai kinerja cabang.</p>
+        </div>
+
+        <h2>2.6 Klasifikasi Kategori Penilaian Perilaku</h2>
         <p>Nilai agregat akhir yang berkisar antara 1.00 hingga 5.00 dikelompokkan ke dalam kategori predikat capaian kinerja perilaku:</p>
         <table>
           <thead>
@@ -413,6 +582,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
         </table>
       </div>
 
+      ${isAdminRole ? `
       <!-- BAB III -->
       <div class="page-break">
         <h1>BAB III: PANDUAN ADMINISTRATOR & TOPOLOGI SISTEM</h1>
@@ -500,6 +670,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           <li><strong>Manajemen Multi-Periode Dinamis:</strong> Menu penciptaan periode baru tanpa menindih database lama, lengkap dengan penyalinan profil rater instan guna menunjang pengujian berulang.</li>
         </ul>
       </div>
+      ` : "" }
       
       <p style="margin-top: 50px; text-align: center; color: #94a3b8; font-size: 8.5pt;">Dokumentasi ini dibuat secara digital dan dilindungi Hak Cipta BKPSDM Kabupaten Dairi © 2026</p>
     </body>
@@ -580,28 +751,32 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           <Layers className="w-4 h-4 stroke-[2.5]" />
           Metode & Rumus Skor
         </button>
-        <button
-          onClick={() => setActiveTab("admin")}
-          className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border-2 transition-all flex items-center gap-2 shadow-[2.5px_2.5px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-none ${
-            activeTab === "admin"
-              ? "bg-cyan-300 text-slate-950 border-slate-950"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          <Sliders className="w-4 h-4 stroke-[2.5]" />
-          Panduan Admin & Jaringan
-        </button>
-        <button
-          onClick={() => setActiveTab("changelog")}
-          className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border-2 transition-all flex items-center gap-2 shadow-[2.5px_2.5px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-none ${
-            activeTab === "changelog"
-              ? "bg-cyan-300 text-slate-950 border-slate-950"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          <GitBranch className="w-4 h-4 stroke-[2.5]" />
-          Log Versi Sistem
-        </button>
+        {user.role === "Admin BKPSDM" && (
+          <button
+            onClick={() => setActiveTab("admin")}
+            className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border-2 transition-all flex items-center gap-2 shadow-[2.5px_2.5px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-none ${
+              activeTab === "admin"
+                ? "bg-cyan-300 text-slate-950 border-slate-950"
+                : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+            }`}
+          >
+            <Sliders className="w-4 h-4 stroke-[2.5]" />
+            Panduan Admin & Jaringan
+          </button>
+        )}
+        {user.role === "Admin BKPSDM" && (
+          <button
+            onClick={() => setActiveTab("changelog")}
+            className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border-2 transition-all flex items-center gap-2 shadow-[2.5px_2.5px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-none ${
+              activeTab === "changelog"
+                ? "bg-cyan-300 text-slate-950 border-slate-950"
+                : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+            }`}
+          >
+            <GitBranch className="w-4 h-4 stroke-[2.5]" />
+            Log Versi Sistem
+          </button>
+        )}
       </div>
 
       {/* CONTENT ACCORDING TO TABS */}
@@ -730,65 +905,291 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
                 <Layers className="w-4 h-4 stroke-[2.5]" />
               </span>
               <div>
-                <h2 className="text-md font-black font-display text-slate-900">Metodologi & Perhitungan Formula Skor Kinerja</h2>
-                <p className="text-xs text-slate-500 font-medium">Rincian formula pembobotan ganda, pembagian rater, serta klasifikasi predikat kelulusan berdasarkan standar regulasi.</p>
+                <h2 className="text-md font-black font-display text-slate-900">Metodologi & Rumus Perhitungan Skor Kinerja Perilaku</h2>
+                <p className="text-xs text-slate-500 font-medium">Penjelasan alur aljabar, pembobotan silang kelompok koresponden, dan formula matematika penentuan indeks perilaku ASN BerAKHLAK 360°.</p>
               </div>
             </div>
 
-            <div className="space-y-4 font-display text-xs">
-              {/* CARDS GRID FOR FORMULA */}
+            <div className="space-y-6 font-display text-xs">
+              {/* MATHEMATICAL STEPS */}
+              <div className="border-2 border-slate-950 bg-slate-50 rounded-2xl p-4 md:p-5">
+                <h3 className="text-sm font-black text-slate-950 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                  <span className="p-1.5 rounded-lg bg-blue-100 border-2 border-slate-950 text-blue-900">1</span>
+                  TAHAPAN MATEMATIS PERHITUNGAN SKOR AGREGAT
+                </h3>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-white border-2 border-slate-300 rounded-xl p-3.5 space-y-2">
+                    <span className="text-[10px] bg-sky-200 text-sky-950 font-black px-2 py-0.5 rounded border border-sky-400">Tahap A</span>
+                    <h4 className="font-extrabold text-[#0f172a] text-[11px]">Rata-rata Dimensi per Rater Kepegawaian</h4>
+                    <p className="text-slate-600 text-[11px] font-sans">Setiap dimensi memiliki 2 butir kuesioner. Skor dimensi rater individu dihitung:</p>
+                    <div className="bg-slate-100 border border-slate-200 p-2.5 rounded font-mono text-[10.5px] text-indigo-950">
+                      Skor_Dimensi = (Butir_1 + Butir_2) / 2
+                    </div>
+                  </div>
+
+                  <div className="bg-white border-2 border-slate-300 rounded-xl p-3.5 space-y-2">
+                    <span className="text-[10px] bg-purple-200 text-purple-950 font-black px-2 py-0.5 rounded border border-purple-400">Tahap B</span>
+                    <h4 className="font-extrabold text-[#0f172a] text-[11px]">Rerata Indeks Kelompok Kategori Rater</h4>
+                    <p className="text-slate-600 text-[11px] font-sans">Bila terdapat (n) rater dalam satu kategori (misal: sejawat), ditarik rata-rata aritmatika:</p>
+                    <div className="bg-slate-100 border border-slate-200 p-2.5 rounded font-mono text-[10.5px] text-indigo-950">
+                      Skor_Kategori = (Σ Rerata_Rater_i) / n
+                    </div>
+                  </div>
+
+                  <div className="bg-white border-2 border-slate-300 rounded-xl p-3.5 space-y-2 md:col-span-2">
+                    <span className="text-[10px] bg-emerald-200 text-emerald-950 font-black px-2 py-0.5 rounded border border-emerald-400">Tahap C</span>
+                    <h4 className="font-extrabold text-[#0f172a] text-[11px]">Perhitungan Agregat Akhir Berbobot per Dimensi</h4>
+                    <p className="text-slate-600 text-[11px] font-sans">Mendistribusikan total 100% beban nilai ke setiap kelompok dengan validasi kepemilikan bawahan langsung:</p>
+                    <div className="bg-slate-150 border border-slate-300 p-3 rounded font-mono text-[10.5px] text-slate-900 leading-relaxed whitespace-pre-wrap">
+{`// KASUS 1: PEGAWAI MEMILIKI BAWAHAN LANGSUNG (Has Subordinates = True)
+Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsWithSub.Atasan}%) + (SkorPeer * ${state.period.weightsWithSub.Peer}%) + (SkorBawahan * ${state.period.weightsWithSub.Bawahan || 0}%) + (SkorSelf * ${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%)
+
+// KASUS 2: PEGAWAI TANPA BAWAHAN LANGSUNG (Has Subordinates = False)
+Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (SkorPeer * ${state.period.weightsNoSub.Peer}%) + (SkorSelf * ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)`}
+                    </div>
+                  </div>
+
+                  <div className="bg-white border-2 border-slate-300 rounded-xl p-3.5 space-y-2 md:col-span-2">
+                    <span className="text-[10px] bg-amber-200 text-amber-950 font-black px-2 py-0.5 rounded border border-amber-400">Tahap D</span>
+                    <h4 className="font-extrabold text-[#0f172a] text-[11px]">Indeks Skor Total Akumulatif Pegawai</h4>
+                    <p className="text-slate-600 text-[11px] font-sans">Merupakan skor total yang ditampilkan di card dashboard dan radar chart Anda, diambil dari rata-rata algebra ke-7 dimensi perilaku:</p>
+                    <div className="bg-slate-100 border border-slate-200 p-2.5 rounded font-mono text-[10.5px] text-indigo-950">
+                      Skor_Total_Gabungan = (Σ Skor_Dimensi_Akhir_j) / 7
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CARDS GRID FOR CURRENT PARAMETERS */}
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="border-2 border-slate-950 rounded-xl p-4 bg-blue-50/50 leading-relaxed">
-                  <h4 className="font-extrabold text-[#0b1329] mb-2 uppercase tracking-wide flex items-center gap-1">
-                    <span>⚡</span> 1. Kasus Pegawai BERBAWAHAN LANGSUNG
+                <div className="border-2 border-slate-950 rounded-xl p-4 bg-blue-50/40 leading-relaxed">
+                  <h4 className="font-extrabold text-[#0b1329] mb-2.5 uppercase tracking-wide flex items-center gap-1.5 text-xs">
+                    <span>🏢</span> Parameter Bobot (DENGAN BAWAHAN)
                   </h4>
-                  <p className="text-slate-600 mb-3 text-[11px] font-sans">Beban persentase pembobotan jika pegawai menduduki eselon / pimpinan tim yang memiliki bawahan terdaftar:</p>
+                  <p className="text-slate-500 mb-3 text-[11px] font-sans">Berlaku bagi pejabat pimpinan eselon, pengawas, kepala unit kerja, atau jabatan fungsional penugasan:</p>
                   
-                  <div className="space-y-2 font-mono text-[10.5px]">
-                    <div className="flex justify-between border-b border-dashed pb-1">
-                      <span>Atasan Langsung (Mandatory):</span>
-                      <span className="font-black text-blue-800">{state.period.weightsWithSub.Atasan}%</span>
+                  <div className="space-y-2 font-mono text-[11px]">
+                    <div className="flex justify-between border-b border-dashed border-slate-300 pb-1.5">
+                      <span>Nilai Atasan Langsung:</span>
+                      <span className="font-black text-blue-900">{state.period.weightsWithSub.Atasan}%</span>
                     </div>
-                    <div className="flex justify-between border-b border-dashed pb-1">
-                      <span>Rekan Sejawat (Peer-Average):</span>
-                      <span className="font-black text-blue-800">{state.period.weightsWithSub.Peer}%</span>
+                    <div className="flex justify-between border-b border-dashed border-slate-300 pb-1.5">
+                      <span>Nilai Rekan Sejawat (Peer Average):</span>
+                      <span className="font-black text-blue-900">{state.period.weightsWithSub.Peer}%</span>
                     </div>
-                    <div className="flex justify-between border-b border-dashed pb-1">
-                      <span>Bawahan Langsung (Sub-Average):</span>
-                      <span className="font-black text-blue-800">{state.period.weightsWithSub.Bawahan || 0}%</span>
+                    <div className="flex justify-between border-b border-dashed border-slate-300 pb-1.5">
+                      <span>Nilai Bawahan Langsung (Sub Average):</span>
+                      <span className="font-black text-blue-900">{state.period.weightsWithSub.Bawahan || 0}%</span>
                     </div>
-                    <div className="flex justify-between pb-1">
-                      <span>Evaluasi Mandiri (Self):</span>
-                      <span className="font-black text-blue-800">
+                    <div className="flex justify-between pb-0.5">
+                      <span>Evaluasi Mandiri (Diri Sendiri):</span>
+                      <span className="font-black text-blue-900">
                         {100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="border-2 border-slate-950 rounded-xl p-4 bg-emerald-50/50 leading-relaxed">
-                  <h4 className="font-extrabold text-[#0b1329] mb-2 uppercase tracking-wide flex items-center gap-1">
-                    <span>⚡</span> 2. Kasus Pegawai TANPA BAWAHAN LANGSUNG
+                <div className="border-2 border-slate-950 rounded-xl p-4 bg-emerald-50/40 leading-relaxed">
+                  <h4 className="font-extrabold text-[#0b1329] mb-2.5 uppercase tracking-wide flex items-center gap-1.5 text-xs">
+                    <span>👤</span> Parameter Bobot (TANPA BAWAHAN)
                   </h4>
-                  <p className="text-slate-600 mb-3 text-[11px] font-sans">Beban persentase diredistribusikan tanpa menyangkut unsur bawahan bagi ASN staf fungsional / pelaksana umum:</p>
+                  <p className="text-slate-500 mb-3 text-[11px] font-sans">Berlaku bagi staf pelaksana umum, fungsional ahli pertama/muda, guru non-tugas tambahan, dll:</p>
                   
-                  <div className="space-y-2 font-mono text-[10.5px]">
-                    <div className="flex justify-between border-b border-dashed pb-1">
-                      <span>Atasan Langsung (Mandatory):</span>
-                      <span className="font-black text-emerald-800">{state.period.weightsNoSub.Atasan}%</span>
+                  <div className="space-y-2 font-mono text-[11px]">
+                    <div className="flex justify-between border-b border-dashed border-slate-300 pb-1.5">
+                      <span>Nilai Atasan Langsung:</span>
+                      <span className="font-black text-emerald-900">{state.period.weightsNoSub.Atasan}%</span>
                     </div>
-                    <div className="flex justify-between border-b border-dashed pb-1">
-                      <span>Rekan Sejawat (Peer-Average):</span>
-                      <span className="font-black text-emerald-800">{state.period.weightsNoSub.Peer}%</span>
+                    <div className="flex justify-between border-b border-dashed border-slate-300 pb-1.5">
+                      <span>Nilai Rekan Sejawat (Peer Average):</span>
+                      <span className="font-black text-emerald-900">{state.period.weightsNoSub.Peer}%</span>
                     </div>
-                    <div className="flex justify-between pb-1">
-                      <span>Evaluasi Mandiri (Self):</span>
-                      <span className="font-black text-emerald-800">
+                    <div className="flex justify-between pb-1.5">
+                      <span>Evaluasi Mandiri (Diri Sendiri):</span>
+                      <span className="font-black text-emerald-900">
                         {100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%
                       </span>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* THREE SIMULATION CASES PANEL */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-slate-950 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="p-1.5 rounded-lg bg-yellow-100 border-2 border-slate-950 text-amber-900">2</span>
+                  CONTOH KASUS SIMULASI PERHITUNGAN NYATA (VARIASI KHUSUS)
+                </h3>
+
+                {/* CASE 1 */}
+                <div className="border-2 border-slate-950 rounded-2xl bg-white overflow-hidden shadow-[3px_3px_0px_rgba(15,23,42,1)]">
+                  <div className="bg-sky-600 text-white p-3.5 border-b-2 border-slate-950">
+                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus A: PNS Staf / Pelaksana Pelayanan (Tanpa Bawahan)</h4>
+                    <p className="text-[11px] text-white/90 font-medium">Contoh: Susi Astuti (Pranata Komputer, Has Subordinates: FALSE)</p>
+                  </div>
+                  <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
+                    <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-sky-700">Berorientasi Pelayanan</span></p>
+                    
+                    <div className="grid md:grid-cols-3 gap-3">
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-sky-800">1. Atasan Langsung (1 Orang):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Butir 1 = 5</li>
+                          <li>Butir 2 = 4</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 4.50</strong></li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-sky-800">2. Rekan Sejawat (3 Orang):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Rekan 1: [4,4] $\rightarrow$ Rerata = 4.00</li>
+                          <li>Rekan 2: [5,3] $\rightarrow$ Rerata = 4.00</li>
+                          <li>Rekan 3: [4,5] $\rightarrow$ Rerata = 4.50</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Group Mean = (4.00+4.00+4.50)/3 = 4.17</strong></li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-sky-800">3. Evaluasi Diri (Self):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Butir 1 = 5</li>
+                          <li>Butir 2 = 5</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 5.00</strong></li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-sky-50 p-3 rounded-xl border border-sky-200 font-mono text-[11px]">
+                      <span className="font-black text-sky-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
+                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsNoSub.Atasan}%) + (Peer * {state.period.weightsNoSub.Peer}%) + (Self * {100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)<br />
+                      Perhitungan Skor Akhir = (4.50 * 0.50) + (4.17 * 0.40) + (5.00 * 0.10)<br />
+                      Perhitungan Skor Akhir = 2.25 + 1.668 + 0.50 = <strong>4.418</strong>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 bg-emerald-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: BAIK</span>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>4.42</strong> berada dalam interval <strong>3.51 - 4.50 (BAIK)</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CASE 2 */}
+                <div className="border-2 border-slate-950 rounded-2xl bg-white overflow-hidden shadow-[3px_3px_0px_rgba(15,23,42,1)]">
+                  <div className="bg-indigo-600 text-white p-3.5 border-b-2 border-slate-950">
+                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus B: Pejabat Struktural Eselon / Pimpinan (Dengan Bawahan)</h4>
+                    <p className="text-[11px] text-white/90 font-medium font-sans">Contoh: Samsul Arifin, S.Sos (Kepala Bidang, Has Subordinates: TRUE)</p>
+                  </div>
+                  <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
+                    <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-indigo-700">Akuntabel</span></p>
+                    
+                    <div className="grid md:grid-cols-4 gap-3">
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-indigo-800">1. Atasan (Kepala Dinas):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Butir 1 = 4</li>
+                          <li>Butir 2 = 4</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 4.00</strong></li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-indigo-800">2. Sejawat (2 Orang):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Rekan 1: Rerata 4.50</li>
+                          <li>Rekan 2: Rerata 3.50</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Group Mean = (4.50+3.50)/2 = 4.00</strong></li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-indigo-800">3. Bawahan (2 Orang):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Bawahan 1: Rerata 5.00</li>
+                          <li>Bawahan 2: Rerata 4.50</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Group Mean = (5.0k+4.5)/2 = 4.75</strong></li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-indigo-800">4. Diri Sendiri (Self):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Butir 1 = 4</li>
+                          <li>Butir 2 = 3</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 3.50</strong></li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-200 font-mono text-[11px]">
+                      <span className="font-black text-indigo-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
+                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsWithSub.Atasan}%) + (Peer * {state.period.weightsWithSub.Peer}%) + (Bawahan * {state.period.weightsWithSub.Bawahan}%) + (Self * {100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%)<br />
+                      Perhitungan Skor Akhir = (4.00 * 0.40) + (4.00 * 0.30) + (4.75 * 0.20) + (3.50 * 0.10)<br />
+                      Perhitungan Skor Akhir = 1.60 + 1.20 + 0.95 + 0.35 = <strong>4.100</strong>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 bg-emerald-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: BAIK</span>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>4.10</strong> dipredikatkan sebagai <strong>BAIK (3.51 - 4.50)</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CASE 3 */}
+                <div className="border-2 border-slate-950 rounded-2xl bg-white overflow-hidden shadow-[3px_3px_0px_rgba(15,23,42,1)]">
+                  <div className="bg-rose-700 text-white p-3.5 border-b-2 border-slate-950">
+                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus C: Jabatan Ahli Khusus (Tanpa Bawahan, Rekomendasi Khusus Pembinaan)</h4>
+                    <p className="text-[11px] text-white/90 font-medium">Contoh: Dr. Heri (Dokter Ahli Madya Puskesmas, Has Subordinates: FALSE)</p>
+                  </div>
+                  <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
+                    <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-rose-700">Adaptif</span></p>
+                    
+                    <div className="grid md:grid-cols-3 gap-3">
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-rose-800">1. Atasan (Kepala Puskesmas):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Butir 1 = 3</li>
+                          <li>Butir 2 = 2</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 2.50</strong></li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-rose-800">2. Sejawat (3 Orang):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Rekan 1: [2,2] $\rightarrow$ Rerata = 2.00</li>
+                          <li>Rekan 2: [3,2] $\rightarrow$ Rerata = 2.50</li>
+                          <li>Rekan 3: [2,1] $\rightarrow$ Rerata = 1.50</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Group Mean = (2.00+2.50+1.50)/3 = 2.00</strong></li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
+                        <strong className="text-rose-800">3. Evaluasi Diri (Self-Overconfidence):</strong>
+                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
+                          <li>Butir 1 = 4</li>
+                          <li>Butir 2 = 4</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 4.00</strong></li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-rose-50 p-3 rounded-xl border border-rose-200 font-mono text-[11px]">
+                      <span className="font-black text-rose-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
+                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsNoSub.Atasan}%) + (Peer * {state.period.weightsNoSub.Peer}%) + (Self * {100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)<br />
+                      Perhitungan Skor Akhir = (2.50 * 0.50) + (2.00 * 0.40) + (4.00 * 0.10)<br />
+                      Perhitungan Skor Akhir = 1.25 + 0.80 + 0.40 = <strong>2.450</strong>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 bg-rose-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: KURANG</span>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>2.45</strong> berada dalam range <strong>1.51 - 2.50 (KURANG)</strong>. Menandakan alarm pembinaan aktif.</p>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
               {/* DETAILED RATED SCALE BRACKETS */}
@@ -823,7 +1224,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
                       <tr className="bg-slate-50/55">
                         <td className="p-2 border font-mono font-bold">1.51 s.d 2.50</td>
                         <td className="p-2 border"><Badge className="bg-rose-400 text-[#000]">Kurang</Badge></td>
-                        <td className="p-2 border font-medium text-slate-600">Teguran tertulis wajib & pendampingan klinit fungsional khusus.</td>
+                        <td className="p-2 border font-medium text-slate-600">Teguran tertulis wajib & pendampingan klinis fungsional khusus.</td>
                       </tr>
                       <tr>
                         <td className="p-2 border font-mono font-bold">1.00 s.d 1.50</td>
@@ -839,7 +1240,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
         </div>
       )}
 
-      {activeTab === "admin" && (
+      {activeTab === "admin" && user.role === "Admin BKPSDM" && (
         <div className="space-y-4">
           <Card>
             <div className="border-b pb-3 mb-4 flex items-center gap-3">
@@ -903,7 +1304,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
         </div>
       )}
 
-      {activeTab === "changelog" && (
+      {activeTab === "changelog" && user.role === "Admin BKPSDM" && (
         <div className="space-y-4">
           <Card>
             <div className="border-b pb-3 mb-4 flex items-center gap-3">
@@ -975,7 +1376,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
       <div className="rounded-2xl bg-amber-50 border-2 border-slate-950 p-4 leading-relaxed font-sans text-xs text-amber-950 flex gap-3">
         <Info className="w-5 h-5 shrink-0 stroke-[2.5] text-amber-700" />
         <div>
-          <strong>Bantuan Teknis Lebih Lanjut:</strong> Jika Anda mengalami kesulitan dalam pengusulan rater, perbedaan data NIP pada profil, atau kegagalan sinkronisasi cloud eksternal, Anda dapat berkonsultasi langsung dengan tim IT BKPSDM di Jl. Sisingamangaraja No. 3 Sidikalang atau melalui surel ke <span className="underline font-bold">bkpsdm@dairikab.go.id</span>.
+          <strong>Bantuan Teknis Lebih Lanjut:</strong> Jika Anda mengalami kesulitan dalam pengusulan rater, perbedaan data NIP pada profil, atau kegagalan sinkronisasi cloud eksternal, Anda dapat berkonsultasi langsung dengan tim IT BKPSDM di Jl. RSU No. 1 Sidikalang atau melalui surel ke <span className="underline font-bold">bkpsdm@dairikab.go.id</span>.
         </div>
       </div>
     </div>
