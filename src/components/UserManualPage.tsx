@@ -452,27 +452,27 @@ Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 (Dibulatkan menjadi 87)
         <!-- CONTOH 2 -->
         <div class="example-card">
           <div class="example-header">KASUS SIMULASI 2: Pejabat Struktural (Memiliki Bawahan Langsung)</div>
-          <p><strong>Subjek Pegawai:</strong> Rikson B Sihombing, S.Psi (Kepala Bidang PPSDM, Has Subordinates = True)</p>
+          <p><strong>Subjek Pegawai:</strong> Rikson B Sihombing, S.Psi (Kepala Bidang Pembinaan dan Pengembangan Sumber Daya Manusia, Has Subordinates = True)</p>
           <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsWithSub.Atasan}%, Sejawat = ${state.period.weightsWithSub.Peer}%, Bawahan = ${state.period.weightsWithSub.Bawahan || 0}%</p>
           <p><strong>Dimensi Pengukuran:</strong> Akuntabel (Menyelesaikan tugas sesuai tanggung jawab, Jujur dalam melaporkan hasil kerja, Mematuhi aturan dan prosedur kerja, Menggunakan sumber daya organisasi secara bertanggung jawab)</p>
           <ul>
             <li>
-              <strong>1. Penilaian Atasan Langsung (Kepala Badan):</strong><br>
+              <strong>1. Penilaian Atasan Langsung (Yon Henrik, AP, M.Si - Kepala Badan):</strong><br>
               - Butir 1 (Tanggung Jawab) = 4, Butir 2 (Kejujuran Laporan) = 4, Butir 3 (Aturan Prosedur) = 4, Butir 4 (Sumber Daya) = 4<br>
               <em>Rerata Atasan</em> = (4 + 4 + 4 + 4) / 4 = <strong>4.00</strong>
             </li>
             <br>
             <li>
               <strong>2. Penilaian Rekan Sejawat (2 Rater):</strong><br>
-              - Rekan Sejawat 1: Memberikan nilai [4, 5, 4, 5] $\rightarrow$ Rerata = 4.50<br>
-              - Rekan Sejawat 2: Memberikan nilai [3, 4, 3, 4] $\rightarrow$ Rerata = 3.50<br>
+              - Rekan Sejawat 1 (Try Saputra Sinaga, S.STP, M.Si - Kabid Pengadaan, Mutasi dan Informasi): Memberikan nilai [4, 5, 4, 5] $\rightarrow$ Rerata = 4.50<br>
+              - Rekan Sejawat 2 (Roy Karya Marco Sinaga, S.IP, M.Si - Sekretaris Badan): Memberikan nilai [3, 4, 3, 4] $\rightarrow$ Rerata = 3.50<br>
               <em>Rerata Kelompok Rekan Sejawat</em> = (4.50 + 3.50) / 2 = <strong>4.00</strong>
             </li>
             <br>
             <li>
               <strong>3. Penilaian Bawahan Langsung (2 Rater):</strong><br>
-              - Bawahan 1: Memberikan nilai [5, 4, 5, 4] $\rightarrow$ Rerata = 4.50<br>
-              - Bawahan 2: Memberikan nilai [4, 4, 4, 5] $\rightarrow$ Rerata = 4.30<br>
+              - Bawahan 1 (Bobby Johan Purba, S.STP, M.A.P - Penelaah Teknis Kebijakan): Memberikan nilai [5, 4, 5, 4] $\rightarrow$ Rerata = 4.50<br>
+              - Bawahan 2 (Melda Heni Indrawati Sagala, S.IP - Penelaah Teknis Kebijakan): Memberikan nilai [4, 4, 4, 5] $\rightarrow$ Rerata = 4.30<br>
               <em>Rerata Kelompok Bawahan Langsung</em> = (4.50 + 4.30) / 2 = <strong>4.40</strong>
             </li>
           </ul>
@@ -490,22 +490,22 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00
 
         <!-- CONTOH 3 -->
         <div class="example-card">
-          <div class="example-header">KASUS SIMULASI 3: Jabatan Fungsional Khusus (Tanpa Bawahan, Evaluasi Kurang Memuaskan)</div>
-          <p><strong>Subjek Pegawai:</strong> Richad Mika Sinaga, S.Tr.IP (Analis SDMA Ahli Pertama, Has Subordinates = False)</p>
+          <div class="example-header">KASUS SIMULASI 3: Jabatan Fungsional/Pelaksana (Tanpa Bawahan, Evaluasi Kurang Memuaskan)</div>
+          <p><strong>Subjek Pegawai:</strong> Richad Mika Sinaga, S.Tr.IP (Analis SDM Aparatur, Has Subordinates = False)</p>
           <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Rekan Sejawat = ${state.period.weightsNoSub.Peer}%</p>
           <p><strong>Dimensi Pengukuran:</strong> Adaptif (Terbuka terhadap perubahan, Cepat menyesuaikan diri dengan sistem atau kebijakan baru, Mencari cara kerja yang lebih efektif, Proaktif menghadapi masalah pekerjaan)</p>
           <ul>
             <li>
-              <strong>1. Penilaian Atasan Langsung (Kepala Bidang PPSDM):</strong><br>
+              <strong>1. Penilaian Atasan Langsung (Rikson B Sihombing, S.Psi - Kepala Bidang Pembinaan dan Pengembangan SDM):</strong><br>
               - Butir 1 (Terbuka Ubah) = 3, Butir 2 (Cepat Sesuai) = 2, Butir 3 (Cara Efektif) = 3, Butir 4 (Proaktif) = 2<br>
               <em>Rerata Atasan</em> = (3 + 2 + 3 + 2) / 4 = <strong>2.50</strong>
             </li>
             <br>
             <li>
               <strong>2. Penilaian Rekan Sejawat (3 Rater):</strong><br>
-              - Rekan Sejawat 1: Rerata rincian = 2.00<br>
-              - Rekan Sejawat 2: Rerata rincian = 2.50<br>
-              - Rekan Sejawat 3: Rerata rincian = 1.50<br>
+              - Rekan Sejawat 1 (Hendra Supreddi Simaremare, S.I.P - Analis SDM Aparatur): Rerata rincian = 2.00<br>
+              - Rekan Sejawat 2 (Maria Morina Seniwaty Simbolon, S.M - Analis SDM Aparatur): Rerata rincian = 2.50<br>
+              - Rekan Sejawat 3 (Musa Sembiring, S.Kom - Analis SDM Aparatur): Rerata rincian = 1.50<br>
               <em>Rerata Kelompok Rekan Sejawat</em> = (2.00 + 2.50 + 1.50) / 3 = <strong>2.00</strong>
             </li>
           </ul>
@@ -521,41 +521,47 @@ Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
           <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>46.00 (Predikat: SANGAT KURANG)</strong> karena berada di bawah 51. Pegawai membutuhkan pembinaan intensif atau coaching khusus dari pihak pimpinan unit kerja.</p>
         </div>
 
-        <h2>2.6 Klasifikasi Kategori Penilaian Perilaku</h2>
-        <p>Nilai agregat akhir yang berkisar antara 1.00 hingga 5.00 dikelompokkan ke dalam kategori predikat capaian kinerja perilaku:</p>
+        <h2>2.6 Klasifikasi Kategori Penilaian Perilaku (Skala 100 & Skala 5)</h2>
+        <p>Nilai agregat akhir kebulatan total yang berkisar antara 0 hingga 100 (dan konversi ekuivalen skala 1.00 s.d 5.00) diklasifikasikan ke dalam predikat capaian kinerja perilaku berikut:</p>
         <table>
           <thead>
             <tr>
-              <th>Interval Skor</th>
+              <th>Skor (Skala 100)</th>
+              <th>Ekuivalen (Skala 5)</th>
               <th>Predikat Kategori</th>
               <th>Rekomendasi Tindak Lanjut</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>4.51 - 5.00</strong></td>
+              <td><strong>90 - 100</strong></td>
+              <td>4.50 - 5.00</td>
               <td>Sangat Baik</td>
-              <td>Pertahankan, berikan apresiasi tinggi d.s.t promosi jabatan.</td>
+              <td>Pertahankan, berikan apresiasi tinggi dan rekomendasi promosi jabatan atau penghargaan khusus.</td>
             </tr>
             <tr class="tr-even">
-              <td><strong>3.51 - 4.50</strong></td>
+              <td><strong>76 - 89</strong></td>
+              <td>3.80 - 4.49</td>
               <td>Baik</td>
-              <td>Standar kinerja terpenuhi dengan optimal, pembinaan berkelanjutan.</td>
+              <td>Standar perilaku terpenuhi dengan sangat optimal, pembinaan dan pengembangan kompetensi terpelihara.</td>
             </tr>
             <tr>
-              <td><strong>2.51 - 3.50</strong></td>
-              <td>Cukup</td>
-              <td>Perlu bimbingan teknis intermiten pada beberapa aspek lemah.</td>
+              <td><strong>61 - 75</strong></td>
+              <td>3.05 - 3.79</td>
+              <td>Butuh Perbaikan</td>
+              <td>Perlu bimbingan teknis berkala, pendampingan atau coaching intensif oleh atasan pada aspek lemah.</td>
             </tr>
             <tr class="tr-even">
-              <td><strong>1.51 - 2.50</strong></td>
+              <td><strong>51 - 60</strong></td>
+              <td>2.55 - 3.04</td>
               <td>Kurang</td>
-              <td>Masuk program pendampingan intensif & teguran administratif.</td>
+              <td>Program pendampingan berkelanjutan dari tim penyehatan kinerja, konseling psikologi, dan teguran lisan/tertulis.</td>
             </tr>
             <tr>
-              <td><strong>1.00 - 1.50</strong></td>
+              <td><strong>Di bawah 51</strong></td>
+              <td>Di bawah 2.55</td>
               <td>Sangat Kurang</td>
-              <td>Evaluasi kelayakan posisi jabatan / penjatuhan sanksi dispilin.</td>
+              <td>Evaluasi kelayakan posisi jabatan saat ini, pengenaan sanksi disipliner kepegawaian sesuai ketentuan.</td>
             </tr>
           </tbody>
         </table>
@@ -583,7 +589,7 @@ Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
         
         <h3>B. Alur Sinkronisasi</h3>
         <ol>
-          <li><strong>Penyimpanan Utama (Primary Local Backup):</strong> Aplikasi menyimpan setiap pemutakhiran data secara transparan di enkripsi LocalStorage browser pengguna (<span class="font-mono">bkpsdm-dairi-360-app-v1</span>). Hal ini memastikan kebal terhadap pemadaman listrik atau konektivitas putus tiba-tiba di daerah.</li>
+          <li><strong>Penyimpanan Utama (Primary Local Backup):</strong> Aplikasi menyimpan setiap pemutakhiran data secara transparan di enkripsi LocalStorage browser pengguna (<span class="font-mono">bkpsdm-dairi-360-app-v2</span>). Hal ini memastikan kebal terhadap pemadaman listrik atau konektivitas putus tiba-tiba di daerah.</li>
           <li><strong>Sinkronisasi Awan (Cloud Sync):</strong> Jika mode Cloud Supabase diaktifkan, aplikasi akan melakukan sinkronisasi otomatis menggunakan metode <strong>1-second Debounce Delay</strong>. Setiap ketukan atau pengisian kuesioner akan dijadwalkan secara aman ke Server Postgres Cloud guna mencegah kehilangan data.</li>
         </ol>
 
@@ -999,15 +1005,15 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                 {/* CASE 1 */}
                 <div className="border-2 border-slate-950 rounded-2xl bg-white overflow-hidden shadow-[3px_3px_0px_rgba(15,23,42,1)]">
                   <div className="bg-sky-600 text-white p-3.5 border-b-2 border-slate-950">
-                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus A: PNS Staf / Pelaksana Pelayanan (Tanpa Bawahan)</h4>
-                    <p className="text-[11px] text-white/90 font-medium">Contoh: Susi Astuti (Pranata Komputer, Has Subordinates: FALSE)</p>
+                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus A: PNS Pejabat Pelaksana (Tanpa Bawahan)</h4>
+                    <p className="text-[11px] text-white/90 font-medium">Contoh: Robinson Silalahi, SE (Penelaah Teknis Kebijakan, Has Subordinates: FALSE)</p>
                   </div>
                   <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
                     <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-sky-700">Berorientasi Pelayanan</span></p>
                     
                     <div className="grid md:grid-cols-2 gap-3">
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
-                        <strong className="text-sky-800">1. Atasan Langsung (1 Orang):</strong>
+                        <strong className="text-sky-800">1. Atasan Langsung (Togap Simanullang - Kasubbag Umum):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
                           <li>Merespons kebutuhan layanan dengan cepat dan tepat = 5</li>
                           <li>Menunjukkan sikap ramah dalam memberikan pelayanan = 4</li>
@@ -1020,9 +1026,9 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-sky-800">2. Rekan Sejawat (3 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Rekan 1: Memberikan nilai [4,4,4,4] $\rightarrow$ Rerata = 4.00</li>
-                          <li>Rekan 2: Memberikan nilai [5,4,4,3] $\rightarrow$ Rerata = 4.00</li>
-                          <li>Rekan 3: Memberikan nilai [4,5,4,5] $\rightarrow$ Rerata = 4.50</li>
+                          <li>Rekan 1 (Hendra S): Memberikan nilai [4,4,4,4] $\rightarrow$ Rerata = 4.00</li>
+                          <li>Rekan 2 (Maria S): Memberikan nilai [5,4,4,3] $\rightarrow$ Rerata = 4.00</li>
+                          <li>Rekan 3 (Minar B): Memberikan nilai [4,5,4,5] $\rightarrow$ Rerata = 4.50</li>
                           <li className="font-mono text-slate-950 list-none mt-1"><strong>Rerata Kelompok Sejawat = (4.00+4.00+4.50)/3 = 4.17</strong></li>
                         </ul>
                       </div>
@@ -1045,15 +1051,15 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                 {/* CASE 2 */}
                 <div className="border-2 border-slate-950 rounded-2xl bg-white overflow-hidden shadow-[3px_3px_0px_rgba(15,23,42,1)]">
                   <div className="bg-indigo-600 text-white p-3.5 border-b-2 border-slate-950">
-                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus B: Pejabat Struktural Eselon / Pimpinan (Dengan Bawahan)</h4>
-                    <p className="text-[11px] text-white/90 font-medium font-sans">Contoh: Samsul Arifin, S.Sos (Kepala Bidang, Has Subordinates: TRUE)</p>
+                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus B: Pejabat Struktural / Pimpinan (Dengan Bawahan)</h4>
+                    <p className="text-[11px] text-white/90 font-medium font-sans">Contoh: Rikson B Sihombing, S.Psi (Kepala Bidang Pembinaan dan Pengembangan Sumber Daya Manusia, Has Subordinates: TRUE)</p>
                   </div>
                   <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
                     <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-indigo-700">Akuntabel</span></p>
                     
                     <div className="grid md:grid-cols-3 gap-3">
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
-                        <strong className="text-indigo-800">1. Atasan (Kepala Dinas):</strong>
+                        <strong className="text-indigo-800">1. Atasan (Yon Henrik, AP, M.Si - Kepala Badan):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
                           <li>Menyelesaikan tugas sesuai tanggung jawab = 4</li>
                           <li>Jujur dalam melaporkan hasil kerja = 4</li>
@@ -1066,8 +1072,8 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-indigo-800">2. Sejawat (2 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Rekan 1: Memberikan nilai [4,5,4,5] $\rightarrow$ Rerata = 4.50</li>
-                          <li>Rekan 2: Memberikan nilai [3,4,3,4] $\rightarrow$ Rerata = 3.50</li>
+                          <li>Rekan 1 (Try Saputra Sinaga): Memberikan nilai [4,5,4,5] $\rightarrow$ Rerata = 4.50</li>
+                          <li>Rekan 2 (Roy Karya Marco Sinaga): Memberikan nilai [3,4,3,4] $\rightarrow$ Rerata = 3.50</li>
                           <li className="font-mono text-slate-950 list-none mt-1"><strong>Rerata Sejawat = (4.50+3.50)/2 = 4.00</strong></li>
                         </ul>
                       </div>
@@ -1075,8 +1081,8 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-indigo-800">3. Bawahan (2 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Bawahan 1: Memberikan nilai [5,4,5,4] $\rightarrow$ Rerata = 4.50</li>
-                          <li>Bawahan 2: Memberikan nilai [4,4,4,5] $\rightarrow$ Rerata = 4.30</li>
+                          <li>Bawahan 1 (Bobby Johan P): Memberikan nilai [5,4,5,4] $\rightarrow$ Rerata = 4.50</li>
+                          <li>Bawahan 2 (Melda Heni S): Memberikan nilai [4,4,4,5] $\rightarrow$ Rerata = 4.30</li>
                           <li className="font-mono text-slate-950 list-none mt-1"><strong>Rerata Bawahan = (4.50+4.30)/2 = 4.40</strong></li>
                         </ul>
                       </div>
@@ -1099,15 +1105,15 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                 {/* CASE 3 */}
                 <div className="border-2 border-slate-950 rounded-2xl bg-white overflow-hidden shadow-[3px_3px_0px_rgba(15,23,42,1)]">
                   <div className="bg-rose-700 text-white p-3.5 border-b-2 border-slate-950">
-                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus C: Jabatan Ahli Khusus (Tanpa Bawahan, Rekomendasi Khusus Pembinaan)</h4>
-                    <p className="text-[11px] text-white/90 font-medium">Contoh: Dr. Heri (Dokter Ahli Madya Puskesmas, Has Subordinates: FALSE)</p>
+                    <h4 className="font-black text-xs uppercase tracking-wider text-yellow-300">Variasi Kasus C: Jabatan Fungsional/Pelaksana (Tanpa Bawahan, Rekomendasi Khusus Pembinaan)</h4>
+                    <p className="text-[11px] text-white/90 font-medium">Contoh: Richad Mika Sinaga, S.Tr.IP (Analis SDM Aparatur, Has Subordinates: FALSE)</p>
                   </div>
                   <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
                     <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-rose-700">Adaptif</span></p>
                     
                     <div className="grid md:grid-cols-2 gap-3">
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
-                        <strong className="text-rose-800">1. Atasan (Kepala Puskesmas):</strong>
+                        <strong className="text-rose-800">1. Atasan (Rikson B Sihombing, S.Psi - Kepala Bidang Pembinaan dan Pengembangan SDM):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
                           <li>Terbuka terhadap perubahan = 3</li>
                           <li>Cepat menyesuaikan diri dengan sistem baru = 2</li>
@@ -1120,9 +1126,9 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-rose-800">2. Sejawat (3 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Rekan 1: Rerata = 2.00</li>
-                          <li>Rekan 2: Rerata = 2.50</li>
-                          <li>Rekan 3: Rerata = 1.50</li>
+                          <li>Rekan 1 (Hendra Supreddi Simaremare, S.I.P): Rerata = 2.00</li>
+                          <li>Rekan 2 (Maria Morina Seniwaty Simbolon, S.M): Rerata = 2.50</li>
+                          <li>Rekan 3 (Musa Sembiring, S.Kom): Rerata = 1.50</li>
                           <li className="font-mono text-slate-950 list-none mt-1"><strong>Rerata Sejawat = (2.00+2.50+1.50)/3 = 2.00</strong></li>
                         </ul>
                       </div>
@@ -1152,35 +1158,41 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                   <table className="w-full text-left font-sans text-xs">
                     <thead>
                       <tr className="bg-slate-900 text-white font-display uppercase tracking-wide">
-                        <th className="p-2 border">Batas Nilai Min - Maks</th>
+                        <th className="p-2 border">Batas Nilai (Skala 100)</th>
+                        <th className="p-2 border">Ekuivalen Skala 5</th>
                         <th className="p-2 border">Predikat Kategori</th>
                         <th className="p-2 border">Status Kepatuhan Audit Perilaku ASN</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="p-2 border font-mono font-bold">4.51 s.d 5.00</td>
-                        <td className="p-2 border"><Badge className="bg-emerald-400 text-[#000]">Sangat Baik</Badge></td>
+                        <td className="p-2 border font-mono font-bold">90 s.d 100</td>
+                        <td className="p-2 border font-mono text-slate-500">4.50 s.d 5.00</td>
+                        <td className="p-2 border"><Badge className="bg-emerald-100 text-emerald-800 border-emerald-250">Sangat Baik</Badge></td>
                         <td className="p-2 border font-medium text-slate-600">Perilaku ideal rujukan kerja nasional, konsisten dipertahankan.</td>
                       </tr>
                       <tr className="bg-slate-50/55">
-                        <td className="p-2 border font-mono font-bold">3.51 s.d 4.50</td>
-                        <td className="p-2 border"><Badge className="bg-blue-300 text-[#000]">Baik</Badge></td>
+                        <td className="p-2 border font-mono font-bold">76 s.d 89</td>
+                        <td className="p-2 border font-mono text-slate-500">3.80 s.d 4.49</td>
+                        <td className="p-2 border"><Badge className="bg-blue-100 text-blue-800 border-blue-200">Baik</Badge></td>
                         <td className="p-2 border font-medium text-slate-600">Terbuka melampaui sasaran dinas dasar, rujukan standar tinggi.</td>
                       </tr>
                       <tr>
-                        <td className="p-2 border font-mono font-bold">2.51 s.d 3.50</td>
-                        <td className="p-2 border"><Badge className="bg-amber-300 text-[#000]">Cukup</Badge></td>
+                        <td className="p-2 border font-mono font-bold">61 s.d 75</td>
+                        <td className="p-2 border font-mono text-slate-500">3.05 s.d 3.79</td>
+                        <td className="p-2 border"><Badge className="bg-yellow-101 text-yellow-800 border-yellow-200">Butuh Perbaikan</Badge></td>
                         <td className="p-2 border font-medium text-slate-600">Perlu bimbingan intermiten, terdapat fluktuasi objektivitas kerja.</td>
                       </tr>
                       <tr className="bg-slate-50/55">
-                        <td className="p-2 border font-mono font-bold">1.51 s.d 2.50</td>
-                        <td className="p-2 border"><Badge className="bg-rose-400 text-[#000]">Kurang</Badge></td>
+                        <td className="p-2 border font-mono font-bold">51 s.d 60</td>
+                        <td className="p-2 border font-mono text-slate-500">2.55 s.d 3.04</td>
+                        <td className="p-2 border"><Badge className="bg-orange-101 text-orange-800 border-orange-200">Kurang</Badge></td>
                         <td className="p-2 border font-medium text-slate-600">Teguran tertulis wajib & pendampingan klinis fungsional khusus.</td>
                       </tr>
                       <tr>
-                        <td className="p-2 border font-mono font-bold">1.00 s.d 1.50</td>
-                        <td className="p-2 border"><Badge className="bg-red-600 text-white">Sangat Kurang</Badge></td>
+                        <td className="p-2 border font-mono font-bold">Di bawah 51</td>
+                        <td className="p-2 border font-mono text-slate-500">Di bawah 2.55</td>
+                        <td className="p-2 border"><Badge className="bg-red-100 text-red-800 border-red-200">Sangat Kurang</Badge></td>
                         <td className="p-2 border font-medium text-slate-600">Memicu sanksi disiplinitas berat, peninjauan jabatan kepegawaian.</td>
                       </tr>
                     </tbody>

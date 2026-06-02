@@ -1,12 +1,13 @@
-import { DemoAccount, OrgUnit, Job, Employee, Assignment, Response, Objection, PendingRaters, AppState, AdminUser } from "./types";
+import { DemoAccount, OrgUnit, Job, Employee, Assignment, Response, Objection, PendingRaters, AppState } from "./types";
 
 export const demoAccounts: DemoAccount[] = [
-  { nip: "", username: "admin", password: "admin123", role: "Admin BKPSDM", name: "Administrator BKPSDM", userId: 0 },
-  { nip: "196906031990091001", password: "admin123", role: "ASN", name: "Drs. Junihardi David Ricardo Siregar, MM", userId: 1 },
+  { nip: "", username: "admin", password: "Mare123.", role: "Admin BKPSDM", name: "Administrator BKPSDM Utama", userId: 0 },
+  { nip: "197310191993111001", password: "admin123", role: "ASN", name: "Yon Henrik, AP, M.Si", userId: 1 },
   { nip: "198803152007011004", password: "admin123", role: "ASN", name: "Roy Karya Marco Sinaga, S.IP, M.Si", userId: 2 },
+  { nip: "198005082006041007", password: "admin123", role: "ASN", name: "Rikson B Sihombing, S.Psi", userId: 3 },
+  { nip: "199205262014061001", password: "admin123", role: "ASN", name: "Try Saputra Sinaga, S.STP, M.Si", userId: 4 },
+  { nip: "197312052006041007", password: "admin123", role: "ASN", name: "Robinson Silalahi, SE", userId: 10 },
   { nip: "199908232021081003", password: "admin123", role: "ASN", name: "Richad Mika Sinaga, S.Tr.IP", userId: 12 },
-  { nip: "198508252010012001", password: "admin123", role: "ASN", name: "Lestari Yudianti Sinaga, SE", userId: 13 },
-  { nip: "198506232010012027", password: "admin123", role: "ASN", name: "Minar Berutu, A.Md", userId: 9 },
 ];
 
 export const orgUnitCatalog: OrgUnit[] = [
@@ -16,9 +17,7 @@ export const orgUnitCatalog: OrgUnit[] = [
   { id: 4, name: "Subbagian Perencanaan, Program Pelaporan dan Keuangan", parentId: 3, type: "Subbagian" },
   { id: 5, name: "Subbagian Umum Kepegawaian dan Aset", parentId: 3, type: "Subbagian" },
   { id: 6, name: "Bidang Pengadaan, Mutasi dan Informasi", parentId: 1, type: "Bidang" },
-  { id: 7, name: "Jabatan Fungsional Bidang Pengadaan, Mutasi dan Informasi", parentId: 6, type: "Kelompok Jabatan Fungsional" },
   { id: 8, name: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", parentId: 1, type: "Bidang" },
-  { id: 9, name: "Jabatan Fungsional Bidang Pembinaan dan Pengembangan SDM", parentId: 8, type: "Kelompok Jabatan Fungsional" },
 ];
 
 export const jobCatalog: Job[] = [
@@ -30,33 +29,40 @@ export const jobCatalog: Job[] = [
   { id: 6, name: "Kepala Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", type: "Administrator", defaultUnit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", leadership: true, description: "Mengelola pembinaan dan pengembangan SDM aparatur." },
   { id: 7, name: "Analis SDM Aparatur", type: "Fungsional", defaultUnit: "Kelompok Jabatan Fungsional", leadership: false, description: "Jabatan fungsional bidang manajemen ASN." },
   { id: 8, name: "Pranata Komputer", type: "Fungsional", defaultUnit: "Jabatan Fungsional Bidang Pengadaan, Mutasi dan Informasi", leadership: false, description: "Pengelolaan sistem informasi dan dukungan digital." },
-  { id: 9, name: "Pengelola Data Kepegawaian", type: "Pelaksana", defaultUnit: "Bidang Pengadaan, Mutasi dan Informasi", leadership: false, description: "Pengelolaan data administrasi kepegawaian." },
+  { id: 9, name: "Pengolah Data and Informasi", type: "Pelaksana", defaultUnit: "Sekretariat Badan", leadership: false, description: "Melaksanakan pengelolaan, verifikasi, dan penyusunan terhadap data dan laporan." },
   { id: 10, name: "Pengadministrasi Kepegawaian", type: "Pelaksana", defaultUnit: "Subbagian Umum Kepegawaian dan Aset", leadership: false, description: "Administrasi surat, dokumen, dan layanan internal kepegawaian." },
+  { id: 11, name: "Pranata SDM Aparatur", type: "Fungsional", defaultUnit: "Bidang Pengadaan, Mutasi dan Informasi", leadership: false, description: "JF Manajemen ASN Jenjang Keterampilan" },
+  { id: 12, name: "Fasilitator Pemerintahan", type: "Pelaksana", defaultUnit: "Bidang Pengadaan, Mutasi dan Informasi", leadership: false, description: "Mengumpulkan berbagai informasi, keluhan, dan masukan dari masyarakat." },
+  { id: 13, name: "Penelaah Teknis Kebijakan", type: "Pelaksana", defaultUnit: "Kepala Badan", leadership: false, description: "Memberikan dukungan teknis dalam penyiapan bahan, pengumpulan data, analisis, dan perumusan rekomendasi " },
+  { id: 14, name: "Pengadministrasi Perkantoran", type: "Pelaksana", defaultUnit: "Kepala Badan", leadership: false, description: "Mendukung kelancaran operasional perusahaan dengan mengelola tugas-tugas rutin" }
 ];
 
 export const initialEmployees: Employee[] = [
-  { id: 1, nama: "Drs. Junihardi David Ricardo Siregar, MM", nip: "196906031990091001", gol: "IV/c", jabatan: "Kepala Badan", jenis: "JPT Pratama", unit: "Kepala Badan", atasanId: null, hasSub: true, role: "ASN" },
-  { id: 2, nama: "Roy Karya Marco Sinaga, S.IP, M.Si", nip: "198803152007011004", gol: "IV/a", jabatan: "Sekretaris Baden", jenis: "Administrator", unit: "Sekretariat Badan", atasanId: 1, hasSub: true, role: "ASN" },
-  { id: 3, nama: "Angelius Henry Sigalingging, SE, M.AP", nip: "198204132008051001", gol: "III/d", jabatan: "Kabid Pembinaan dan Pengembangan SDM", jenis: "Administrator", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", atasanId: 1, hasSub: true, role: "ASN" },
-  { id: 4, nama: "Try Saputra Sinaga, S.STP, M.Si", nip: "199205262014061001", gol: "III/d", jabatan: "Kabid Pengadaan, Mutasi dan Informasi", jenis: "Administrator", unit: "Bidang Pengadaan, Mutasi dan Informasi", atasanId: 1, hasSub: true, role: "ASN" },
-  { id: 5, nama: "Buha Pasaribu", nip: "196903091990031004", gol: "III/d", jabatan: "Analis SDM Aparatur Ahli Muda", jenis: "Fungsional", unit: "Subbagian Perencanaan, Program Pelaporan dan Keuangan", atasanId: 6, hasSub: false, role: "ASN" },
-  { id: 6, nama: "Lindawaty Veronika Malau, SE, MM", nip: "198511222011012009", gol: "III/c", jabatan: "Kasubbag Perencanaan, Program Pelaporan dan Keuangan", jenis: "Pengawas", unit: "Subbagian Perencanaan, Program Pelaporan dan Keuangan", atasanId: 2, hasSub: true, role: "ASN" },
-  { id: 7, nama: "Togap Simanullang", nip: "197901201998031002", gol: "III/d", jabatan: "Kasubbag Umum, Kepegawaian dan Aset", jenis: "Pengawas", unit: "Subbagian Umum Kepegawaian dan Aset", atasanId: 2, hasSub: true, role: "ASN" },
-  { id: 8, nama: "Hendra Supreddi Simaremare, S.I.P", nip: "198307262005021001", gol: "III/c", jabatan: "Penelaah Teknis Kebijakan", jenis: "Pelaksana", unit: "Subbagian Umum Kepegawaian dan Aset", atasanId: 7, hasSub: false, role: "ASN" },
-  { id: 9, nama: "Minar Berutu, A.Md", nip: "198506232010012027", gol: "III/b", jabatan: "Penata Layanan Operasional", jenis: "Pelaksana", unit: "Subbagian Umum Kepegawaian dan Aset", atasanId: 7, hasSub: false, role: "ASN" },
-  { id: 10, nama: "Robinson Silalahi, SE", nip: "197312052006041007", gol: "III/c", jabatan: "Penelaah Teknis Kebijakan", jenis: "Pelaksana", unit: "Subbagian Umum Kepegawaian dan Aset", atasanId: 7, hasSub: false, role: "ASN" },
-  { id: 11, nama: "Maria Morina Seniwaty Simbolon, S.M", nip: "198609152011012014", gol: "III/b", jabatan: "Penelaah Teknis Kebijakan", jenis: "Pelaksana", unit: "Subbagian Umum Kepegawaian dan Aset", atasanId: 7, hasSub: false, role: "ASN" },
-  { id: 12, nama: "Richad Mika Sinaga, S.Tr.IP", nip: "199908232021081003", gol: "III/a", jabatan: "Penelaah Teknis Kebijakan", jenis: "Pelaksana", unit: "Bidang Pengadaan, Mutasi dan Informasi", atasanId: 4, hasSub: false, role: "ASN" },
-  { id: 13, nama: "Lestari Yudianti Sinaga, SE", nip: "198508252010012001", gol: "III/b", jabatan: "Penelaah Teknis Kebijakan", jenis: "Pelaksana", unit: "Bidang Pengadaan, Mutasi dan Informasi", atasanId: 4, hasSub: false, role: "ASN" },
-  { id: 14, nama: "Sarden Sihotang, S.Kom", nip: "198909292019031014", gol: "III/a", jabatan: "Penelaah Teknis Kebijakan", jenis: "Pelaksana", unit: "Bidang Pengadaan, Mutasi dan Informasi", atasanId: 4, hasSub: false, role: "ASN" },
-  { id: 15, nama: "Ricky Suhendra Lumbangaol, A.Md", nip: "199310132019031009", gol: "III/a", jabatan: "Pengolah Data dan Informasi", jenis: "Pelaksana", unit: "Bidang Pengadaan, Mutasi dan Informasi", atasanId: 4, hasSub: false, role: "ASN" },
-  { id: 16, nama: "Rumondang Purba, A.Md", nip: "197405252011012001", gol: "III/b", jabatan: "Pengolah Data dan Informasi", jenis: "Pelaksana", unit: "Bidang Pengadaan, Mutasi dan Informasi", atasanId: 4, hasSub: false, role: "ASN" },
-  { id: 17, nama: "Melda Heni Indrawati Sagala, S.IP", nip: "198606152006042005", gol: "III/c", jabatan: "Penelaah Teknis Kebijakan", jenis: "Pelaksana", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", atasanId: 3, hasSub: false, role: "ASN" },
-  { id: 18, nama: "Bobby Johan Purba, S.STP, M.A.P", nip: "199611172019081001", gol: "III/a", jabatan: "Penelaah Teknis Kebijakan", jenis: "Pelaksana", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", atasanId: 3, hasSub: false, role: "ASN" },
-  { id: 19, nama: "Samuel Kevin Sinamo, S.Tr.IP", nip: "200209222024091001", gol: "III/a", jabatan: "Fasilitator Pemerintahan", jenis: "Pelaksana", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", atasanId: 3, hasSub: false, role: "ASN" },
-  { id: 20, nama: "Sari Nurlailan Br. Pardede", nip: "198005282025212006", gol: "III/a", jabatan: "Pengadministrasi Perkantoran", jenis: "Pelaksana", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", atasanId: 3, hasSub: false, role: "ASN" },
-  { id: 21, nama: "Ridwan K. Banjarnahor", nip: "198708232025211011", gol: "III/a", jabatan: "Pengadministrasi Perkantoran", jenis: "Pelaksana", unit: "Subbagian Umum Kepegawaian dan Aset", atasanId: 7, hasSub: false, role: "ASN" },
-  { id: 22, nama: "Felly Fiyanti Br. Ginting", nip: "199302242025212010", gol: "III/a", jabatan: "Pengadministrasi Perkantoran", jenis: "Pelaksana", unit: "Subbagian Umum Kepegawaian dan Aset", atasanId: 7, hasSub: false, role: "ASN" },
+  { id: 1, gol: "IV/c", nip: "197310191993111001", nama: "Yon Henrik, AP, M.Si", role: "ASN", unit: "Kepala Badan", jenis: "JPT Pratama", hasSub: true, jabatan: "Kepala Badan", atasanId: null, password: "admin123", username: "197310191993111001" },
+  { id: 2, gol: "IV/b", nip: "198803152007011004", nama: "Roy Karya Marco Sinaga, S.IP, M.Si", role: "ASN", unit: "Sekretariat Badan", jenis: "Administrator", hasSub: true, jabatan: "Sekretaris Badan", atasanId: 1, password: "admin123", username: "198803152007011004" },
+  { id: 3, gol: "IIV/a", nip: "198005082006041007", nama: "Rikson B Sihombing, S.Psi", role: "ASN", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", jenis: "Administrator", hasSub: true, jabatan: "Kepala Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", atasanId: 1, password: "admin123", username: "198005082006041007" },
+  { id: 4, gol: "III/d", nip: "199205262014061001", nama: "Try Saputra Sinaga, S.STP, M.Si", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Administrator", hasSub: true, jabatan: "Kepala Bidang Pengadaan, Mutasi dan Informasi", atasanId: 1, password: "admin123", username: "199205262014061001" },
+  { id: 5, gol: "III/d", nip: "196903091990031004", nama: "Buha Pasaribu", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Fungsional", hasSub: false, jabatan: "Analis SDM Aparatur", atasanId: 4, password: "admin123", username: "196903091990031004" },
+  { id: 6, gol: "III/d", nip: "198511222011012009", nama: "Lindawaty Veronika Malau, SE, MM", role: "ASN", unit: "Subbagian Perencanaan, Program Pelaporan dan Keuangan", jenis: "Pengawas", hasSub: true, jabatan: "Kepala Subbagian Perencanaan, Program Pelaporan dan Keuangan", atasanId: 2, password: "admin123", username: "198511222011012009" },
+  { id: 7, gol: "III/b", nip: "197901201998031002", nama: "Togap Simanullang", role: "ASN", unit: "Subbagian Umum Kepegawaian dan Aset", jenis: "Pengawas", hasSub: true, jabatan: "Kepala Subbagian Umum Kepegawaian dan Aset", atasanId: 2, password: "admin123", username: "197901201998031002" },
+  { id: 8, gol: "III/a", nip: "198307262005021001", nama: "Hendra Supreddi Simaremare, S.I.P", role: "ASN", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", jenis: "Fungsional", hasSub: false, jabatan: "Analis SDM Aparatur", atasanId: 3, password: "admin123", username: "198307262005021001" },
+  { id: 9, gol: "III/b", nip: "198506232010012027", nama: "Minar Berutu, A.Md", role: "ASN", unit: "Subbagian Umum Kepegawaian dan Aset", jenis: "Pelaksana", hasSub: false, jabatan: "Pengolah Data dan Informasi", atasanId: 7, password: "admin123", username: "198506232010012027" },
+  { id: 10, gol: "III/a", nip: "197312052006041007", nama: "Robinson Silalahi, SE", role: "ASN", unit: "Subbagian Umum Kepegawaian dan Aset", jenis: "Pelaksana", hasSub: false, jabatan: "Penelaah Teknis Kebijakan", atasanId: 7, password: "admin123", username: "197312052006041007" },
+  { id: 11, gol: "III/b", nip: "198609152011012014", nama: "Maria Morina Seniwaty Simbolon, S.M", role: "ASN", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", jenis: "Fungsional", hasSub: false, jabatan: "Analis SDM Aparatur", atasanId: 3, password: "admin123", username: "198609152011012014" },
+  { id: 12, gol: "III/b", nip: "199908232021081003", nama: "Richad Mika Sinaga, S.Tr.IP", role: "ASN", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", jenis: "Fungsional", hasSub: false, jabatan: "Analis SDM Aparatur", atasanId: 3, password: "admin123", username: "199908232021081003" },
+  { id: 13, gol: "III/a", nip: "198508252010012001", nama: "Lestari Yudianti Sinaga, SE", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Fungsional", hasSub: false, jabatan: "Analis SDM Aparatur", atasanId: 4, password: "admin123", username: "198508252010012001" },
+  { id: 14, gol: "III/b", nip: "198909292019031014", nama: "Sarden Sihotang, S.Kom", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Fungsional", hasSub: false, jabatan: "Analis SDM Aparatur", atasanId: 4, password: "admin123", username: "198909292019031014" },
+  { id: 15, gol: "III/a", nip: "199310132019031009", nama: "Ricky Suhendra Lumbangaol, A.Md", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Fungsional", hasSub: false, jabatan: "Pranata SDM Aparatur", atasanId: 4, password: "admin123", username: "199310132019031009" },
+  { id: 16, gol: "III/b", nip: "197405252011012001", nama: "Rumondang Purba, A.Md", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Pelaksana", hasSub: false, jabatan: "Pengolah Data dan Informasi", atasanId: 4, password: "admin123", username: "197405252011012001" },
+  { id: 17, gol: "III/c", nip: "198606152006042005", nama: "Melda Heni Indrawati Sagala, S.IP", role: "ASN", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", jenis: "Pelaksana", hasSub: false, jabatan: "Penelaah Teknis Kebijakan", atasanId: 3 },
+  { id: 18, gol: "III/b", nip: "199611172019081001", nama: "Bobby Johan Purba, S.STP, M.A.P", role: "ASN", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", jenis: "Pelaksana", hasSub: false, jabatan: "Penelaah Teknis Kebijakan", atasanId: 3, password: "admin123", username: "199611172019081001" },
+  { id: 19, gol: "III/a", nip: "200209222024091001", nama: "Samuel Kevin Sinamo, S.Tr.IP", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Pelaksana", hasSub: false, jabatan: "Fasilitator Pemerintahan", atasanId: 4, password: "admin123", username: "200209222024091001" },
+  { id: 20, gol: "V", nip: "198005282025212006", nama: "Sari Nurlailan Br. Pardede", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Pelaksana", hasSub: false, jabatan: "Pengadministrasi Perkantoran", atasanId: 4, password: "admin123", username: "198005282025212006" },
+  { id: 21, gol: "V", nip: "198708232025211011", nama: "Ridwan K. Banjarnahor", role: "ASN", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", jenis: "Pelaksana", hasSub: false, jabatan: "Pengadministrasi Perkantoran", atasanId: 3, password: "admin123", username: "198708232025211011" },
+  { id: 22, gol: "V", nip: "199302242025212010", nama: "Felly Fiyanti Br. Ginting", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Pelaksana", hasSub: false, jabatan: "Pengadministrasi Perkantoran", atasanId: 4, password: "admin123", username: "199302242025212010" },
+  { id: 23, gol: "IV/a", nip: "198009092009031004", nama: "Musa Sembiring, S.Kom", role: "ASN", unit: "Bidang Pembinaan dan Pengembangan Sumber Daya Manusia", jenis: "Fungsional", hasSub: false, jabatan: "Analis SDM Aparatur", atasanId: 3, password: "admin123", username: "198009092009031004" },
+  { id: 24, gol: "III/a", nip: "199610222019032005", nama: "Menti Nainggolan, S.K.M", role: "ASN", unit: "Subbagian Perencanaan, Program Pelaporan dan Keuangan", jenis: "Pelaksana", hasSub: false, jabatan: "Penelaah Teknis Kebijakan", atasanId: 6, password: "admin123", username: "199610222019032005" },
+  { id: 25, gol: "IX", nip: "199504092025212048", nama: "Dina Intisari Sihombing, S.Kom", role: "ASN", unit: "Bidang Pengadaan, Mutasi dan Informasi", jenis: "Fungsional", hasSub: false, jabatan: "Pranata Komputer", atasanId: 4, password: "admin123", username: "199504092025212048" }
 ];
 
 export const dimensions = [
@@ -71,61 +77,147 @@ export const dimensions = [
 ];
 
 export const initialAssignments: Assignment[] = [
-  // Evaluee Minar Berutu (ID: 9)
-  { id: 1, periodId: 1, evalueeId: 9, evaluatorId: 7, type: "Atasan", status: "Selesai", approved: true },
-  { id: 2, periodId: 1, evalueeId: 9, evaluatorId: 8, type: "Peer", status: "Selesai", approved: true },
-  { id: 3, periodId: 1, evalueeId: 9, evaluatorId: 10, type: "Peer", status: "Belum Mulai", approved: true },
-
-  // Evaluee Richad Mika Sinaga (ID: 12)
-  { id: 4, periodId: 1, evalueeId: 12, evaluatorId: 4, type: "Atasan", status: "Selesai", approved: true },
-  { id: 5, periodId: 1, evalueeId: 12, evaluatorId: 13, type: "Peer", status: "Belum Mulai", approved: true },
-  { id: 6, periodId: 1, evalueeId: 12, evaluatorId: 14, type: "Peer", status: "Selesai", approved: true },
-
-  // Evaluee Bobby Johan Purba (ID: 18)
-  { id: 7, periodId: 1, evalueeId: 18, evaluatorId: 3, type: "Atasan", status: "Belum Mulai", approved: true },
-  { id: 8, periodId: 1, evalueeId: 18, evaluatorId: 17, type: "Peer", status: "Belum Mulai", approved: true },
-  { id: 9, periodId: 1, evalueeId: 18, evaluatorId: 19, type: "Peer", status: "Selesai", approved: true },
-
-  // Evaluee Angelius Henry Sigalingging (Kabid, ID: 3)
-  { id: 10, periodId: 1, evalueeId: 3, evaluatorId: 1, type: "Atasan", status: "Selesai", approved: true },
-  { id: 11, periodId: 1, evalueeId: 3, evaluatorId: 17, type: "Bawahan", status: "Selesai", approved: true },
-  { id: 12, periodId: 1, evalueeId: 3, evaluatorId: 18, type: "Bawahan", status: "Belum Mulai", approved: true },
-
-  // Evaluee Roy Karya Marco Sinaga (Sekretaris, ID: 2)
-  { id: 13, periodId: 1, evalueeId: 2, evaluatorId: 1, type: "Atasan", status: "Selesai", approved: true },
-  { id: 14, periodId: 1, evalueeId: 2, evaluatorId: 5, type: "Bawahan", status: "Selesai", approved: true },
-  { id: 15, periodId: 1, evalueeId: 2, evaluatorId: 6, type: "Bawahan", status: "Selesai", approved: true },
+  { id: 325005, type: "Atasan", status: "Selesai", approved: true, periodId: 2, evalueeId: 9, evaluatorId: 7 },
+  { id: 325006, type: "Peer", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 9, evaluatorId: 10 },
+  { id: 325007, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 18, evaluatorId: 3 },
+  { id: 325008, type: "Peer", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 18, evaluatorId: 17 },
+  { id: 325009, type: "Atasan", status: "Selesai", approved: true, periodId: 2, evalueeId: 3, evaluatorId: 1 },
+  { id: 325010, type: "Bawahan", status: "Selesai", approved: true, periodId: 2, evalueeId: 3, evaluatorId: 17 },
+  { id: 325011, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 3, evaluatorId: 18 },
+  { id: 325012, type: "Atasan", status: "Selesai", approved: true, periodId: 2, evalueeId: 2, evaluatorId: 1 },
+  { id: 325013, type: "Bawahan", status: "Selesai", approved: true, periodId: 2, evalueeId: 2, evaluatorId: 6 },
+  { id: 325014, type: "Bawahan", status: "Selesai", approved: true, periodId: 2, evalueeId: 1, evaluatorId: 2 },
+  { id: 325015, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 1, evaluatorId: 3 },
+  { id: 325016, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 1, evaluatorId: 4 },
+  { id: 325017, type: "Atasan", status: "Selesai", approved: true, periodId: 2, evalueeId: 4, evaluatorId: 1 },
+  { id: 325018, type: "Atasan", status: "Selesai", approved: true, periodId: 2, evalueeId: 6, evaluatorId: 2 },
+  { id: 325019, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 2, evaluatorId: 7 },
+  { id: 325020, type: "Atasan", status: "Selesai", approved: true, periodId: 2, evalueeId: 7, evaluatorId: 2 },
+  { id: 325021, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 7, evaluatorId: 9 },
+  { id: 325022, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 7, evaluatorId: 10 },
+  { id: 325023, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 10, evaluatorId: 7 },
+  { id: 325024, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 4, evaluatorId: 13 },
+  { id: 325025, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 13, evaluatorId: 4 },
+  { id: 325026, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 4, evaluatorId: 14 },
+  { id: 325027, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 14, evaluatorId: 4 },
+  { id: 325028, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 4, evaluatorId: 15 },
+  { id: 325029, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 15, evaluatorId: 4 },
+  { id: 325030, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 16, evaluatorId: 4 },
+  { id: 325031, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 17, evaluatorId: 3 },
+  { id: 325032, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 23, evaluatorId: 3 },
+  { id: 325033, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 4, evaluatorId: 5 },
+  { id: 325034, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 5, evaluatorId: 4 },
+  { id: 325035, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 3, evaluatorId: 8 },
+  { id: 325036, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 8, evaluatorId: 3 },
+  { id: 325037, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 3, evaluatorId: 11 },
+  { id: 325038, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 11, evaluatorId: 3 },
+  { id: 325039, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 3, evaluatorId: 12 },
+  { id: 325040, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 12, evaluatorId: 3 },
+  { id: 325041, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 4, evaluatorId: 16 },
+  { id: 325042, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 19, evaluatorId: 4 },
+  { id: 325043, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 20, evaluatorId: 4 },
+  { id: 325044, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 21, evaluatorId: 3 },
+  { id: 325045, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 22, evaluatorId: 4 },
+  { id: 325046, type: "Bawahan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 6, evaluatorId: 24 },
+  { id: 325047, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 24, evaluatorId: 6 },
+  { id: 325048, type: "Atasan", status: "Belum Mulai", approved: true, periodId: 2, evalueeId: 25, evaluatorId: 4 }
 ];
 
-function scorePack(base = 4) {
-  const pack: Record<string, number> = {};
-  dimensions.forEach((d, i) => {
-    pack[d.key] = Math.max(3, Math.min(5, base + ((i % 3) - 1) * 0.2));
-  });
-  return pack;
-}
-
 export const initialResponses: Response[] = [
-  { assignmentId: 1, scores: scorePack(4.4), comments: "Responsif dan mampu menjaga ritme kerja.", submittedAt: "2026-05-21" },
-  { assignmentId: 2, scores: scorePack(4.2), comments: "Kolaboratif dan mudah diajak koordinasi.", submittedAt: "2026-05-22" },
-  { assignmentId: 4, scores: scorePack(4.1), comments: "Perlu meningkatkan dokumentasi tindak lanjut.", submittedAt: "2026-05-20" },
-  { assignmentId: 6, scores: scorePack(4.5), comments: "Sangat membantu di pekerjaan lintas bidang.", submittedAt: "2026-05-22" },
-  { assignmentId: 9, scores: scorePack(3.8), comments: "Perlu konsistensi dalam ketepatan waktu.", submittedAt: "2026-05-19" },
-  { assignmentId: 10, scores: scorePack(4.4), comments: "Arahannya jelas dan tenang dalam mengambil keputusan.", submittedAt: "2026-05-21" },
-  { assignmentId: 11, scores: scorePack(4.1), comments: "Pembinaan cukup baik, perlu lebih sering memberi umpan balik.", submittedAt: "2026-05-23" },
-  { assignmentId: 13, scores: scorePack(4.6), comments: "Kuat dalam pengembangan kompetensi dan inovasi.", submittedAt: "2026-05-24" },
-  { assignmentId: 14, scores: scorePack(4.8), comments: "Memberi arahan yang detail.", submittedAt: "2026-05-24" },
-  { assignmentId: 15, scores: scorePack(4.7), comments: "Konsisten mendukung tim.", submittedAt: "2026-05-24" },
+  {
+    assignmentId: 2,
+    scores: { loyal: 4.2, adaptif: 4.4, harmonis: 4, kompeten: 4.4, akuntabel: 4.2, pelayanan: 4, kolaboratif: 4, kepemimpinan: 4.2 },
+    comments: "Kolaboratif dan mudah diajak koordinasi.",
+    submittedAt: "2026-05-22"
+  },
+  {
+    assignmentId: 4,
+    scores: { loyal: 4.1, adaptif: 4.3, harmonis: 3.8999999999999995, kompeten: 4.3, akuntabel: 4.1, pelayanan: 3.8999999999999995, kolaboratif: 3.8999999999999995, kepemimpinan: 4.1 },
+    comments: "Perlu meningkatkan dokumentasi tindak lanjut.",
+    submittedAt: "2026-05-20"
+  },
+  {
+    assignmentId: 6,
+    scores: { loyal: 4.5, adaptif: 4.7, harmonis: 4.3, kompeten: 4.7, akuntabel: 4.5, pelayanan: 4.3, kolaboratif: 4.3, kepemimpinan: 4.5 },
+    comments: "Sangat membantu di pekerjaan lintas bidang.",
+    submittedAt: "2026-05-22"
+  },
+  {
+    assignmentId: 9,
+    scores: { loyal: 3.8, adaptif: 4, harmonis: 3.5999999999999996, kompeten: 4, akuntabel: 3.8, pelayanan: 3.5999999999999996, kolaboratif: 3.5999999999999996, kepemimpinan: 3.8 },
+    comments: "Perlu konsistensi dalam ketepatan waktu.",
+    submittedAt: "2026-05-19"
+  },
+  {
+    assignmentId: 14,
+    scores: { loyal: 4.8, adaptif: 5, harmonis: 4.6, kompeten: 5, akuntabel: 4.8, pelayanan: 4.6, kolaboratif: 4.6, kepemimpinan: 4.8 },
+    comments: "Memberi arahan yang detail.",
+    submittedAt: "2026-05-24"
+  },
+  {
+    assignmentId: 325005,
+    scores: { loyal: 4.4, adaptif: 4.6000000000000005, harmonis: 4.2, kompeten: 4.6000000000000005, akuntabel: 4.4, pelayanan: 4.2, kolaboratif: 4.2, kepemimpinan: 4.4 },
+    comments: "Responsif dan mampu menjaga ritme kerja.",
+    submittedAt: "2026-05-21"
+  },
+  {
+    assignmentId: 325009,
+    scores: { loyal: 4.4, adaptif: 4.6000000000000005, harmonis: 4.2, kompeten: 4.6000000000000005, akuntabel: 4.4, pelayanan: 4.2, kolaboratif: 4.2, kepemimpinan: 4.4 },
+    comments: "Arahannya jelas dan tenang dalam mengambil keputusan.",
+    submittedAt: "2026-05-21"
+  },
+  {
+    assignmentId: 325010,
+    scores: { loyal: 4.1, adaptif: 4.3, harmonis: 3.8999999999999995, kompeten: 4.3, akuntabel: 4.1, pelayanan: 3.8999999999999995, kolaboratif: 3.8999999999999995, kepemimpinan: 4.1 },
+    comments: "Pembinaan cukup baik, perlu lebih sering memberi umpan balik.",
+    submittedAt: "2026-05-23"
+  },
+  {
+    assignmentId: 325012,
+    scores: { loyal: 4.6, adaptif: 4.8, harmonis: 4.3999999999999995, kompeten: 4.8, akuntabel: 4.6, pelayanan: 4.3999999999999995, kolaboratif: 4.3999999999999995, kepemimpinan: 4.6 },
+    comments: "Kuat dalam pengembangan kompetensi dan inovasi.",
+    submittedAt: "2026-05-24"
+  },
+  {
+    assignmentId: 325013,
+    scores: { loyal: 4.7, adaptif: 4.9, harmonis: 4.5, kompeten: 4.9, akuntabel: 4.7, pelayanan: 4.5, kolaboratif: 4.5, kepemimpinan: 4.7 },
+    comments: "Konsisten mendukung tim.",
+    submittedAt: "2026-05-24"
+  },
+  {
+    assignmentId: 325017,
+    scores: { loyal: 5, adaptif: 5, harmonis: 5, kompeten: 5, akuntabel: 5, pelayanan: 5, kolaboratif: 5, kepemimpinan: 5 },
+    comments: "",
+    submittedAt: "2026-06-02"
+  },
+  {
+    assignmentId: 325014,
+    scores: { loyal: 5, adaptif: 5, harmonis: 5, kompeten: 5, akuntabel: 5, pelayanan: 5, kolaboratif: 5, kepemimpinan: 5 },
+    comments: "",
+    submittedAt: "2026-06-02"
+  },
+  {
+    assignmentId: 325018,
+    scores: { loyal: 5, adaptif: 5, harmonis: 5, kompeten: 5, akuntabel: 5, pelayanan: 5, kolaboratif: 5, kepemimpinan: 5 },
+    comments: "",
+    submittedAt: "2026-06-02"
+  },
+  {
+    assignmentId: 325020,
+    scores: { loyal: 5, adaptif: 5, harmonis: 5, kompeten: 5, akuntabel: 5, pelayanan: 5, kolaboratif: 5, kepemimpinan: 5 },
+    comments: "",
+    submittedAt: "2026-06-02"
+  }
 ];
 
 export const initialObjections: Objection[] = [
-  { id: 1, periodId: 1, evalueeId: 14, type: "Evaluator belum menilai", reason: "Jumlah penilai belum lengkap sampai H-2 batas akhir.", status: "Diproses", createdAt: "2026-05-29", note: "Menunggu klarifikasi evaluator." },
+  { id: 1, periodId: 1, evalueeId: 14, type: "Evaluator belum menilai", reason: "Jumlah penilai belum lengkap sampai H-2 batas akhir.", status: "Diproses", createdAt: "2026-05-29", note: "Menunggu klarifikasi evaluator." }
 ];
 
 export const initialPendingRaters: PendingRaters[] = [
   { id: 1, evalueeId: 13, proposedIds: [14, 15], status: "Menunggu Verifikasi", submittedAt: "2026-05-28", rejectionReason: "" },
-  { id: 2, evalueeId: 17, proposedIds: [18, 19], status: "Menunggu Verifikasi", submittedAt: "2026-05-29", rejectionReason: "" },
-  { id: 3, evalueeId: 15, proposedIds: [12, 13], status: "Menunggu Verifikasi", submittedAt: "2026-05-30", rejectionReason: "" },
+  { id: 2, evalueeId: 17, proposedIds: [18], status: "Ditolak", submittedAt: "2026-05-29", rejectionReason: "Sistem mendeteksi perubahan jabatan atau unit kerja. Jumlah rater sejawat satu unit tidak lagi memenuhi batas minimum." },
+  { id: 3, evalueeId: 15, proposedIds: [13], status: "Ditolak", submittedAt: "2026-05-30", rejectionReason: "Sistem mendeteksi perubahan jabatan atau unit kerja. Jumlah rater sejawat satu unit tidak lagi memenuhi batas minimum." }
 ];
 
 export const initialState: AppState = {
@@ -137,64 +229,42 @@ export const initialState: AppState = {
   orgUnits: orgUnitCatalog,
   jobs: jobCatalog,
   period: {
-    id: 1,
-    name: "Periode Penilaian Perilaku 2026",
-    start: "2026-05-01",
-    end: "2026-06-15",
+    id: 2,
+    name: "Periode Triwulan II (April - Juni) 2026",
+    start: "2026-04-01",
+    end: "2026-06-30",
     status: "Aktif",
     minPeer: 2,
     maxPeer: 4,
     maxBawahan: 5,
     weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
-    weightsNoSub: { Atasan: 60, Peer: 40 },
-    type: "Custom",
+    weightsNoSub: { Atasan: 40, Peer: 60 }, // Wait, user CSV weightsNoSub: {"Peer":40,"Atasan":60} -> wait, wait! 
+    // From CSV: "weightsNoSub":{"Peer":40,"Atasan":60}
+    // "weightsWithSub":{"Peer":15,"Atasan":60,"Bawahan":25}
+    type: "Triwulan",
+    selectedMonth: "01",
+    selectedQuarter: "Q2",
+    selectedYear: 2026
   },
   periods: [
     {
-      id: 1,
-      name: "Periode Penilaian Perilaku 2026",
-      start: "2026-05-01",
-      end: "2026-06-15",
+      id: 2,
+      name: "Periode Triwulan II (April - Juni) 2026",
+      start: "2026-04-01",
+      end: "2026-06-30",
       status: "Aktif",
       minPeer: 2,
       maxPeer: 4,
       maxBawahan: 5,
       weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
       weightsNoSub: { Atasan: 60, Peer: 40 },
-      type: "Custom"
-    },
-    {
-      id: 2,
-      name: "Periode Bulanan Mei 2026",
-      start: "2026-05-01",
-      end: "2026-05-31",
-      status: "Final",
-      minPeer: 2,
-      maxPeer: 4,
-      maxBawahan: 5,
-      weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
-      weightsNoSub: { Atasan: 60, Peer: 40 },
-      type: "Bulanan",
-      selectedMonth: "05",
-      selectedYear: 2026
-    },
-    {
-      id: 3,
-      name: "Periode Triwulan I 2026",
-      start: "2026-01-01",
-      end: "2026-03-31",
-      status: "Final",
-      minPeer: 2,
-      maxPeer: 4,
-      maxBawahan: 5,
-      weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
-      weightsNoSub: { Atasan: 60, Peer: 40 },
       type: "Triwulan",
-      selectedQuarter: "Q1",
+      selectedMonth: "01",
+      selectedQuarter: "Q2",
       selectedYear: 2026
     }
   ],
   admins: [
-    { id: "admin", username: "admin", name: "Administrator BKPSDM Utama", password: "admin123", role: "Admin BKPSDM" }
+    { id: "admin", username: "admin", name: "Administrator BKPSDM Utama", password: "Mare123.", role: "Admin BKPSDM" }
   ],
 };

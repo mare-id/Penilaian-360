@@ -29,7 +29,7 @@ import {
 } from "./utils/supabase";
 import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle, Calendar, Trash2, Plus } from "lucide-react";
 
-const STORAGE_KEY = "bkpsdm-dairi-360-app-v1";
+const STORAGE_KEY = "bkpsdm-dairi-360-app-v2";
 
 const MONTHS_LIST = [
   { value: "01", name: "Januari" },
