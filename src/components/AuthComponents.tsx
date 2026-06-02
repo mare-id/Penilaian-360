@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Lock, Home, Users, ClipboardCheck, FileText, Star, AlertTriangle, BarChart3, Download, UserCheck, Settings, Menu, LogOut, RefreshCw, Check } from "lucide-react";
 import { DemoAccount, AppState } from "../types";
-import { demoAccounts } from "../data";
 import { Badge, Card, Button, Field, ThemeStyles } from "./UIComponents";
 import { getSupabaseConfig } from "../utils/supabase";
 import { BkpsdmLogo } from "./BkpsdmLogo";
@@ -74,7 +73,7 @@ export function Login({ onLogin, state }: LoginProps) {
       return;
     }
 
-    const found = [...dynamicAccounts, ...demoAccounts].find(
+    const found = dynamicAccounts.find(
       (a) => (a.nip === credential || a.username === credential) && a.password === password
     );
 
