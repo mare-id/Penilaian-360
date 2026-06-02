@@ -52,15 +52,53 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
 
   const validNip = (value: string) => value.length === 18 && value.split("").every((c) => c >= "0" && c <= "9");
 
+  const getSuggestedAtasanId = (unitName: string, currentEmployee: Employee) => {
+    const findLeaderInUnit = (uName: string): Employee | undefined => {
+      return state.employees.find((emp) => {
+        if (emp.id === currentEmployee.id) return false;
+        if (emp.unit !== uName) return false;
+        const empJob = jobs.find((j) => j.name === emp.jabatan);
+        return emp.hasSub || empJob?.leadership || false;
+      });
+    };
+
+    let leader = findLeaderInUnit(unitName);
+    if (leader) {
+      return String(leader.id);
+    }
+
+    let currentUnit = orgs.find((o) => o.name === unitName);
+    let iterations = 0;
+    while (currentUnit && currentUnit.parentId && iterations < 10) {
+      iterations++;
+      const pId = currentUnit.parentId;
+      const parentUnit = orgs.find((o) => o.id === pId);
+      if (parentUnit) {
+        leader = findLeaderInUnit(parentUnit.name);
+        if (leader) {
+          return String(leader.id);
+        }
+        currentUnit = parentUnit;
+      } else {
+        break;
+      }
+    }
+    return "";
+  };
+
   const chooseJob = (jobName: string) => {
     const job = jobs.find((j) => j.name === jobName);
-    setForm({
+    const newUnit = job?.defaultUnit || form.unit;
+    const updatedForm = {
       ...form,
       jabatan: jobName,
       jenis: job?.type || form.jenis,
-      unit: job?.defaultUnit || form.unit,
+      unit: newUnit,
       hasSub: job?.leadership || false,
-    });
+    };
+    setForm(updatedForm);
+    const suggestedAtasanId = getSuggestedAtasanId(newUnit, updatedForm);
+    setAtasanInput(suggestedAtasanId);
   };
 
   const save = () => {
@@ -257,7 +295,18 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
                   </select>
                 </Field>
                 <Field label="Unit Kerja">
-                  <select id="select-asn-unit" className="w-full rounded-xl border p-3 font-semibold text-sm bg-white" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })}>
+                  <select
+                    id="select-asn-unit"
+                    className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
+                    value={form.unit}
+                    onChange={(e) => {
+                      const newUnit = e.target.value;
+                      const updatedForm = { ...form, unit: newUnit };
+                      setForm(updatedForm);
+                      const suggestedAtasanId = getSuggestedAtasanId(newUnit, updatedForm);
+                      setAtasanInput(suggestedAtasanId);
+                    }}
+                  >
                     {orgs.map((u) => <option key={u.id} value={u.name}>{u.name}</option>)}
                   </select>
                 </Field>
