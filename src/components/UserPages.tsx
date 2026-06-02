@@ -3,7 +3,7 @@ import { EyeOff, Search, Users, CheckCircle2, AlertTriangle, ClipboardCheck, Loc
 import { AppState, Employee, Assignment, Response, Objection, PendingRaters, DemoAccount } from "../types";
 import { dimensions, orgUnitCatalog } from "../data";
 import { Badge, Card, Button, Field, ProgressBar, Empty, StatCard } from "./UIComponents";
-import { calculateResult, categoryClass, statusClass, dimensionScores, average, unitStats, buildAnomalies } from "../utils";
+import { calculateResult, categoryClass, statusClass, dimensionScores, average, unitStats, buildAnomalies, isEligiblePeer } from "../utils";
 
 interface PageProps {
   state: AppState;
@@ -98,18 +98,13 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
   const directBoss = state.employees.find((e) => e.id === employee.atasanId);
   const pending = state.pendingRaters.find((p) => p.evalueeId === employee.id);
   
-  // Hanya sesama ASN dalam level jabatan yang setingkat (jenis: JPT Pratama / Administrator / Pengawas / Fungsional / Pelaksana)
+  // Hanya sesama ASN yang memenuhi syarat sebagai rekan sejawat (Eligible Peer)
   const peers = state.employees.filter(
-    (e) => e.id !== employee.id && e.jenis === employee.jenis && e.id !== employee.atasanId
+    (e) => isEligiblePeer(e, employee)
   );
   
-  // Prioritaskan rekan satu kerja di unit yang sama first, lalu alfabetis nama
+  // Urutkan rekan sejawat secara alfabetis nama
   const sortedPeers = [...peers].sort((a, b) => {
-    const isSameUnitA = a.unit === employee.unit ? 1 : 0;
-    const isSameUnitB = b.unit === employee.unit ? 1 : 0;
-    if (isSameUnitA !== isSameUnitB) {
-      return isSameUnitB - isSameUnitA;
-    }
     return a.nama.localeCompare(b.nama);
   });
   
@@ -132,11 +127,11 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
     
     const invalidSelected = selected.some((id) => {
       const p = state.employees.find((e) => e.id === id);
-      return !p || p.jenis !== employee.jenis;
+      return !p || !isEligiblePeer(p, employee);
     });
 
     if (invalidSelected) {
-      return toast(`Seluruh peer evaluator terpilih wajib mempunyai level jabatan setingkat: ${employee.jenis}`);
+      return toast("Seluruh peer evaluator terpilih wajib berada di unit kerja yang sama dan memiliki tingkat jabatan setingkat, atau kombinasi jabatan Fungsional & Pelaksana.");
     }
 
     setState((s) => {
@@ -212,14 +207,14 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
             <h2 className="text-lg font-black font-display text-slate-950">Pilih Peer Evaluator</h2>
             <p className="text-sm text-slate-500">
               {sortedPeers.length > state.period.maxPeer 
-                ? `Pilih maksimal ${state.period.maxPeer} rekan kerja setingkat (Sistem akan mengunci otomatis bila sudah memilih ${state.period.maxPeer}).`
+                ? `Pilih maksimal ${state.period.maxPeer} rekan kerja satu unit (Sistem akan mengunci otomatis bila sudah memilih ${state.period.maxPeer}).`
                 : sortedPeers.length > 0 
-                ? `Anda hanya memiliki ${sortedPeers.length} rekan kerja setingkat. Silakan pilih hingga ${Math.min(state.period.maxPeer, sortedPeers.length)} orang tersebut.`
-                : "Anda tidak memiliki rekan kerja setingkat."}
+                ? `Anda memiliki ${sortedPeers.length} rekan kerja satu unit yang dapat dipilih. Silakan pilih hingga ${Math.min(state.period.maxPeer, sortedPeers.length)} orang tersebut.`
+                : "Anda tidak memiliki rekan kerja satu unit yang memenuhi syarat."}
             </p>
             <div className="mt-1.5">
               <Badge className="bg-indigo-50 border-indigo-200 text-indigo-700 text-[10px] font-semibold">
-                Sesuai Aturan: Hanya Sesama ASN Tingkat {employee.jenis}
+                Sesuai Aturan: Unit Kerja Sama ({employee.unit}) & Jabatan Setingkat / Fungsional ↔️ Pelaksana
               </Badge>
             </div>
           </div>
@@ -229,9 +224,9 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
         {sortedPeers.length === 0 ? (
           <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center select-none">
             <Users className="mx-auto h-12 w-12 text-slate-400 stroke-[1.5] mb-2" />
-            <h3 className="text-sm font-black text-slate-750 font-display">Tidak Mempunyai Rekan Kerja Setingkat</h3>
+            <h3 className="text-sm font-black text-slate-750 font-display">Tidak Mempunyai Rekan Kerja yang Memenuhi Syarat</h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
-              Anda tidak memiliki rekan kerja dengan level pangkat/jenis jabatan setingkat ({employee.jenis}) di daftar ASN. Sesuai regulasi, Anda dikecualikan dari penilaian peer.
+              Anda tidak memiliki rekan kerja dengan level pangkat/jenis jabatan setingkat, atau kombinasi Fungsional-Pelaksana di unit kerja yang sama ({employee.unit}). Sesuai regulasi, Anda dikecualikan dari penilaian peer.
             </p>
           </div>
         ) : (

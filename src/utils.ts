@@ -231,8 +231,9 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
     }
 
     if (a.type === "Peer") {
-      // Peer rater. Harus setingkat jenis jabatannya
-      return evaluee.jenis === evaluator.jenis;
+      // Peer rater. Harus berada dalam unit kerja yang sama.
+      // Jabatan Fungsional dapat menilai jabatan pelaksana atau sebaliknya.
+      return isEligiblePeer(evaluator, evaluee);
     }
 
     if (a.type === "Diri") {
@@ -307,4 +308,20 @@ export function assignmentsEqual(a: Assignment[], b: Assignment[]): boolean {
     }
   }
   return true;
+}
+
+export function isEligiblePeer(evaluator: Employee, evaluee: Employee): boolean {
+  if (evaluator.id === evaluee.id) return false;
+  if (evaluator.id === evaluee.atasanId) return false;
+  
+  // 1. Peer rater hanya yang berada dalam unit kerja yang sama
+  if (evaluator.unit !== evaluee.unit) return false;
+  
+  // 2. Tingkat jabatan setingkat, ATAU Jabatan Fungsional dengan Pelaksana (vice versa)
+  const isSameJenis = evaluator.jenis === evaluee.jenis;
+  const isFungsionalAndPelaksana = 
+    (evaluator.jenis === "Fungsional" && evaluee.jenis === "Pelaksana") ||
+    (evaluator.jenis === "Pelaksana" && evaluee.jenis === "Fungsional");
+    
+  return isSameJenis || isFungsionalAndPelaksana;
 }

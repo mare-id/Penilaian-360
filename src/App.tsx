@@ -4,7 +4,7 @@ import { initialState } from "./data";
 import { ThemeStyles, Toast, Card, Field, Button } from "./components/UIComponents";
 import { Login, Sidebar, Topbar } from "./components/AuthComponents";
 import { DashboardView } from "./components/DashboardView";
-import { syncMandatoryAssignments, assignmentsEqual } from "./utils";
+import { syncMandatoryAssignments, assignmentsEqual, isEligiblePeer } from "./utils";
 import {
   Profile,
   RaterManagement,
@@ -586,7 +586,7 @@ export default function App() {
 
       const validProposedIds = pr.proposedIds.filter((pid) => {
         const peer = state.employees.find((e) => e.id === pid);
-        return peer && peer.jenis === evaluee.jenis;
+        return peer && isEligiblePeer(peer, evaluee);
       });
 
       if (validProposedIds.length !== pr.proposedIds.length) {
@@ -594,7 +594,7 @@ export default function App() {
         const minPeer = state.period.minPeer;
         const status = validProposedIds.length < minPeer ? "Ditolak" : pr.status;
         const rejectionReason = validProposedIds.length < minPeer
-          ? "Sistem mendeteksi perubahan jabatan. Jumlah rater sejawat setingkat tidak lagi memenuhi batas minimum."
+          ? "Sistem mendeteksi perubahan jabatan atau unit kerja. Jumlah rater sejawat satu unit tidak lagi memenuhi batas minimum."
           : pr.rejectionReason;
 
         return {
