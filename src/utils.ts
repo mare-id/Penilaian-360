@@ -168,7 +168,15 @@ export function buildAnomalies(state: AppState, period?: Period) {
   return anomalies;
 }
 
-export function syncMandatoryAssignments(employees: Employee[], currentAssignments: Assignment[], maxBawahan: number = 100, periodId: number = 2): Assignment[] {
+export function syncMandatoryAssignments(
+  employees: Employee[], 
+  currentAssignments: Assignment[], 
+  maxBawahan: number = 100, 
+  periodId: number = 2, 
+  maxPeer: number = 4,
+  enforceMaxBawahan: boolean = false,
+  autoFillPeers: boolean = true
+): Assignment[] {
   // Update hasSub dynamically based on actual subordinates in the organization tree
   employees.forEach((emp) => {
     emp.hasSub = employees.some((e) => e.atasanId === emp.id);
@@ -185,7 +193,7 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
     }
   });
 
-  // For each boss, select at most maxBawahan subordinates based on completion status, then ID (for stable ranking)
+  // Keep a stable map of allowed subordinates if maxBawahan applies
   const allowedSubordinatesMap: Record<number, Set<number>> = {};
   Object.entries(bossSubordinatesMap).forEach(([bossIdStr, subs]) => {
     const bossId = Number(bossIdStr);
@@ -202,7 +210,7 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
       return a.id - b.id;
     });
 
-    const allowed = sortedSubs.slice(0, maxBawahan);
+    const allowed = sortedSubs.slice(0, enforceMaxBawahan ? maxBawahan : subs.length);
     allowedSubordinatesMap[bossId] = new Set(allowed.map(x => x.id));
   });
 
@@ -225,10 +233,12 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
       const isDirectSub = evaluator.atasanId === evaluee.id;
       if (!isDirectSub) return false;
 
-      // Check against current maxBawahan constraint
-      const allowedSet = allowedSubordinatesMap[evaluee.id];
-      if (allowedSet && !allowedSet.has(evaluator.id)) {
-        return false;
+      // If enforceMaxBawahan is enabled, check against allowedSet
+      if (enforceMaxBawahan) {
+        const allowedSet = allowedSubordinatesMap[evaluee.id];
+        if (allowedSet && !allowedSet.has(evaluator.id)) {
+          return false;
+        }
       }
       return true;
     }
@@ -253,8 +263,7 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
     if (emp.atasanId !== null) {
       const boss = employees.find((b) => b.id === emp.atasanId);
       if (boss) {
-        const allowedSet = allowedSubordinatesMap[boss.id];
-        const isAllowed = allowedSet ? allowedSet.has(emp.id) : true;
+        const isAllowed = !enforceMaxBawahan || (allowedSubordinatesMap[boss.id]?.has(emp.id) ?? true);
 
         if (isAllowed) {
           // Look for existing assignment where boss is evaluated by emp as Bawahan
@@ -292,6 +301,54 @@ export function syncMandatoryAssignments(employees: Employee[], currentAssignmen
       }
     }
   });
+
+  // 3. Rule 3: Automatically generate peer assignments for employees who have no approved/pending peer assignments (only if autoFillPeers is enabled)
+  if (autoFillPeers) {
+    employees.forEach((emp) => {
+      const hasPeerAssignments = assignments.some(
+        (a) => a.evaluatorId === emp.id && a.type === "Peer" && a.periodId === periodId
+      );
+      if (!hasPeerAssignments) {
+        const eligiblePeers = employees.filter((other) => isEligiblePeer(emp, other));
+        const sortedEligible = [...eligiblePeers].sort((a, b) => a.id - b.id);
+        const selectedPeers = sortedEligible.slice(0, maxPeer);
+        
+        selectedPeers.forEach((peer) => {
+          // Emp evaluates Peer
+          const exists1 = assignments.some(
+            (a) => a.evalueeId === peer.id && a.evaluatorId === emp.id && a.type === "Peer" && a.periodId === periodId
+          );
+          if (!exists1) {
+            assignments.push({
+              id: periodId * 100000 + 70000 + peer.id * 1000 + emp.id,
+              periodId: periodId,
+              evalueeId: peer.id,
+              evaluatorId: emp.id,
+              type: "Peer",
+              status: "Belum Mulai",
+              approved: true,
+            });
+          }
+          
+          // Peer evaluates Emp
+          const exists2 = assignments.some(
+            (a) => a.evalueeId === emp.id && a.evaluatorId === peer.id && a.type === "Peer" && a.periodId === periodId
+          );
+          if (!exists2) {
+            assignments.push({
+              id: periodId * 100000 + 70000 + emp.id * 1000 + peer.id,
+              periodId: periodId,
+              evalueeId: emp.id,
+              evaluatorId: peer.id,
+              type: "Peer",
+              status: "Belum Mulai",
+              approved: true,
+            });
+          }
+        });
+      }
+    });
+  }
 
   // Deduplicate before returning
   const seen = new Set<string>();

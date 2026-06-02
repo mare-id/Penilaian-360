@@ -577,6 +577,42 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
               onChange={(e) => setPeriod({ ...period, maxBawahan: Number(e.target.value) })}
             />
           </Field>
+
+          <div className="col-span-1 md:col-span-3 pt-2 grid gap-4 grid-cols-1 md:grid-cols-2 border-t border-slate-100 mt-2">
+            <div className="rounded-xl border p-4 bg-slate-50 border-slate-200">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4.5 h-4.5 rounded text-sky-600 focus:ring-sky-500 border-slate-300 mt-1 cursor-pointer"
+                  checked={!!period.enforceMaxBawahan}
+                  onChange={(e) => setPeriod({ ...period, enforceMaxBawahan: e.target.checked })}
+                />
+                <div className="font-display">
+                  <span className="block font-bold text-sm text-slate-900">Batasi Jumlah Bawahan</span>
+                  <span className="block text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Aktifkan batas rater bawahan ({period.maxBawahan || 5} orang per atasan). Jika dinonaktifkan (default saat ini), seluruh bawahan otomatis berhak mengisi kuesioner tanpa dibatasi.
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            <div className="rounded-xl border p-4 bg-slate-50 border-slate-200">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4.5 h-4.5 rounded text-sky-600 focus:ring-sky-500 border-slate-300 mt-1 cursor-pointer"
+                  checked={period.autoFillPeers !== false}
+                  onChange={(e) => setPeriod({ ...period, autoFillPeers: e.target.checked })}
+                />
+                <div className="font-display">
+                  <span className="block font-bold text-sm text-slate-900">Penilaian Sejawat (Peer) Otomatis</span>
+                  <span className="block text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Generate rater rekan sejawat secara otomatis jika pegawai belum mengusulkan sendiri secara manual. Sangat berguna agar kuesioner rekan sejawat tidak dibiarkan kosong.
+                  </span>
+                </div>
+              </label>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -983,10 +1019,26 @@ export default function App() {
       if (!parsed.admins) {
         parsed.admins = initialState.admins;
       }
-      const synced = syncMandatoryAssignments(parsed.employees, parsed.assignments, parsed.period?.maxBawahan || 5, parsed.period?.id || 2);
+      const synced = syncMandatoryAssignments(
+        parsed.employees, 
+        parsed.assignments, 
+        parsed.period?.maxBawahan || 5, 
+        parsed.period?.id || 2, 
+        parsed.period?.maxPeer || 4,
+        !!parsed.period?.enforceMaxBawahan,
+        parsed.period?.autoFillPeers !== false
+      );
       return { ...parsed, assignments: synced };
     } catch {
-      const synced = syncMandatoryAssignments(initialState.employees, initialState.assignments, initialState.period?.maxBawahan || 5, initialState.period?.id || 2);
+      const synced = syncMandatoryAssignments(
+        initialState.employees, 
+        initialState.assignments, 
+        initialState.period?.maxBawahan || 5, 
+        initialState.period?.id || 2, 
+        initialState.period?.maxPeer || 4,
+        !!initialState.period?.enforceMaxBawahan,
+        initialState.period?.autoFillPeers !== false
+      );
       return { ...initialState, admins: initialState.admins, assignments: synced };
     }
   });
@@ -1025,7 +1077,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const synced = syncMandatoryAssignments(state.employees, state.assignments, state.period?.maxBawahan || 5, state.period?.id || 2);
+    const synced = syncMandatoryAssignments(
+      state.employees, 
+      state.assignments, 
+      state.period?.maxBawahan || 5, 
+      state.period?.id || 2, 
+      state.period?.maxPeer || 4,
+      !!state.period?.enforceMaxBawahan,
+      state.period?.autoFillPeers !== false
+    );
     
     // Sinkronkan juga pendingRaters agar proposedIds hanya berisi peer setingkat (jenis)
     // yang masih valid di employees saat ini.
