@@ -1,0 +1,6 @@
+{
+  "name": "Penilaian 360 ASN BKPSDM Dairi",
+  "description": "Sistem aplikasi penilaian perilaku 360 derajat berbasis Core Values BerAKHLAK untuk BKPSDM Kabupaten Dairi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
