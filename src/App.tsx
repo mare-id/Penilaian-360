@@ -17,6 +17,7 @@ import {
   ChangePasswordPage,
 } from "./components/UserPages";
 import { DataASNPage, UnitCrudPage, JobCrudPage } from "./components/AdminPages";
+import { UserManualPage } from "./components/UserManualPage";
 import {
   getSupabaseConfig,
   saveSupabaseConfig,
@@ -1144,6 +1145,7 @@ export default function App() {
     jobCrud: "Master Jabatan",
     settings: "Setelan Sistem",
     changePassword: "Ganti Kata Sandi",
+    userManual: "Panduan Aplikasi",
   };
 
   if (!user) {
@@ -1187,6 +1189,8 @@ export default function App() {
             toast={toast}
           />
         );
+      case "userManual":
+        return <UserManualPage state={state} user={user} toast={toast} />;
       default:
         return <DashboardView state={state} user={user} setActive={setActive} />;
     }
