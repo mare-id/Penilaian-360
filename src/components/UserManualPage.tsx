@@ -365,61 +365,53 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           <li><strong>Skor 1: Sangat Jarang / Sangat Kurang</strong> - Hampir tidak pernah berperilaku positif.</li>
         </ul>
 
-        <h2>2.3 Rumus Matematika Perhitungan Aljabar Skor Perilaku</h2>
-        <p>Perhitungan skor E-Kinerja 360 dilakukan melalui 3 tahap matematis berurutan:</p>
+        <h2>2.3 Metode & Rumus Aljabar Perhitungan Skor Perilaku (E-Kinerja)</h2>
+        <p>Penghitungan skor perilaku 360-degree feedback pada Sistem Informasi E-Kinerja BKPSDM Kabupaten Dairi dilakukan melalui 3 tahapan matematis berurutan tanpa memasukkan unsur penilaian diri sendiri (Evaluasi Diri bernilai bobot 0% / dikeluarkan dari kalkulasi untuk menjaga objektivitas murni rekan sejawat, bawahan, dan atasan):</p>
 
-        <h3>Tahap A: Skor Rata-rata Dimensi per Rater Individu</h3>
-        <p>Terdapat 7 dimensi utama (Berorientasi Pelayanan, Akuntabel, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif). Setiap dimensi terdiri dari 2 butir kuesioner. Maka rumus kuesioner dasar:</p>
+        <h3>Tahap A: Perhitungan Rata-rata Skor per Dimensi dari Rater Individu</h3>
+        <p>Setiap dimensi perilaku terdiri dari 4 butir pertanyaan kuesioner berskala Likert (1 s.d 5). Rata-rata nilai dimensi dari satu rater dihitung dengan menjumlahkan seluruh skor butir pertanyaan pada dimensi tersebut lalu dibagi dengan 4:</p>
         <div class="formula-box">
-Skor_Dimensi_Rater = (Butir_1 + Butir_2) / 2
+Skor_Dimensi_Individu = (Butir_1 + Butir_2 + Butir_3 + Butir_4) / 4
         </div>
 
-        <h3>Tahap B: Skor Rata-rata Agregat Per Kategori Kelompok Rater</h3>
-        <p>Bila terdapat beberapa rater dalam kelompok rater yang sejenis (contoh: 3 Rekan Sejawat yang mengisi), dicarilah nilai rata-rata kelompok (Group Mean Index):</p>
+        <h3>Tahap B: Perhitungan Rata-rata Agregat Kelompok (Group Mean Index)</h3>
+        <p>Bila terdapat lebih dari 1 rater dalam kelompok penilai yang sejenis (misalnya terdapat 3 orang rekan sejawat/peer), diperoleh skor rata-rata agregat kelompok penilai:</p>
         <div class="formula-box">
-Skor_Kategori_Kelompok = (Rata-rata_Rater_1 + Rata-rata_Rater_2 + ... + Rata-rata_Rater_n) / n
+Skor_Agregat_Kelompok = (Skor_Rater_1 + Skor_Rater_2 + ... + Skor_Rater_n) / n
         </div>
 
-        <h3>Tahap C: Perhitungan Skor Akhir Agregat Berbobot</h3>
-        <p>Skor Akhir per Dimensi didapatkan dengan mengalikan Skor Kategori Kelompok dengan persentase bobot masing-masing sesuai profil kepemilikan bawahan langsung:</p>
-        
+        <h3>Tahap C: Perhitungan Skor Akhir Dimensi Berbobot (Skala 5)</h3>
+        <p>Skor akhir per dimensi dihitung sesuai dengan profil tugas dan kepemilikan bawahan langsung pegawainya, menggunakan persentase bobot murni kelompok rater eksternal:</p>
         <div class="formula-box">
-// RUMUS RENCANA BEBAN PEGAWAI DENGAN BAWAHAN (Has Subordinates: TRUE)
-Skor_Akhir_Dimensi = 
-   (Skor_Atasan * Weight_Atasan) + 
-   (Skor_Sejawat_Agregat * Weight_Peer) + 
-   (Skor_Bawahan_Agregat * Weight_Bawahan) + 
-   (Skor_Evaluasi_Diri * Weight_Self)
+// KASUS A: PEGAWAI TANPA BAWAHAN LANGSUNG (Has Subordinates: FALSE)
+Skor_Akhir_Dimensi = (Skor_Atasan * Weight_Atasan) + (Skor_Sejawat_Agregat * Weight_Peer)
 
-// RUMUS RENCANA BEBAN PEGAWAI TANPA BAWAHAN (Has Subordinates: FALSE)
-Skor_Akhir_Dimensi = 
-   (Skor_Atasan * Weight_Atasan) + 
-   (Skor_Sejawat_Agregat * Weight_Peer) + 
-   (Skor_Evaluasi_Diri * Weight_Self)
+// KASUS B: PEGAWAI MEMILIKI BAWAHAN LANGSUNG (Has Subordinates: TRUE)
+Skor_Akhir_Dimensi = (Skor_Atasan * Weight_Atasan) + (Skor_Sejawat_Agregat * Weight_Peer) + (Skor_Bawahan_Agregat * Weight_Bawahan)
         </div>
 
-        <h3>Tahap D: Skor Indeks Perilaku Gabungan Akhir</h3>
-        <p>Skor akhir total didapatkan dari rata-rata 7 dimensi BerAKHLAK yang telah dibobot:</p>
+        <h3>Tahap D: Konversi Nilai Akhir ke Skala 100</h3>
+        <p>Untuk kebutuhan pengisian berkas E-Kinerja resmi, skor indeks perilaku skala 1 s.d 5 dikonversikan ke dalam skala persentase 100:</p>
         <div class="formula-box">
-Skor_Indeks_Perilaku_Total = (Σ Skor_Akhir_Dimensi_j dari j=1 s.d 7) / 7
+Skor_Akhir_100 = (Skor_Akhir_Dimensi / 5) * 100
         </div>
 
         <h2>2.4 Pembobotan Penilaian Sesuai Konfigurasi Sistem</h2>
-        <p>Saat ini, persentase pembobotan yang dikonfigurasi pada sistem adalah:</p>
+        <p>Sesuai dengan ketentuan regulasi BKPSDM Kabupaten Dairi, parameter pembobotan rater yang saat ini aktif di sistem adalah:</p>
 
-        <h3>Kasus Pegawai MEMILIKI Bawahan Langsung (Has Subordinates)</h3>
+        <h3>1. Pegawai MEMILIKI Bawahan Langsung (Has Subordinates)</h3>
         <ul>
-          <li>Bobot Nilai Atasan Langsung (Weight_Atasan): <strong>${state.period.weightsWithSub.Atasan}%</strong></li>
-          <li>Bobot Nilai Rekan Sejawat (Weight_Peer): <strong>${state.period.weightsWithSub.Peer}%</strong></li>
-          <li>Bobot Nilai Bawahan Langsung (Weight_Bawahan): <strong>${state.period.weightsWithSub.Bawahan || 0}%</strong></li>
-          <li>Bobot Evaluasi Diri Sendiri (Weight_Self): <strong>${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%</strong></li>
+          <li>Bobot Nilai Atasan Langsung: <strong>${state.period.weightsWithSub.Atasan}%</strong></li>
+          <li>Bobot Nilai Rekan Sejawat (Peer Average): <strong>${state.period.weightsWithSub.Peer}%</strong></li>
+          <li>Bobot Nilai Bawahan Langsung (Sub Average): <strong>${state.period.weightsWithSub.Bawahan || 0}%</strong></li>
+          <li>Evaluasi Diri Sendiri (Self): <strong>0% (Dikecualikan / Tidak Mempengaruhi Skor)</strong></li>
         </ul>
 
-        <h3>Kasus Pegawai TIDAK MEMILIKI Bawahan Langsung (No Subordinates)</h3>
+        <h3>2. Pegawai TIDAK MEMILIKI Bawahan Langsung (No Subordinates)</h3>
         <ul>
-          <li>Bobot Nilai Atasan Langsung (Weight_Atasan): <strong>${state.period.weightsNoSub.Atasan}%</strong></li>
-          <li>Bobot Nilai Rekan Sejawat (Weight_Peer): <strong>${state.period.weightsNoSub.Peer}%</strong></li>
-          <li>Bobot Evaluasi Diri Sendiri (Weight_Self): <strong>${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%</strong></li>
+          <li>Bobot Nilai Atasan Langsung: <strong>${state.period.weightsNoSub.Atasan}%</strong></li>
+          <li>Bobot Nilai Rekan Sejawat (Peer Average): <strong>${state.period.weightsNoSub.Peer}%</strong></li>
+          <li>Evaluasi Diri Sendiri (Self): <strong>0% (Dikecualikan / Tidak Mempengaruhi Skor)</strong></li>
         </ul>
 
         <h2>2.5 CONTOH KASUS SIMULASI NYATA DENGAN VARIASI BERBEDA</h2>
@@ -428,118 +420,105 @@ Skor_Indeks_Perilaku_Total = (Σ Skor_Akhir_Dimensi_j dari j=1 s.d 7) / 7
         <div class="example-card">
           <div class="example-header">KASUS SIMULASI 1: PNS Staf / Pejabat Pelaksana (Tanpa Bawahan Langsung)</div>
           <p><strong>Subjek Pegawai:</strong> Susi Astuti, S.Kom (Pranata Komputer Ahli Pertama, Has Subordinates = False)</p>
-          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Sejawat = ${state.period.weightsNoSub.Peer}%, Evaluasi Diri = ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%</p>
-          <p><strong>Studi Dimensi:</strong> Berorientasi Pelayanan</p>
+          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Rekan Sejawat = ${state.period.weightsNoSub.Peer}% (Evaluasi Diri tidak dimasukkan dalam perhitungan skor)</p>
+          <p><strong>Dimensi Pengukuran:</strong> Berorientasi Pelayanan (Merespons kebutuhan layanan dengan cepat dan tepat, Menunjukkan sikap ramah dalam memberikan pelayanan, Memberikan solusi atas kebutuhan atau keluhan pemangku kepentingan, Menindaklanjuti permintaan layanan secara jelas)</p>
           <ul>
             <li>
-              <strong>1. Input Nilai Atasan Langsung (1 Rater):</strong><br>
-              Butir 1 (Memahami Kebutuhan) = 5, Butir 2 (Ramah & Terbuka) = 4<br>
-              <em>Rerata Atasan</em> = (5 + 4) / 2 = <strong>4.50</strong>
+              <strong>1. Penilaian Atasan Langsung (1 Rater):</strong><br>
+              - Butir 1 (Respons Layan) = 5, Butir 2 (Sikap Ramah) = 4, Butir 3 (Pemberian Solusi) = 5, Butir 4 (Follow up) = 4<br>
+              <em>Rata-rata Atasan</em> = (5 + 4 + 5 + 4) / 4 = <strong>4.50</strong>
             </li>
             <br>
             <li>
-              <strong>2. Input Nilai Rekan Sejawat (3 Rater):</strong><br>
-              - Rekan Sejawat 1: Butir 1 = 4, Butir 2 = 4 (Rata-rata = 4.00)<br>
-              - Rekan Sejawat 2: Butir 1 = 5, Butir 2 = 3 (Rata-rata = 4.00)<br>
-              - Rekan Sejawat 3: Butir 1 = 4, Butir 2 = 5 (Rata-rata = 4.50)<br>
-              <em>Rata-rata Kelompok Sejawat</em> = (4.00 + 4.00 + 4.50) / 3 = <strong>4.17</strong>
-            </li>
-            <br>
-            <li>
-              <strong>3. Input Evaluasi Diri Mandiri (Self):</strong><br>
-              Butir 1 = 5, Butir 2 = 5<br>
-              <em>Rerata Mandiri</em> = (5 + 5) / 2 = <strong>5.00</strong>
+              <strong>2. Penilaian Rekan Sejawat (3 Rater):</strong><br>
+              - Rekan Sejawat 1: Memberikan nilai [4, 4, 4, 4] $\rightarrow$ Rerata = 4.00<br>
+              - Rekan Sejawat 2: Memberikan nilai [5, 4, 4, 3] $\rightarrow$ Rerata = 4.00<br>
+              - Rekan Sejawat 3: Memberikan nilai [4, 5, 4, 5] $\rightarrow$ Rerata = 4.50<br>
+              <em>Rerata Kelompok Rekan Sejawat</em> = (4.00 + 4.00 + 4.50) / 3 = 12.50 / 3 = <strong>4.17</strong>
             </li>
           </ul>
           
-          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot:</strong></p>
+          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
-Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%) + (Skor_Self * ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)
-Skor_Dimensi = (4.50 * 0.50) + (4.17 * 0.40) + (5.00 * 0.10)
-Skor_Dimensi = 2.25 + 1.668 + 0.50 = 4.418
+Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%)
+Skor_Dimensi = (4.50 * 0.60) + (4.17 * 0.40)
+Skor_Dimensi = 2.70 + 1.668 = 4.368 (Skala 5)
+
+Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 (Dibulatkan menjadi 87)
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>4.42</strong> (Kategori Capaian: <strong>BAIK</strong> karena berada di interval 3.51 - 4.50).</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>87.36 (Predikat: BAIK)</strong> karena berada pada interval interval nilai 76 - 89.</p>
         </div>
 
         <!-- CONTOH 2 -->
         <div class="example-card">
           <div class="example-header">KASUS SIMULASI 2: Pejabat Struktural Pimpinan (Memiliki Bawahan Langsung)</div>
           <p><strong>Subjek Pegawai:</strong> Samsul Arifin, S.Sos (Kepala Bidang SDM, Has Subordinates = True)</p>
-          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsWithSub.Atasan}%, Sejawat = ${state.period.weightsWithSub.Peer}%, Bawahan = ${state.period.weightsWithSub.Bawahan || 0}%, Evaluasi Diri = ${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%</p>
-          <p><strong>Studi Dimensi:</strong> Akuntabel</p>
+          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsWithSub.Atasan}%, Sejawat = ${state.period.weightsWithSub.Peer}%, Bawahan = ${state.period.weightsWithSub.Bawahan || 0}%</p>
+          <p><strong>Dimensi Pengukuran:</strong> Akuntabel (Menyelesaikan tugas sesuai tanggung jawab, Jujur dalam melaporkan hasil kerja, Mematuhi aturan dan prosedur kerja, Menggunakan sumber daya organisasi secara bertanggung jawab)</p>
           <ul>
             <li>
-              <strong>1. Input Nilai Atasan Langsung (Kepala Badan):</strong><br>
-              Butir 1 (Integritas) = 4, Butir 2 (Disiplin Tugas) = 4<br>
-              <em>Rerata Atasan</em> = (4 + 4) / 2 = <strong>4.00</strong>
+              <strong>1. Penilaian Atasan Langsung (Kepala Badan):</strong><br>
+              - Butir 1 (Tanggung Jawab) = 4, Butir 2 (Kejujuran Laporan) = 4, Butir 3 (Aturan Prosedur) = 4, Butir 4 (Sumber Daya) = 4<br>
+              <em>Rerata Atasan</em> = (4 + 4 + 4 + 4) / 4 = <strong>4.00</strong>
             </li>
             <br>
             <li>
-              <strong>2. Input Nilai Rekan Sejawat (2 Rater):</strong><br>
-              - Rekan 1: Butir 1 = 4, Butir 2 = 5 (Rerata = 4.50)<br>
-              - Rekan 2: Butir 1 = 3, Butir 2 = 4 (Rerata = 3.50)<br>
-              <em>Rata-rata Kelompok Sejawat</em> = (4.50 + 3.50) / 2 = <strong>4.00</strong>
+              <strong>2. Penilaian Rekan Sejawat (2 Rater):</strong><br>
+              - Rekan Sejawat 1: Memberikan nilai [4, 5, 4, 5] $\rightarrow$ Rerata = 4.50<br>
+              - Rekan Sejawat 2: Memberikan nilai [3, 4, 3, 4] $\rightarrow$ Rerata = 3.50<br>
+              <em>Rerata Kelompok Rekan Sejawat</em> = (4.50 + 3.50) / 2 = <strong>4.00</strong>
             </li>
             <br>
             <li>
-              <strong>3. Input Nilai Bawahan Langsung (2 Rater):</strong><br>
-              - Bawahan 1: Butir 1 = 5, Butir 2 = 5 (Rerata = 5.00)<br>
-              - Bawahan 2: Butir 1 = 4, Butir 2 = 5 (Rerata = 4.50)<br>
-              <em>Rata-rata Kelompok Bawahan</em> = (5.00 + 4.50) / 2 = <strong>4.75</strong>
-            </li>
-            <br>
-            <li>
-              <strong>4. Input Evaluasi Diri (Self):</strong><br>
-              Butir 1 = 4, Butir 2 = 3<br>
-              <em>Rerata Mandiri</em> = (4 + 3) / 2 = <strong>3.50</strong>
+              <strong>3. Penilaian Bawahan Langsung (2 Rater):</strong><br>
+              - Bawahan 1: Memberikan nilai [5, 4, 5, 4] $\rightarrow$ Rerata = 4.50<br>
+              - Bawahan 2: Memberikan nilai [4, 4, 4, 5] $\rightarrow$ Rerata = 4.30<br>
+              <em>Rerata Kelompok Bawahan Langsung</em> = (4.50 + 4.30) / 2 = <strong>4.40</strong>
             </li>
           </ul>
           
-          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot:</strong></p>
+          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
-Skor_Dimensi = (Skor_Atasan * ${state.period.weightsWithSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsWithSub.Peer}%) + (Skor_Bawahan * ${state.period.weightsWithSub.Bawahan || 0}%) + (Skor_Self * ${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%)
-Skor_Dimensi = (4.00 * 0.40) + (4.00 * 0.30) + (4.75 * 0.20) + (3.50 * 0.10)
-Skor_Dimensi = 1.60 + 1.20 + 0.95 + 0.35 = 4.100
+Skor_Dimensi = (Skor_Atasan * ${state.period.weightsWithSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsWithSub.Peer}%) + (Skor_Bawahan * ${state.period.weightsWithSub.Bawahan || 0}%)
+Skor_Dimensi = (4.00 * 0.60) + (4.00 * 0.15) + (4.40 * 0.25)
+Skor_Dimensi = 2.40 + 0.60 + 1.10 = 4.10 (Skala 5)
+
+Konversi Skala 100 = (4.10 / 5) * 100 = 82.00
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>4.10</strong> (Kategori Capaian: <strong>BAIK</strong> karena berada di interval 3.51 - 4.50).</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>82.00 (Predikat: BAIK)</strong> karena berada pada interval nilai 76 - 89.</p>
         </div>
 
         <!-- CONTOH 3 -->
         <div class="example-card">
           <div class="example-header">KASUS SIMULASI 3: Jabatan Fungsional Khusus (Tanpa Bawahan, Evaluasi Kurang Memuaskan)</div>
           <p><strong>Subjek Pegawai:</strong> Dr. Heri (Dokter Ahli Madya Puskesmas Sidikalang, Has Subordinates = False)</p>
-          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Sejawat = ${state.period.weightsNoSub.Peer}%, Evaluasi Diri = ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%</p>
-          <p><strong>Studi Dimensi:</strong> Adaptif</p>
+          <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Rekan Sejawat = ${state.period.weightsNoSub.Peer}%</p>
+          <p><strong>Dimensi Pengukuran:</strong> Adaptif (Terbuka terhadap perubahan, Cepat menyesuaikan diri dengan sistem atau kebijakan baru, Mencari cara kerja yang lebih efektif, Proaktif menghadapi masalah pekerjaan)</p>
           <ul>
             <li>
-              <strong>1. Input Nilai Atasan Langsung (Kepala Puskesmas):</strong><br>
-              Butir 1 (Keluwesan Penyesuaian) = 3, Butir 2 (Terobosan Inovatif) = 2<br>
-              <em>Rerata Atasan</em> = (3 + 2) / 2 = <strong>2.50</strong>
+              <strong>1. Penilaian Atasan Langsung (Kepala Puskesmas):</strong><br>
+              - Butir 1 (Terbuka Ubah) = 3, Butir 2 (Cepat Sesuai) = 2, Butir 3 (Cara Efektif) = 3, Butir 4 (Proaktif) = 2<br>
+              <em>Rerata Atasan</em> = (3 + 2 + 3 + 2) / 4 = <strong>2.50</strong>
             </li>
             <br>
             <li>
-              <strong>2. Input Nilai Rekan Sejawat (3 Rater):</strong><br>
-              - Rekan Sejawat 1: Butir 1 = 2, Butir 2 = 2 (Rerata = 2.00)<br>
-              - Rekan Sejawat 2: Butir 1 = 3, Butir 2 = 2 (Rerata = 2.50)<br>
-              - Rekan Sejawat 3: Butir 1 = 2, Butir 2 = 1 (Rerata = 1.50)<br>
-              <em>Rata-rata Kelompok Sejawat</em> = (2.00 + 2.50 + 1.50) / 3 = <strong>2.00</strong>
-            </li>
-            <br>
-            <li>
-              <strong>3. Input Evaluasi Diri (Self - Menunjukkan Bias Overconfidence):</strong><br>
-              Butir 1 = 4, Butir 2 = 4<br>
-              <em>Rerata Mandiri</em> = (4 + 4) / 2 = <strong>4.00</strong>
+              <strong>2. Penilaian Rekan Sejawat (3 Rater):</strong><br>
+              - Rekan Sejawat 1: Rerata rincian = 2.00<br>
+              - Rekan Sejawat 2: Rerata rincian = 2.50<br>
+              - Rekan Sejawat 3: Rerata rincian = 1.50<br>
+              <em>Rerata Kelompok Rekan Sejawat</em> = (2.00 + 2.50 + 1.50) / 3 = <strong>2.00</strong>
             </li>
           </ul>
           
-          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot:</strong></p>
+          <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
-Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%) + (Skor_Self * ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)
-Skor_Dimensi = (2.50 * 0.50) + (2.00 * 0.40) + (4.00 * 0.10)
-Skor_Dimensi = 1.25 + 0.80 + 0.40 = 2.450
+Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%)
+Skor_Dimensi = (2.50 * 0.60) + (2.00 * 0.40)
+Skor_Dimensi = 1.50 + 0.80 = 2.30 (Skala 5)
+
+Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>2.45</strong> (Kategori Capaian: <strong>KURANG</strong> karena berada di interval 1.51 - 2.50).</p>
-          <p><em>Rekomendasi Tindak Lanjut:</em> Pegawai diharuskan masuk ke program coaching manajemen perilaku adaptif dinas, serta peninjau kelayakan oleh tim penilai kinerja cabang.</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>46.00 (Predikat: SANGAT KURANG)</strong> karena berada di bawah 51. Pegawai membutuhkan pembinaan intensif atau coaching khusus dari pihak pimpinan unit kerja.</p>
         </div>
 
         <h2>2.6 Klasifikasi Kategori Penilaian Perilaku</h2>
@@ -940,22 +919,22 @@ Skor_Dimensi = 1.25 + 0.80 + 0.40 = 2.450
                   <div className="bg-white border-2 border-slate-300 rounded-xl p-3.5 space-y-2 md:col-span-2">
                     <span className="text-[10px] bg-emerald-200 text-emerald-950 font-black px-2 py-0.5 rounded border border-emerald-400">Tahap C</span>
                     <h4 className="font-extrabold text-[#0f172a] text-[11px]">Perhitungan Agregat Akhir Berbobot per Dimensi</h4>
-                    <p className="text-slate-600 text-[11px] font-sans">Mendistribusikan total 100% beban nilai ke setiap kelompok dengan validasi kepemilikan bawahan langsung:</p>
-                    <div className="bg-slate-150 border border-slate-300 p-3 rounded font-mono text-[10.5px] text-slate-900 leading-relaxed whitespace-pre-wrap">
+                    <p className="text-slate-600 text-[11px] font-sans">Mendistribusikan total 100% beban nilai ke rater eksternal secara objektif sesuai validasi kepemilikan bawahan langsung (tidak melibatkan penilaian diri sendiri):</p>
+                    <div className="bg-slate-50 border border-slate-300 p-3 rounded font-mono text-[10.5px] text-slate-900 leading-relaxed whitespace-pre-wrap">
 {`// KASUS 1: PEGAWAI MEMILIKI BAWAHAN LANGSUNG (Has Subordinates = True)
-Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsWithSub.Atasan}%) + (SkorPeer * ${state.period.weightsWithSub.Peer}%) + (SkorBawahan * ${state.period.weightsWithSub.Bawahan || 0}%) + (SkorSelf * ${100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%)
+Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsWithSub.Atasan}%) + (SkorPeer * ${state.period.weightsWithSub.Peer}%) + (SkorBawahan * ${state.period.weightsWithSub.Bawahan || 0}%)
 
 // KASUS 2: PEGAWAI TANPA BAWAHAN LANGSUNG (Has Subordinates = False)
-Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (SkorPeer * ${state.period.weightsNoSub.Peer}%) + (SkorSelf * ${100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)`}
+Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (SkorPeer * ${state.period.weightsNoSub.Peer}%)`}
                     </div>
                   </div>
 
                   <div className="bg-white border-2 border-slate-300 rounded-xl p-3.5 space-y-2 md:col-span-2">
                     <span className="text-[10px] bg-amber-200 text-amber-950 font-black px-2 py-0.5 rounded border border-amber-400">Tahap D</span>
-                    <h4 className="font-extrabold text-[#0f172a] text-[11px]">Indeks Skor Total Akumulatif Pegawai</h4>
-                    <p className="text-slate-600 text-[11px] font-sans">Merupakan skor total yang ditampilkan di card dashboard dan radar chart Anda, diambil dari rata-rata algebra ke-7 dimensi perilaku:</p>
+                    <h4 className="font-extrabold text-[#0f172a] text-[11px]">Indeks Skor Total Akumulatif Pegawai & Konversi Skala 100</h4>
+                    <p className="text-slate-600 text-[11px] font-sans">Skor rata-rata ke-7 dimensi perilaku dikonversikan ke skala 100 untuk pengisian hasil E-Kinerja:</p>
                     <div className="bg-slate-100 border border-slate-200 p-2.5 rounded font-mono text-[10.5px] text-indigo-950">
-                      Skor_Total_Gabungan = (Σ Skor_Dimensi_Akhir_j) / 7
+                      Skor_Total_Gabungan = (Skor_Dimensi_Akhir_Rerata / 5) * 100
                     </div>
                   </div>
                 </div>
@@ -965,7 +944,7 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="border-2 border-slate-950 rounded-xl p-4 bg-blue-50/40 leading-relaxed">
                   <h4 className="font-extrabold text-[#0b1329] mb-2.5 uppercase tracking-wide flex items-center gap-1.5 text-xs">
-                    <span>🏢</span> Parameter Bobot (DENGAN BAWAHAN)
+                    <span>🏢</span> Parameter Bobot Perhitungan (DENGAN BAWAHAN)
                   </h4>
                   <p className="text-slate-500 mb-3 text-[11px] font-sans">Berlaku bagi pejabat pimpinan eselon, pengawas, kepala unit kerja, atau jabatan fungsional penugasan:</p>
                   
@@ -978,22 +957,19 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                       <span>Nilai Rekan Sejawat (Peer Average):</span>
                       <span className="font-black text-blue-900">{state.period.weightsWithSub.Peer}%</span>
                     </div>
-                    <div className="flex justify-between border-b border-dashed border-slate-300 pb-1.5">
+                    <div className="flex justify-between border-not border-dashed border-slate-305 pb-0.5">
                       <span>Nilai Bawahan Langsung (Sub Average):</span>
                       <span className="font-black text-blue-900">{state.period.weightsWithSub.Bawahan || 0}%</span>
                     </div>
-                    <div className="flex justify-between pb-0.5">
-                      <span>Evaluasi Mandiri (Diri Sendiri):</span>
-                      <span className="font-black text-blue-900">
-                        {100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%
-                      </span>
+                    <div className="text-[10px] text-slate-400 italic">
+                      * Evaluasi Diri (Self) bernilai bobot 0% (tidak dimasukkan dalam kumulatif skor akhir)
                     </div>
                   </div>
                 </div>
 
                 <div className="border-2 border-slate-950 rounded-xl p-4 bg-emerald-50/40 leading-relaxed">
                   <h4 className="font-extrabold text-[#0b1329] mb-2.5 uppercase tracking-wide flex items-center gap-1.5 text-xs">
-                    <span>👤</span> Parameter Bobot (TANPA BAWAHAN)
+                    <span>👤</span> Parameter Bobot Perhitungan (TANPA BAWAHAN)
                   </h4>
                   <p className="text-slate-500 mb-3 text-[11px] font-sans">Berlaku bagi staf pelaksana umum, fungsional ahli pertama/muda, guru non-tugas tambahan, dll:</p>
                   
@@ -1002,15 +978,12 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                       <span>Nilai Atasan Langsung:</span>
                       <span className="font-black text-emerald-900">{state.period.weightsNoSub.Atasan}%</span>
                     </div>
-                    <div className="flex justify-between border-b border-dashed border-slate-300 pb-1.5">
+                    <div className="flex justify-between pb-1.5">
                       <span>Nilai Rekan Sejawat (Peer Average):</span>
                       <span className="font-black text-emerald-900">{state.period.weightsNoSub.Peer}%</span>
                     </div>
-                    <div className="flex justify-between pb-1.5">
-                      <span>Evaluasi Mandiri (Diri Sendiri):</span>
-                      <span className="font-black text-emerald-900">
-                        {100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%
-                      </span>
+                    <div className="text-[10px] text-slate-400 italic">
+                      * Evaluasi Diri (Self) bernilai bobot 0% (tidak dimasukkan dalam kumulatif skor akhir)
                     </div>
                   </div>
                 </div>
@@ -1032,46 +1005,39 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                   <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
                     <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-sky-700">Berorientasi Pelayanan</span></p>
                     
-                    <div className="grid md:grid-cols-3 gap-3">
+                    <div className="grid md:grid-cols-2 gap-3">
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-sky-800">1. Atasan Langsung (1 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Butir 1 = 5</li>
-                          <li>Butir 2 = 4</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 4.50</strong></li>
+                          <li>Merespons kebutuhan layanan dengan cepat dan tepat = 5</li>
+                          <li>Menunjukkan sikap ramah dalam memberikan pelayanan = 4</li>
+                          <li>Memberikan solusi atas kebutuhan atau keluhan = 5</li>
+                          <li>Menindaklanjuti permintaan layanan secara jelas = 4</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata Atasan = (5+4+5+4)/4 = 4.50</strong></li>
                         </ul>
                       </div>
 
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-sky-800">2. Rekan Sejawat (3 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Rekan 1: [4,4] $\rightarrow$ Rerata = 4.00</li>
-                          <li>Rekan 2: [5,3] $\rightarrow$ Rerata = 4.00</li>
-                          <li>Rekan 3: [4,5] $\rightarrow$ Rerata = 4.50</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Group Mean = (4.00+4.00+4.50)/3 = 4.17</strong></li>
-                        </ul>
-                      </div>
-
-                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
-                        <strong className="text-sky-800">3. Evaluasi Diri (Self):</strong>
-                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Butir 1 = 5</li>
-                          <li>Butir 2 = 5</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 5.00</strong></li>
+                          <li>Rekan 1: Memberikan nilai [4,4,4,4] $\rightarrow$ Rerata = 4.00</li>
+                          <li>Rekan 2: Memberikan nilai [5,4,4,3] $\rightarrow$ Rerata = 4.00</li>
+                          <li>Rekan 3: Memberikan nilai [4,5,4,5] $\rightarrow$ Rerata = 4.50</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rerata Kelompok Sejawat = (4.00+4.00+4.50)/3 = 4.17</strong></li>
                         </ul>
                       </div>
                     </div>
 
                     <div className="bg-sky-50 p-3 rounded-xl border border-sky-200 font-mono text-[11px]">
                       <span className="font-black text-sky-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
-                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsNoSub.Atasan}%) + (Peer * {state.period.weightsNoSub.Peer}%) + (Self * {100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)<br />
-                      Perhitungan Skor Akhir = (4.50 * 0.50) + (4.17 * 0.40) + (5.00 * 0.10)<br />
-                      Perhitungan Skor Akhir = 2.25 + 1.668 + 0.50 = <strong>4.418</strong>
+                      Perhitungan Skor Akhir Dimensi = (Atasan * {state.period.weightsNoSub.Atasan}%) + (Peer * {state.period.weightsNoSub.Peer}%)<br />
+                      Perhitungan Skor Akhir Dimensi = (4.50 * 0.60) + (4.17 * 0.40) = 2.70 + 1.668 = <strong>4.368</strong><br />
+                      Konversi ke Skala 100 = (4.368 / 5) * 100 = <strong>87.36</strong> (Dibulatkan ke 87)
                     </div>
 
                     <div className="flex items-center gap-2">
                       <span className="px-2.5 py-1 bg-emerald-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: BAIK</span>
-                      <p className="text-[11px] text-slate-500">Nilai total <strong>4.42</strong> berada dalam interval <strong>3.51 - 4.50 (BAIK)</strong>.</p>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>87.36</strong> berada dalam interval <strong>76 - 89 (BAIK)</strong>.</p>
                     </div>
                   </div>
                 </div>
@@ -1085,54 +1051,47 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                   <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
                     <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-indigo-700">Akuntabel</span></p>
                     
-                    <div className="grid md:grid-cols-4 gap-3">
+                    <div className="grid md:grid-cols-3 gap-3">
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-indigo-800">1. Atasan (Kepala Dinas):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Butir 1 = 4</li>
-                          <li>Butir 2 = 4</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 4.00</strong></li>
+                          <li>Menyelesaikan tugas sesuai tanggung jawab = 4</li>
+                          <li>Jujur dalam melaporkan hasil kerja = 4</li>
+                          <li>Mematuhi aturan dan prosedur kerja = 4</li>
+                          <li>Menggunakan sumber daya secara bertanggung jawab = 4</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata Atasan = 4.00</strong></li>
                         </ul>
                       </div>
 
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-indigo-800">2. Sejawat (2 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Rekan 1: Rerata 4.50</li>
-                          <li>Rekan 2: Rerata 3.50</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Group Mean = (4.50+3.50)/2 = 4.00</strong></li>
+                          <li>Rekan 1: Memberikan nilai [4,5,4,5] $\rightarrow$ Rerata = 4.50</li>
+                          <li>Rekan 2: Memberikan nilai [3,4,3,4] $\rightarrow$ Rerata = 3.50</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rerata Sejawat = (4.50+3.50)/2 = 4.00</strong></li>
                         </ul>
                       </div>
 
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-indigo-800">3. Bawahan (2 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Bawahan 1: Rerata 5.00</li>
-                          <li>Bawahan 2: Rerata 4.50</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Group Mean = (5.0k+4.5)/2 = 4.75</strong></li>
-                        </ul>
-                      </div>
-
-                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
-                        <strong className="text-indigo-800">4. Diri Sendiri (Self):</strong>
-                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Butir 1 = 4</li>
-                          <li>Butir 2 = 3</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 3.50</strong></li>
+                          <li>Bawahan 1: Memberikan nilai [5,4,5,4] $\rightarrow$ Rerata = 4.50</li>
+                          <li>Bawahan 2: Memberikan nilai [4,4,4,5] $\rightarrow$ Rerata = 4.30</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rerata Bawahan = (4.50+4.30)/2 = 4.40</strong></li>
                         </ul>
                       </div>
                     </div>
 
                     <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-200 font-mono text-[11px]">
                       <span className="font-black text-indigo-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
-                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsWithSub.Atasan}%) + (Peer * {state.period.weightsWithSub.Peer}%) + (Bawahan * {state.period.weightsWithSub.Bawahan}%) + (Self * {100 - state.period.weightsWithSub.Atasan - state.period.weightsWithSub.Peer - (state.period.weightsWithSub.Bawahan || 0)}%)<br />
-                      Perhitungan Skor Akhir = (4.00 * 0.40) + (4.00 * 0.30) + (4.75 * 0.20) + (3.50 * 0.10)<br />
-                      Perhitungan Skor Akhir = 1.60 + 1.20 + 0.95 + 0.35 = <strong>4.100</strong>
+                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsWithSub.Atasan}%) + (Peer * {state.period.weightsWithSub.Peer}%) + (Bawahan * {state.period.weightsWithSub.Bawahan}%)<br />
+                      Perhitungan Skor Akhir = (4.00 * 0.60) + (4.00 * 0.15) + (4.40 * 0.25) = 2.40 + 0.60 + 1.10 = <strong>4.10</strong><br />
+                      Konversi ke Skala 100 = (4.10 / 5) * 100 = <strong>82.00</strong>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <span className="px-2.5 py-1 bg-emerald-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: BAIK</span>
-                      <p className="text-[11px] text-slate-500">Nilai total <strong>4.10</strong> dipredikatkan sebagai <strong>BAIK (3.51 - 4.50)</strong>.</p>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>82.00</strong> berada dalam predikat <strong>BAIK (76 - 89)</strong>.</p>
                     </div>
                   </div>
                 </div>
@@ -1146,46 +1105,39 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                   <div className="p-4 space-y-3 font-sans text-[11.5px] leading-relaxed text-slate-705">
                     <p className="font-display font-black text-[#1e293b]">Dimensi Penilaian: <span className="text-rose-700">Adaptif</span></p>
                     
-                    <div className="grid md:grid-cols-3 gap-3">
+                    <div className="grid md:grid-cols-2 gap-3">
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-rose-800">1. Atasan (Kepala Puskesmas):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Butir 1 = 3</li>
-                          <li>Butir 2 = 2</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 2.50</strong></li>
+                          <li>Terbuka terhadap perubahan = 3</li>
+                          <li>Cepat menyesuaikan diri dengan sistem baru = 2</li>
+                          <li>Mencari cara kerja yang lebih efektif = 3</li>
+                          <li>Proaktif menghadapi masalah pekerjaan = 2</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata Atasan = (3+2+3+2)/4 = 2.50</strong></li>
                         </ul>
                       </div>
 
                       <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
                         <strong className="text-rose-800">2. Sejawat (3 Orang):</strong>
                         <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Rekan 1: [2,2] $\rightarrow$ Rerata = 2.00</li>
-                          <li>Rekan 2: [3,2] $\rightarrow$ Rerata = 2.50</li>
-                          <li>Rekan 3: [2,1] $\rightarrow$ Rerata = 1.50</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Group Mean = (2.00+2.50+1.50)/3 = 2.00</strong></li>
-                        </ul>
-                      </div>
-
-                      <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-xl">
-                        <strong className="text-rose-800">3. Evaluasi Diri (Self-Overconfidence):</strong>
-                        <ul className="list-disc pl-4 mt-1 text-[11px] text-slate-600">
-                          <li>Butir 1 = 4</li>
-                          <li>Butir 2 = 4</li>
-                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rata-rata = 4.00</strong></li>
+                          <li>Rekan 1: Rerata = 2.00</li>
+                          <li>Rekan 2: Rerata = 2.50</li>
+                          <li>Rekan 3: Rerata = 1.50</li>
+                          <li className="font-mono text-slate-950 list-none mt-1"><strong>Rerata Sejawat = (2.00+2.50+1.50)/3 = 2.00</strong></li>
                         </ul>
                       </div>
                     </div>
 
                     <div className="bg-rose-50 p-3 rounded-xl border border-rose-200 font-mono text-[11px]">
                       <span className="font-black text-rose-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
-                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsNoSub.Atasan}%) + (Peer * {state.period.weightsNoSub.Peer}%) + (Self * {100 - state.period.weightsNoSub.Atasan - state.period.weightsNoSub.Peer}%)<br />
-                      Perhitungan Skor Akhir = (2.50 * 0.50) + (2.00 * 0.40) + (4.00 * 0.10)<br />
-                      Perhitungan Skor Akhir = 1.25 + 0.80 + 0.40 = <strong>2.450</strong>
+                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsNoSub.Atasan}%) + (Peer * {state.period.weightsNoSub.Peer}%)<br />
+                      Perhitungan Skor Akhir = (2.50 * 0.60) + (2.00 * 0.40) = 1.50 + 0.80 = <strong>2.30</strong><br />
+                      Konversi ke Skala 100 = (2.30 / 5) * 100 = <strong>46.00</strong>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 bg-rose-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: KURANG</span>
-                      <p className="text-[11px] text-slate-500">Nilai total <strong>2.45</strong> berada dalam range <strong>1.51 - 2.50 (KURANG)</strong>. Menandakan alarm pembinaan aktif.</p>
+                      <span className="px-2.5 py-1 bg-red-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: SANGAT KURANG</span>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>46.00</strong> berada dalam kriteria <strong>SANGAT KURANG (di bawah 51)</strong>. Menandakan perlunya pendampingan.</p>
                     </div>
                   </div>
                 </div>
