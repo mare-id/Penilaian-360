@@ -135,6 +135,9 @@ export async function testSupabaseConnection(url: string, anonKey: string, table
       const result = await res.json();
       return result;
     }
+    if (res.status === 404 || res.status >= 500) {
+      throw new Error(`API returned HTTP ${res.status}`);
+    }
     const errData = await res.json().catch(() => ({}));
     return {
       success: false,
