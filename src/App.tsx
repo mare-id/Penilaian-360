@@ -27,7 +27,7 @@ import {
   getSupabaseSQLScript,
   checkServerConfig
 } from "./utils/supabase";
-import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle, Calendar, Trash2, Plus } from "lucide-react";
+import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle, Calendar, Trash2, Plus, RotateCcw } from "lucide-react";
 
 const STORAGE_KEY = "bkpsdm-dairi-360-app-v2";
 
@@ -419,6 +419,40 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
     toast(`Periode '${p.name}' berhasil dihapus.`);
   };
 
+  const resetPeriodData = () => {
+    if (!confirm(`⚠️ PERINGATAN: Apakah Anda yakin ingin mereset seluruh penilaian, kuesioner, hasil nilai, dan daftar nama evaluator sejawat (Peer) untuk periode "${period.name}" ke kondisi awal?\n\nTindakan ini menghapus seluruh jawaban kuesioner dan usulan rater sejawat pada periode ini. Tindakan ini permanen dan tidak dapat dibatalkan.`)) {
+      return;
+    }
+
+    setState((s) => {
+      const targetAssignmentIds = new Set(
+        s.assignments
+          .filter((a) => a.periodId === period.id)
+          .map((a) => a.id)
+      );
+
+      const nextResponses = s.responses.filter((r) => !targetAssignmentIds.has(r.assignmentId));
+
+      const nextAssignments = s.assignments
+        .filter((a) => !(a.periodId === period.id && a.type === "Peer"))
+        .map((a) => {
+          if (a.periodId === period.id) {
+            return { ...a, status: "Belum Mulai" };
+          }
+          return a;
+        });
+
+      return {
+        ...s,
+        responses: nextResponses,
+        assignments: nextAssignments,
+        pendingRaters: []
+      };
+    });
+
+    toast(`Sukses! Semua kuesioner dan usulan rater pada periode '${period.name}' telah di-reset ke awal.`);
+  };
+
   const activePeriodsList = state.periods || [];
 
   return (
@@ -578,7 +612,7 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
             />
           </Field>
 
-          <div className="col-span-1 md:col-span-3 pt-2 grid gap-4 grid-cols-1 md:grid-cols-2 border-t border-slate-100 mt-2">
+          <div className="col-span-1 md:col-span-3 pt-2 grid gap-4 grid-cols-1 md:grid-cols-3 border-t border-slate-100 mt-2">
             <div className="rounded-xl border p-4 bg-slate-50 border-slate-200">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
@@ -608,6 +642,23 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
                   <span className="block font-bold text-sm text-slate-900">Penilaian Sejawat (Peer) Otomatis</span>
                   <span className="block text-xs text-slate-500 mt-0.5 leading-relaxed">
                     Generate rater rekan sejawat secara otomatis jika pegawai belum mengusulkan sendiri secara manual. Sangat berguna agar kuesioner rekan sejawat tidak dibiarkan kosong.
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            <div className="rounded-xl border p-4 bg-slate-50 border-slate-200">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4.5 h-4.5 rounded text-sky-600 focus:ring-sky-500 border-slate-300 mt-1 cursor-pointer"
+                  checked={!!period.randomizePeers}
+                  onChange={(e) => setPeriod({ ...period, randomizePeers: e.target.checked })}
+                />
+                <div className="font-display">
+                  <span className="block font-bold text-sm text-slate-900">Acak Rater Rekan Sejawat</span>
+                  <span className="block text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Sistem akan menggenerate nama rater rekan sejawat secara acak (bukan berurutan ID) dan langsung berstatus disetujui (Approved) tanpa memerlukan verifikasi/persetujuan dari atasan.
                   </span>
                 </div>
               </label>
@@ -712,6 +763,10 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
             </label>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button onClick={resetPeriodData} variant="danger" className="text-white flex items-center gap-1.5 font-bold">
+              <RotateCcw className="w-4 h-4" />
+              Reset Data Periode
+            </Button>
             <Button onClick={save} variant="secondary">Simpan Setelan</Button>
             <Button onClick={saveAsNew} className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1">
               <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -1026,7 +1081,8 @@ export default function App() {
         parsed.period?.id || 2, 
         parsed.period?.maxPeer || 4,
         !!parsed.period?.enforceMaxBawahan,
-        parsed.period?.autoFillPeers !== false
+        parsed.period?.autoFillPeers !== false,
+        !!parsed.period?.randomizePeers
       );
       return { ...parsed, assignments: synced };
     } catch {
@@ -1037,7 +1093,8 @@ export default function App() {
         initialState.period?.id || 2, 
         initialState.period?.maxPeer || 4,
         !!initialState.period?.enforceMaxBawahan,
-        initialState.period?.autoFillPeers !== false
+        initialState.period?.autoFillPeers !== false,
+        !!initialState.period?.randomizePeers
       );
       return { ...initialState, admins: initialState.admins, assignments: synced };
     }
@@ -1084,7 +1141,8 @@ export default function App() {
       state.period?.id || 2, 
       state.period?.maxPeer || 4,
       !!state.period?.enforceMaxBawahan,
-      state.period?.autoFillPeers !== false
+      state.period?.autoFillPeers !== false,
+      !!state.period?.randomizePeers
     );
     
     // Sinkronkan juga pendingRaters agar proposedIds hanya berisi peer setingkat (jenis)

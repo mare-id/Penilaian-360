@@ -239,6 +239,7 @@ export const initialState: AppState = {
     maxBawahan: 5,
     enforceMaxBawahan: false,
     autoFillPeers: true,
+    randomizePeers: false,
     weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
     weightsNoSub: { Atasan: 40, Peer: 60 }, // Wait, user CSV weightsNoSub: {"Peer":40,"Atasan":60} -> wait, wait! 
     // From CSV: "weightsNoSub":{"Peer":40,"Atasan":60}
@@ -260,6 +261,7 @@ export const initialState: AppState = {
       maxBawahan: 5,
       enforceMaxBawahan: false,
       autoFillPeers: true,
+      randomizePeers: false,
       weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
       weightsNoSub: { Atasan: 60, Peer: 40 },
       type: "Triwulan",

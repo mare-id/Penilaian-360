@@ -3,7 +3,7 @@ import { EyeOff, Search, Users, CheckCircle2, AlertTriangle, ClipboardCheck, Loc
 import { AppState, Employee, Assignment, Response, Objection, PendingRaters, DemoAccount, Period } from "../types";
 import { dimensions, orgUnitCatalog } from "../data";
 import { Badge, Card, Button, Field, ProgressBar, Empty, StatCard } from "./UIComponents";
-import { calculateResult, categoryClass, statusClass, dimensionScores, average, unitStats, buildAnomalies, isEligiblePeer } from "../utils";
+import { calculateResult, categoryClass, statusClass, dimensionScores, average, unitStats, buildAnomalies, isEligiblePeer, seededShuffle } from "../utils";
 
 interface PageProps {
   state: AppState;
@@ -129,6 +129,10 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
   
   const [selected, setSelected] = useState<number[]>(() => {
     if (pending) return pending.proposedIds;
+    if (state.period.randomizePeers) {
+      const shuffled = seededShuffle(sortedPeers, employee.id * 1000 + state.period.id);
+      return shuffled.slice(0, Math.min(state.period.maxPeer, shuffled.length)).map((p) => p.id);
+    }
     // Default: maks maxPeer, jika hanya ada kurang ya ambil senyatanya
     return sortedPeers.slice(0, Math.min(state.period.maxPeer, sortedPeers.length)).map((p) => p.id);
   });
@@ -153,21 +157,71 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
       return toast("Seluruh peer evaluator terpilih wajib berada di unit kerja yang sama dan memiliki tingkat jabatan setingkat, atau kombinasi jabatan Fungsional & Pelaksana.");
     }
 
+    const isRandomized = !!state.period.randomizePeers;
     setState((s) => {
       const entry: PendingRaters = {
         id: pending?.id || Date.now(),
         evalueeId: employee.id,
         proposedIds: selected,
-        status: "Menunggu Verifikasi",
+        status: isRandomized ? "Disetujui" : "Menunggu Verifikasi",
         submittedAt: new Date().toISOString().slice(0, 10),
         rejectionReason: "",
       };
+
+      let nextAssignments = [...s.assignments];
+      if (isRandomized) {
+        // Clear old Peer assignments for this user
+        nextAssignments = nextAssignments.filter(
+          (a) => !(a.evalueeId === employee.id && a.type === "Peer" && a.periodId === s.period.id)
+        );
+        // Add new peer assignments
+        selected.forEach((pid) => {
+          // Emp evaluated by peer
+          const existsLeft = nextAssignments.some(
+            (a) => a.evalueeId === employee.id && a.evaluatorId === pid && a.type === "Peer" && a.periodId === s.period.id
+          );
+          if (!existsLeft) {
+            nextAssignments.push({
+              id: s.period.id * 100000 + 70000 + pid * 1000 + employee.id,
+              periodId: s.period.id,
+              evalueeId: employee.id,
+              evaluatorId: pid,
+              type: "Peer",
+              status: "Belum Mulai",
+              approved: true,
+            });
+          }
+
+          // Peer evaluated by emp
+          const existsRight = nextAssignments.some(
+            (a) => a.evalueeId === pid && a.evaluatorId === employee.id && a.type === "Peer" && a.periodId === s.period.id
+          );
+          if (!existsRight) {
+            nextAssignments.push({
+              id: s.period.id * 100000 + 70000 + employee.id * 1000 + pid,
+              periodId: s.period.id,
+              evalueeId: pid,
+              evaluatorId: employee.id,
+              type: "Peer",
+              status: "Belum Mulai",
+              approved: true,
+            });
+          }
+        });
+      }
+
       return {
         ...s,
         pendingRaters: [...s.pendingRaters.filter((p) => p.evalueeId !== employee.id), entry],
+        assignments: nextAssignments,
       };
     });
-    toast("Usulan evaluator dikirim ke atasan langsung.");
+
+    if (isRandomized) {
+      toast("Rekan sejawat berhasil disimpan dan langsung disetujui otomatis!");
+    } else {
+      toast("Usulan evaluator dikirim ke atasan langsung.");
+    }
   };
 
   const toggle = (id: number) => {
@@ -297,7 +351,9 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
             onClick={submit}
             disabled={pending?.status === "Disetujui"}
           >
-            {pending?.status === "Disetujui" ? "Pilihan Telah Disetujui Atasan" : "Kirim ke Atasan untuk Verifikasi"}
+            {state.period.randomizePeers 
+              ? (pending?.status === "Disetujui" ? "Pilihan Telah Disetujui Otomatis" : "Simpan & Setujui Evaluator (Otomatis)")
+              : (pending?.status === "Disetujui" ? "Pilihan Telah Disetujui Atasan" : "Kirim ke Atasan untuk Verifikasi")}
           </Button>
         )}
       </Card>

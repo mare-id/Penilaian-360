@@ -175,7 +175,8 @@ export function syncMandatoryAssignments(
   periodId: number = 2, 
   maxPeer: number = 4,
   enforceMaxBawahan: boolean = false,
-  autoFillPeers: boolean = true
+  autoFillPeers: boolean = true,
+  randomizePeers: boolean = false
 ): Assignment[] {
   // Update hasSub dynamically based on actual subordinates in the organization tree
   employees.forEach((emp) => {
@@ -310,8 +311,9 @@ export function syncMandatoryAssignments(
       );
       if (!hasPeerAssignments) {
         const eligiblePeers = employees.filter((other) => isEligiblePeer(emp, other));
-        const sortedEligible = [...eligiblePeers].sort((a, b) => a.id - b.id);
-        const selectedPeers = sortedEligible.slice(0, maxPeer);
+        const selectedPeers = randomizePeers 
+          ? seededShuffle(eligiblePeers, emp.id * 1000 + periodId).slice(0, maxPeer)
+          : [...eligiblePeers].sort((a, b) => a.id - b.id).slice(0, maxPeer);
         
         selectedPeers.forEach((peer) => {
           // Emp evaluates Peer
@@ -409,4 +411,18 @@ export function isEligiblePeer(evaluator: Employee, evaluee: Employee): boolean 
     (evaluator.jenis === "Pelaksana" && evaluee.jenis === "Fungsional");
     
   return isSameJenis || isFungsionalAndPelaksana;
+}
+
+export function seededShuffle<T>(array: T[], seed: number): T[] {
+  const shuffled = [...array];
+  let currentSeed = seed;
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const r = Math.sin(currentSeed++) * 10000;
+    const randomVal = r - Math.floor(r);
+    const j = Math.floor(randomVal * (i + 1));
+    const temp = shuffled[i];
+    shuffled[i] = shuffled[j];
+    shuffled[j] = temp;
+  }
+  return shuffled;
 }

@@ -86,6 +86,7 @@ export interface Period {
   maxBawahan?: number;
   enforceMaxBawahan?: boolean;
   autoFillPeers?: boolean;
+  randomizePeers?: boolean;
   weightsWithSub: Weights;
   weightsNoSub: Weights;
   type?: "Bulanan" | "Triwulan" | "Custom";
