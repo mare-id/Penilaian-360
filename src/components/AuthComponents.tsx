@@ -92,7 +92,7 @@ export function Login({ onLogin, state }: LoginProps) {
         <div className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-6xl items-center gap-8 lg:grid-cols-[1.1fr_.9fr] py-8">
           <div className="space-y-6 flex flex-col items-center text-center lg:items-start lg:text-left">
             <span className="inline-flex items-center rounded-full border-2 border-slate-950 bg-blue-600 text-white px-3 py-1 text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-              Sistem BKPSDM Kabupaten Dairi 👑
+              Penilaian Perilaku ASN 👑
             </span>
             <div className="flex flex-col items-center lg:items-start gap-3">
               <BkpsdmLogo size="lg" variant="colored" className="transform hover:scale-[1.02] transition-transform duration-300" />
