@@ -1185,8 +1185,431 @@ export function UnitProgress({ state, compact = false }: { state: AppState; comp
 export function Reports({ state, toast }: { state: AppState; toast: (msg: string) => void }) {
   const [tab, setTab] = useState("individu");
   const anomalies = buildAnomalies(state);
-  
-  const download = (type: string) => toast(`Laporan format ${type} berhasil didownload secara simulatif.`);
+
+  const downloadCSV = () => {
+    let title = "";
+    let headers: string[] = [];
+    let rows: string[][] = [];
+
+    if (tab === "individu") {
+      title = "Rekap_Laporan_Perilaku_Individu_ASN";
+      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori"];
+      rows = state.employees.map((e, idx) => {
+        const result = calculateResult(e, state.assignments, state.responses, state.period);
+        return [
+          (idx + 1).toString(),
+          e.nama,
+          e.nip,
+          e.jabatan,
+          e.unit,
+          `${result.completed}/${result.total}`,
+          result.atasan.toString(),
+          result.peer.toString(),
+          result.bawahan.toString(),
+          result.self.toString(),
+          (result.final || 0).toString(),
+          result.category
+        ];
+      });
+    } else if (tab === "unit") {
+      title = "Laporan_Kepatuhan_Unit_Kerja";
+      headers = ["No", "Nama Unit", "Total ASN", "Total Target Penilaian", "Penilaian Selesai", "Selesai (%)", "Kepatuhan Nilai Rata-rata", "Status Kepatuhan"];
+      const stats = unitStats(state);
+      rows = stats.map((u, idx) => [
+        (idx + 1).toString(),
+        u.unit,
+        u.totalAsn.toString(),
+        u.totalAssignments.toString(),
+        u.completed.toString(),
+        u.pct.toString(),
+        u.avg.toString(),
+        u.status
+      ]);
+    } else if (tab === "bkpsdm") {
+      title = "Ringkasan_Eksekutif_Lembaga_BKPSDM";
+      headers = ["Metrik", "Nilai/Jumlah"];
+      rows = [
+        ["Total Pegawai Terdaftar", `${state.employees.length} Pegawai`],
+        ["Jumlah Kuesioner Terisi", `${state.responses.length} Kuesioner`],
+        ["Target Penilaian yang Belum Diisi", `${state.assignments.length - state.responses.length} Target`]
+      ];
+    } else if (tab === "anomali") {
+      title = "Audit_Hasil_Penilaian_Flag_Anomali";
+      headers = ["No", "Nama Pegawai", "Tipe Anomali", "Total Pengisian", "Tingkat Keparahan", "Saran Tindak Lanjut"];
+      rows = anomalies.map((a, idx) => {
+        const ev = state.employees.find((e) => e.id === Number(a.id));
+        return [
+          (idx + 1).toString(),
+          ev?.nama || "Dihapus",
+          a.type,
+          a.count.toString(),
+          a.severity,
+          "Lakukan peninjauan format objektif penilai/evaluator bersangkutan"
+        ];
+      });
+    }
+
+    // Convert array to CSV string with standard Excel-friendly semicolon separator and BOM
+    const csvContent = "\uFEFF" + [
+      headers.map(h => `"${h.replace(/"/g, '""')}"`).join(";"),
+      ...rows.map(row => row.map(cell => `"${(cell || "").replace(/"/g, '""')}"`).join(";"))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${title}_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast(`Berhasil mengunduh laporan ${tab.toUpperCase()} dalam format CSV 📊`);
+  };
+
+  const downloadExcel = () => {
+    let title = "";
+    let headers: string[] = [];
+    let rows: string[][] = [];
+
+    if (tab === "individu") {
+      title = "Rekap_Laporan_Perilaku_Individu_ASN";
+      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori"];
+      rows = state.employees.map((e, idx) => {
+        const result = calculateResult(e, state.assignments, state.responses, state.period);
+        return [
+          (idx + 1).toString(),
+          e.nama,
+          e.nip,
+          e.jabatan,
+          e.unit,
+          `${result.completed}/${result.total}`,
+          result.atasan.toString(),
+          result.peer.toString(),
+          result.bawahan.toString(),
+          result.self.toString(),
+          (result.final || 0).toString(),
+          result.category
+        ];
+      });
+    } else if (tab === "unit") {
+      title = "Laporan_Kepatuhan_Unit_Kerja";
+      headers = ["No", "Nama Unit", "Total ASN", "Total Target Penilaian", "Penilaian Selesai", "Selesai (%)", "Kepatuhan Nilai Rata-rata", "Status Kepatuhan"];
+      const stats = unitStats(state);
+      rows = stats.map((u, idx) => [
+        (idx + 1).toString(),
+        u.unit,
+        u.totalAsn.toString(),
+        u.totalAssignments.toString(),
+        u.completed.toString(),
+        u.pct.toString(),
+        u.avg.toString(),
+        u.status
+      ]);
+    } else if (tab === "bkpsdm") {
+      title = "Ringkasan_Eksekutif_Lembaga_BKPSDM";
+      headers = ["Metrik", "Nilai/Jumlah"];
+      rows = [
+        ["Total Pegawai Terdaftar", `${state.employees.length} Pegawai`],
+        ["Jumlah Kuesioner Terisi", `${state.responses.length} Kuesioner`],
+        ["Target Penilaian yang Belum Diisi", `${state.assignments.length - state.responses.length} Kuesioner`]
+      ];
+    } else if (tab === "anomali") {
+      title = "Audit_Hasil_Penilaian_Flag_Anomali";
+      headers = ["No", "Nama Pegawai", "Tipe Anomali", "Total Pengisian", "Tingkat Keparahan", "Saran Tindak Lanjut"];
+      rows = anomalies.map((a, idx) => {
+        const ev = state.employees.find((e) => e.id === Number(a.id));
+        return [
+          (idx + 1).toString(),
+          ev?.nama || "Dihapus",
+          a.type,
+          a.count.toString(),
+          a.severity,
+          "Lakukan peninjauan format objektif penilai/evaluator bersangkutan"
+        ];
+      });
+    }
+
+    const tabName = tab.toUpperCase();
+    const htmlContent = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
+        <!--[if gte mso 9]>
+        <xml>
+          <x:ExcelWorkbook>
+            <x:ExcelWorksheets>
+              <x:ExcelWorksheet>
+                <x:Name>${tabName}</x:Name>
+                <x:WorksheetOptions>
+                  <x:DisplayGridlines/>
+                </x:WorksheetOptions>
+              </x:ExcelWorksheet>
+            </x:ExcelWorksheets>
+          </x:ExcelWorkbook>
+        </xml>
+        <![endif]-->
+        <style>
+          table { border-collapse: collapse; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+          th { background-color: #3B82F6; color: #FFFFFF; font-weight: bold; border: 1px solid #CBD5E1; padding: 10px; }
+          td { border: 1px solid #E2E8F0; padding: 8px; }
+          tr:nth-child(even) { background-color: #F8FAFC; }
+          .title { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="title">${title.replace(/_/g, " ")}</div>
+        <table>
+          <thead>
+            <tr>
+              ${headers.map(h => `<th>${h}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`).join("")}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([htmlContent], { type: "application/vnd.ms-excel;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${title}_${new Date().toISOString().slice(0, 10)}.xls`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast(`Berhasil mengunduh laporan ${tab.toUpperCase()} dalam format Excel 💚`);
+  };
+
+  const downloadPDF = () => {
+    let title = "";
+    let headers: string[] = [];
+    let rows: string[][] = [];
+
+    if (tab === "individu") {
+      title = "Rekap Laporan Perilaku Individu ASN";
+      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator", "Nilai Agregat", "Kategori"];
+      rows = state.employees.map((e, idx) => {
+        const result = calculateResult(e, state.assignments, state.responses, state.period);
+        return [
+          (idx + 1).toString(),
+          e.nama,
+          e.nip,
+          e.jabatan,
+          e.unit,
+          `${result.completed}/${result.total} rater`,
+          (result.final || 0).toString(),
+          result.category
+        ];
+      });
+    } else if (tab === "unit") {
+      title = "Laporan Kepatuhan Pengisian Per Unit";
+      headers = ["No", "Nama Unit", "Total ASN", "Total Target", "Selesai", "Kepatuhan %", "Rata-rata Nilai", "Status"];
+      const stats = unitStats(state);
+      rows = stats.map((u, idx) => [
+        (idx + 1).toString(),
+        u.unit,
+        u.totalAsn.toString(),
+        u.totalAssignments.toString(),
+        u.completed.toString(),
+        u.pct.toString() + "%",
+        u.avg.toString(),
+        u.status
+      ]);
+    } else if (tab === "bkpsdm") {
+      title = "Ringkasan Eksekutif Lembaga BKPSDM";
+      headers = ["Metrik", "Nilai / Jumlah"];
+      rows = [
+        ["Total Pegawai Terdaftar", `${state.employees.length} Pegawai`],
+        ["Jumlah Kuesioner Terisi", `${state.responses.length} Kuesioner`],
+        ["Target Penilaian yang Belum Diisi", `${state.assignments.length - state.responses.length} Target`]
+      ];
+    } else if (tab === "anomali") {
+      title = "Audit Hasil Penilaian - Flag Anomali";
+      headers = ["No", "Nama Pegawai", "Tipe Anomali", "Total Pengisian", "Tingkat Keparahan", "Saran Tindak Lanjut"];
+      rows = anomalies.map((a, idx) => {
+        const ev = state.employees.find((e) => e.id === Number(a.id));
+        return [
+          (idx + 1).toString(),
+          `${ev?.nama || "Dihapus"} (${ev?.nip || "-"})`,
+          a.type,
+          a.count.toString(),
+          a.severity,
+          "Lakukan peninjauan format objektif penilai/evaluator bersangkutan"
+        ];
+      });
+    }
+
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (!iframeDoc) {
+      toast("Gagal memproses cetak PDF.");
+      return;
+    }
+
+    const currentDate = new Date().toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+
+    const printHtml = `
+      <html>
+      <head>
+        <title>${title}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+            margin: 40px;
+            line-height: 1.5;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px double #000;
+            padding-bottom: 20px;
+          }
+          .logo-placeholder {
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+          .subtitle {
+            font-size: 12px;
+            font-weight: normal;
+            color: #475569;
+            margin-top: 5px;
+          }
+          .title {
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 10px;
+          }
+          .meta-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #475569;
+            margin-bottom: 20px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 11px;
+          }
+          th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: bold;
+            border: 1px solid #cbd5e1;
+            padding: 10px 8px;
+            text-align: left;
+          }
+          td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            vertical-align: top;
+          }
+          tr:nth-child(even) {
+            background-color: #f8fafc;
+          }
+          .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+          }
+          .signature-box {
+            text-align: center;
+            width: 250px;
+          }
+          .signature-line {
+            margin-top: 70px;
+            border-top: 1px solid #000;
+            font-weight: bold;
+          }
+          @media print {
+            @page {
+              size: A4 portrait;
+              margin: 20mm;
+            }
+            body {
+              margin: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo-placeholder">PEMERINTAH KABUPATEN DAIRI</div>
+          <div class="logo-placeholder" style="font-size: 14px; margin-top: 5px;">BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA (BKPSDM)</div>
+          <div class="subtitle">Jl. Sisingamangaraja No. 3 Sidikalang Kode Pos 22211 - Telepon (0627) 21010</div>
+          <div class="title" style="margin-top: 15px; border-top: 1px solid #475569; padding-top: 10px;">${title}</div>
+        </div>
+
+        <div class="meta-info">
+          <div>Program: <strong>Penilaian Perilaku Kerja ASN - 360 Degree Appraisal</strong></div>
+          <div>Tanggal Cetak: <strong>${currentDate}</strong></div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              ${headers.map(h => `<th>${h}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`).join("")}
+          </tbody>
+        </table>
+
+        <div class="footer">
+          <div class="signature-box">
+            <p>Divalidasi Oleh,</p>
+            <p style="font-weight: bold; margin-top: 5px;">Administrator Sistem BKPSDM</p>
+            <div class="signature-line">PANITIA PENILAIAN DAIRI</div>
+            <p style="font-size: 10px; color:#475569;">NIP. 198803152007011004</p>
+          </div>
+          <div class="signature-box">
+            <p>Sidikalang, ${currentDate.split(", ")[1] || currentDate}</p>
+            <p style="font-weight: bold; margin-top: 5px;">Kepala BKPSDM Kab. Dairi</p>
+            <div class="signature-line">KEPALA BADAN BKPSDM</div>
+            <p style="font-size: 10px; color:#475569;">NIP. 196906031990091001</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    iframeDoc.open();
+    iframeDoc.write(printHtml);
+    iframeDoc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+    }, 500);
+
+    toast(`Membuka menu cetak PDF untuk ${title} 📄`);
+  };
 
   return (
     <div className="space-y-6">
@@ -1217,9 +1640,9 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
               : "Ringkasan Eksekutif Kepegawaian"}
           </h2>
           <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => download("PDF")}>Formulir PDF</Button>
-            <Button variant="secondary" onClick={() => download("Excel")}>Rekap Excel</Button>
-            <Button variant="secondary" onClick={() => download("CSV")}>Data CSV</Button>
+            <Button variant="secondary" onClick={downloadPDF}>Formulir PDF</Button>
+            <Button variant="secondary" onClick={downloadExcel}>Rekap Excel</Button>
+            <Button variant="secondary" onClick={downloadCSV}>Data CSV</Button>
           </div>
         </div>
 
