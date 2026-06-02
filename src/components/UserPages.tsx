@@ -70,7 +70,26 @@ export function Profile({ state, setState, user, toast }: PageProps) {
             </select>
           </Field>
           <Field label="Jabatan">
-            <input className="w-full rounded-xl border p-3" value={form.jabatan} onChange={(e) => setForm({ ...form, jabatan: e.target.value })} />
+            <select
+              className="w-full rounded-xl border p-3"
+              value={form.jabatan}
+              onChange={(e) => {
+                const selectedJob = state.jobs.find((j) => j.name === e.target.value);
+                if (selectedJob) {
+                  setForm({ ...form, jabatan: selectedJob.name, jenis: selectedJob.type });
+                } else {
+                  setForm({ ...form, jabatan: e.target.value });
+                }
+              }}
+            >
+              {[...state.jobs]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((j) => (
+                  <option key={j.id} value={j.name}>
+                    {j.name}
+                  </option>
+                ))}
+            </select>
           </Field>
           <Field label="Unit Kerja">
             <select className="w-full rounded-xl border p-3" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })}>
