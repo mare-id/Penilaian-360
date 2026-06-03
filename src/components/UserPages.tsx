@@ -1794,7 +1794,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           <table style="width: 100%; border-collapse: collapse; border: none; margin-bottom: 5px;">
             <tr style="border: none; background: none;">
               <td style="width: 14%; text-align: center; vertical-align: middle; border: none; padding: 0;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Lambang_Kabupaten_Dairi.png/240px-Lambang_Kabupaten_Dairi.png" style="width: 80px; height: auto; max-width: 100%; display: block; margin: 0 auto;" referrerPolicy="no-referrer" />
+                <img src="https://s3.dairikab.go.id/portaldairi/files/C8Mthz7fGj8dnRNZldjwnJXFRH7vNRLtv7J7xQqb.png" style="width: 80px; height: auto; max-width: 100%; display: block; margin: 0 auto;" referrerPolicy="no-referrer" />
               </td>
               <td style="width: 86%; text-align: center; vertical-align: middle; border: none; padding: 0 10px 0 0;">
                 <div style="font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000; margin: 0; line-height: 1.25;">PEMERINTAH KABUPATEN DAIRI</div>
