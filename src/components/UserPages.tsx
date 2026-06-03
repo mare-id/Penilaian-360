@@ -1582,6 +1582,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           table { border-collapse: collapse; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
           th { background-color: #3B82F6; color: #FFFFFF; font-weight: bold; border: 1px solid #CBD5E1; padding: 10px; }
           td { border: 1px solid #E2E8F0; padding: 8px; }
+          .nip-text { mso-number-format:"\\@"; }
           tr:nth-child(even) { background-color: #F8FAFC; }
           .title { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 20px; }
         </style>
@@ -1595,7 +1596,11 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
             </tr>
           </thead>
           <tbody>
-            ${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`).join("")}
+            ${rows.map(row => `<tr>${row.map((cell, cellIdx) => {
+              const isNip = headers[cellIdx]?.toLowerCase() === "nip" || /^\d{15,22}$/.test(cell);
+              const attrs = isNip ? ' class="nip-text" style="mso-number-format:\'\\@\'"' : '';
+              return `<td${attrs}>${cell}</td>`;
+            }).join("")}</tr>`).join("")}
           </tbody>
         </table>
         <br/><br/>
