@@ -269,94 +269,190 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
         </Card>
         <Card>
           <h3 className="font-black">Status Usulan</h3>
-          <p className="mt-3 text-sm text-slate-600 font-medium">{pending ? pending.submittedAt : "Belum dikirim"}</p>
-          <Badge className={statusClass(pending?.status || "Draft")}>{pending?.status || "Draft"}</Badge>
+          {state.period.randomizePeers ? (
+            <>
+              <p className="mt-3 text-sm text-slate-600 font-medium">Berdasarkan acak otomatis oleh sistem.</p>
+              <Badge className="mt-4 border-violet-200 bg-violet-50 text-violet-700 font-semibold uppercase">Otomatis ⚡</Badge>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm text-slate-600 font-medium">{pending ? pending.submittedAt : "Belum dikirim"}</p>
+              <Badge className={statusClass(pending?.status || "Draft")}>{pending?.status || "Draft"}</Badge>
+            </>
+          )}
         </Card>
       </div>
 
-      <Card>
-        <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-lg font-black font-display text-slate-950">Pilih Peer Evaluator</h2>
-            <p className="text-sm text-slate-500">
-              {sortedPeers.length > state.period.maxPeer 
-                ? `Pilih maksimal ${state.period.maxPeer} rekan kerja satu unit (Sistem akan mengunci otomatis bila sudah memilih ${state.period.maxPeer}).`
-                : sortedPeers.length > 0 
-                ? `Anda memiliki ${sortedPeers.length} rekan kerja satu unit yang dapat dipilih. Silakan pilih hingga ${Math.min(state.period.maxPeer, sortedPeers.length)} orang tersebut.`
-                : "Anda tidak memiliki rekan kerja satu unit yang memenuhi syarat."}
+      {state.period.randomizePeers ? (
+        <Card className="border-violet-200 bg-violet-50/20">
+          <div className="mb-4">
+            <h2 className="text-lg font-black font-display text-slate-950 flex items-center gap-2">
+              <UsersRound className="w-5 h-5 text-violet-600" />
+              Penilaian Rekan Sejawat Acak (Otomatis) Aktif
+            </h2>
+            <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+              Sistem telah memilih dan menetapkan Rekan Sejawat (Peer Evaluator) Anda secara acak dan otomatis sesuai dengan kriteria regulasi (Unit Kerja Sama: <b>{employee.unit}</b> & Jabatan Setingkat / Fungsional ↔️ Pelaksana).
             </p>
-            <div className="mt-1.5">
-              <Badge className="bg-indigo-50 border-indigo-200 text-indigo-700 text-[10px] font-semibold">
-                Sesuai Aturan: Unit Kerja Sama ({employee.unit}) & Jabatan Setingkat / Fungsional ↔️ Pelaksana
-              </Badge>
+            <div className="mt-3 p-3 bg-white rounded-xl border border-violet-100/50 text-xs text-slate-500 leading-relaxed font-semibold shadow-sm">
+              💡 <b>Informasi Regulasi:</b> Sesuai kebijakan penatausahaan penilaian kinerja periode ini, Anda tidak diperkenankan untuk memilih rater rekan sejawat Anda sendiri demi objektivitas penilaian 360 derajat. Pilihan dari sistem ini bersifat acak, final, dan langsung disetujui otomatis secara tersistem.
             </div>
           </div>
-          <Badge className="border-slate-200 bg-slate-50 text-slate-700">Terpilih {selected.length} / {Math.min(state.period.maxPeer, sortedPeers.length)}</Badge>
-        </div>
-        
-        {sortedPeers.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center select-none">
-            <Users className="mx-auto h-12 w-12 text-slate-400 stroke-[1.5] mb-2" />
-            <h3 className="text-sm font-black text-slate-750 font-display">Tidak Mempunyai Rekan Kerja yang Memenuhi Syarat</h3>
-            <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
-              Anda tidak memiliki rekan kerja dengan level pangkat/jenis jabatan setingkat, atau kombinasi Fungsional-Pelaksana di unit kerja yang sama ({employee.unit}). Sesuai regulasi, Anda dikecualikan dari penilaian peer.
+
+          <div className="mt-6">
+            <h3 className="font-extrabold text-xs tracking-wider text-slate-500 mb-3 uppercase font-display">1. Daftar Rekan Kerja Yang Menilai Anda (Peer Evaluator):</h3>
+            {state.assignments.filter((a) => a.periodId === state.period.id && a.evalueeId === employee.id && a.type === "Peer").length === 0 ? (
+              <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-6 text-center select-none">
+                <Users className="mx-auto h-10 w-10 text-slate-300 stroke-[1.5] mb-2" />
+                <p className="text-xs text-slate-400 font-semibold font-display">Tidak Memiliki Rekan Sejawat Setingkat</p>
+                <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">
+                  Berdasarkan database, Anda tidak memiliki rekan kerja dengan jenis jabatan setingkat di unit kerja ini ({employee.unit}). Anda dibebaskan dari kewajiban penilaian peer.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2">
+                {state.assignments
+                  .filter((a) => a.periodId === state.period.id && a.evalueeId === employee.id && a.type === "Peer")
+                  .map((a) => {
+                    const p = state.employees.find((e) => e.id === a.evaluatorId);
+                    if (!p) return null;
+                    return (
+                      <div key={p.id} className="rounded-2xl border border-violet-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-sm tracking-tight text-slate-900">{p.nama}</span>
+                          <Badge className="border-violet-100 bg-violet-50 text-violet-700 text-[9px] py-0 px-1 font-semibold uppercase">Sistem Rater ⚡</Badge>
+                        </div>
+                        <div className="text-xs mt-1.5 font-medium text-slate-500">
+                          NIP. {p.nip} • Gol. {p.gol}
+                        </div>
+                        <div className="text-[11px] font-medium mt-0.5 text-slate-400">
+                          {p.jabatan} • {p.unit}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 pt-5 border-t border-violet-100">
+            <h3 className="font-extrabold text-xs tracking-wider text-slate-500 mb-3 uppercase font-display">2. Daftar Rekan Kerja Yang Anda Nilai (Evaluee Anda):</h3>
+            <p className="text-xs text-slate-500 mb-3 leading-relaxed">
+              Tugas pengerjaan kuesioner Anda untuk rekan kerja di bawah ini dapat diakses pada tab menu utama <b>"Form Kuesioner"</b> di atas.
             </p>
+            {state.assignments.filter((a) => a.periodId === state.period.id && a.evaluatorId === employee.id && a.type === "Peer").length === 0 ? (
+              <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-6 text-center select-none">
+                <Users className="mx-auto h-10 w-10 text-slate-300 stroke-[1.5] mb-2" />
+                <p className="text-xs text-slate-400 font-semibold font-display">Tidak Ada Rekan Kerja Yang Harus Anda Nilai</p>
+              </div>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2">
+                {state.assignments
+                  .filter((a) => a.periodId === state.period.id && a.evaluatorId === employee.id && a.type === "Peer")
+                  .map((a) => {
+                    const p = state.employees.find((e) => e.id === a.evalueeId);
+                    if (!p) return null;
+                    return (
+                      <div key={p.id} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-sm tracking-tight text-slate-900">{p.nama}</span>
+                          <Badge className="border-slate-100 bg-slate-50 text-slate-600 text-[9px] py-0 px-1 font-semibold uppercase">Evaluee Anda 📝</Badge>
+                        </div>
+                        <div className="text-xs mt-1.5 font-medium text-slate-500">
+                          NIP. {p.nip} • Gol. {p.gol}
+                        </div>
+                        <div className="text-[11px] font-medium mt-0.5 text-slate-400">
+                          {p.jabatan} • {p.unit}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2">
-            {sortedPeers.map((p) => {
-              const isSelected = selected.includes(p.id);
-              const isLocked = !isSelected && selected.length >= state.period.maxPeer;
-              return (
-                <button
-                  type="button"
-                  key={p.id}
-                  onClick={() => !isLocked && toggle(p.id)}
-                  disabled={pending?.status === "Disetujui"}
-                  className={`rounded-2xl border p-4 text-left transition relative overflow-hidden ${
-                    isSelected 
-                      ? "border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-600/10" 
-                      : isLocked
-                      ? "border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed opacity-50"
-                      : "border-slate-200 bg-white hover:border-slate-900"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-bold text-sm tracking-tight">{p.nama}</span>
-                    {isSelected && (
-                      <Badge className="bg-white/20 border-white/40 text-white text-[9px] py-0 px-1 font-semibold uppercase">Dipilih ⚡</Badge>
-                    )}
-                    {isLocked && (
-                      <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1">🔒 Terkunci</span>
-                    )}
-                    {!isSelected && !isLocked && p.unit === employee.unit && (
-                      <Badge className="border-indigo-100 bg-indigo-50 text-indigo-700 text-[9px] py-0 px-1 font-semibold uppercase">Satu Unit</Badge>
-                    )}
-                  </div>
-                  <div className={`text-xs mt-1.5 font-medium ${isSelected ? "text-indigo-100" : "text-slate-500"}`}>
-                    NIP. {p.nip} • Gol. {p.gol}
-                  </div>
-                  <div className={`text-[11px] font-medium mt-0.5 ${isSelected ? "text-indigo-200" : "text-slate-400"}`}>
-                    {p.jabatan} • {p.unit}
-                  </div>
-                </button>
-              );
-            })}
+        </Card>
+      ) : (
+        <Card>
+          <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-lg font-black font-display text-slate-950">Pilih Peer Evaluator</h2>
+              <p className="text-sm text-slate-500">
+                {sortedPeers.length > state.period.maxPeer 
+                  ? `Pilih maksimal ${state.period.maxPeer} rekan kerja satu unit (Sistem akan mengunci otomatis bila sudah memilih ${state.period.maxPeer}).`
+                  : sortedPeers.length > 0 
+                  ? `Anda memiliki ${sortedPeers.length} rekan kerja satu unit yang dapat dipilih. Silakan pilih hingga ${Math.min(state.period.maxPeer, sortedPeers.length)} orang tersebut.`
+                  : "Anda tidak memiliki rekan kerja satu unit yang memenuhi syarat."}
+              </p>
+              <div className="mt-1.5">
+                <Badge className="bg-indigo-50 border-indigo-200 text-indigo-700 text-[10px] font-semibold">
+                  Sesuai Aturan: Unit Kerja Sama ({employee.unit}) & Jabatan Setingkat / Fungsional ↔️ Pelaksana
+                </Badge>
+              </div>
+            </div>
+            <Badge className="border-slate-200 bg-slate-50 text-slate-700">Terpilih {selected.length} / {Math.min(state.period.maxPeer, sortedPeers.length)}</Badge>
           </div>
-        )}
-        
-        {sortedPeers.length > 0 && (
-          <Button 
-            className="mt-5" 
-            onClick={submit}
-            disabled={pending?.status === "Disetujui"}
-          >
-            {state.period.randomizePeers 
-              ? (pending?.status === "Disetujui" ? "Pilihan Telah Disetujui Otomatis" : "Simpan & Setujui Evaluator (Otomatis)")
-              : (pending?.status === "Disetujui" ? "Pilihan Telah Disetujui Atasan" : "Kirim ke Atasan untuk Verifikasi")}
-          </Button>
-        )}
-      </Card>
+          
+          {sortedPeers.length === 0 ? (
+            <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center select-none">
+              <Users className="mx-auto h-12 w-12 text-slate-400 stroke-[1.5] mb-2" />
+              <h3 className="text-sm font-black text-slate-750 font-display">Tidak Mempunyai Rekan Kerja yang Memenuhi Syarat</h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
+                Anda tidak memiliki rekan kerja dengan level pangkat/jenis jabatan setingkat, atau kombinasi Fungsional-Pelaksana di unit kerja yang sama ({employee.unit}). Sesuai regulasi, Anda dikecualikan dari penilaian peer.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {sortedPeers.map((p) => {
+                const isSelected = selected.includes(p.id);
+                const isLocked = !isSelected && selected.length >= state.period.maxPeer;
+                return (
+                  <button
+                    type="button"
+                    key={p.id}
+                    onClick={() => !isLocked && toggle(p.id)}
+                    disabled={pending?.status === "Disetujui"}
+                    className={`rounded-2xl border p-4 text-left transition relative overflow-hidden ${
+                      isSelected 
+                        ? "border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-600/10" 
+                        : isLocked
+                        ? "border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed opacity-50"
+                        : "border-slate-200 bg-white hover:border-slate-900"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-bold text-sm tracking-tight">{p.nama}</span>
+                      {isSelected && (
+                        <Badge className="bg-white/20 border-white/40 text-white text-[9px] py-0 px-1 font-semibold uppercase">Dipilih ⚡</Badge>
+                      )}
+                      {isLocked && (
+                        <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1">🔒 Terkunci</span>
+                      )}
+                      {!isSelected && !isLocked && p.unit === employee.unit && (
+                        <Badge className="border-indigo-100 bg-indigo-50 text-indigo-700 text-[9px] py-0 px-1 font-semibold uppercase">Satu Unit</Badge>
+                      )}
+                    </div>
+                    <div className={`text-xs mt-1.5 font-medium ${isSelected ? "text-indigo-100" : "text-slate-500"}`}>
+                      NIP. {p.nip} • Gol. {p.gol}
+                    </div>
+                    <div className={`text-[11px] font-medium mt-0.5 ${isSelected ? "text-indigo-200" : "text-slate-400"}`}>
+                      {p.jabatan} • {p.unit}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          
+          {sortedPeers.length > 0 && (
+            <Button 
+              className="mt-5" 
+              onClick={submit}
+              disabled={pending?.status === "Disetujui"}
+            >
+              {pending?.status === "Disetujui" ? "Pilihan Telah Disetujui Atasan" : "Kirim ke Atasan untuk Verifikasi"}
+            </Button>
+          )}
+        </Card>
+      )}
     </div>
   );
 }
