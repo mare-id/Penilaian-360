@@ -1437,9 +1437,40 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
     }
 
     // Convert array to CSV string with standard Excel-friendly semicolon separator and BOM
+    const currentDate = new Date().toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+    const formattedDate = currentDate.split(", ")[1] || currentDate;
+
+    const paddingSize = Math.max(1, headers.length - 4);
+    const emptyRow = Array(headers.length).fill("");
+    const makeSigRow = (text: string) => {
+      const row = Array(headers.length).fill("");
+      row[paddingSize] = text;
+      return row;
+    };
+
+    const sigRows = [
+      emptyRow,
+      emptyRow,
+      makeSigRow(`Sidikalang, ${formattedDate}`),
+      makeSigRow("Kepala Badan Kepegawaian dan Pengembangan"),
+      makeSigRow("Sumber Daya Manusia Kabupaten Dairi"),
+      emptyRow,
+      emptyRow,
+      emptyRow,
+      makeSigRow("Yon Henrik, AP, M.Si"),
+      makeSigRow("Pembina Utama Muda"),
+      makeSigRow("NIP. 19731019 199311 1 001")
+    ];
+
     const csvContent = "\uFEFF" + [
       headers.map(h => `"${h.replace(/"/g, '""')}"`).join(";"),
-      ...rows.map(row => row.map(cell => `"${(cell || "").replace(/"/g, '""')}"`).join(";"))
+      ...rows.map(row => row.map(cell => `"${(cell || "").replace(/"/g, '""')}"`).join(";")),
+      ...sigRows.map(row => row.map(cell => `"${(cell || "").replace(/"/g, '""')}"`).join(";"))
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -1518,6 +1549,16 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       });
     }
 
+    const currentDate = new Date().toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+    const formattedDate = currentDate.split(", ")[1] || currentDate;
+    const colSpanLeft = Math.max(1, headers.length - 4);
+    const colSpanRight = Math.min(headers.length, 4);
+
     const tabName = tab.toUpperCase().slice(0, 30);
     const htmlContent = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -1556,6 +1597,20 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           <tbody>
             ${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`).join("")}
           </tbody>
+        </table>
+        <br/><br/>
+        <table style="border: none; width: 100%;">
+          <tr style="border: none; background: none;">
+            <td colspan="${colSpanLeft}" style="border: none; background: none;"></td>
+            <td colspan="${colSpanRight}" style="border: none; background: none; text-align: left; padding: 10px; font-size: 11px; font-family: Arial, sans-serif;">
+              Sidikalang, ${formattedDate}<br/>
+              Kepala Badan Kepegawaian dan Pengembangan<br/>
+              Sumber Daya Manusia Kabupaten Dairi<br/><br/><br/><br/>
+              <strong>Yon Henrik, AP, M.Si</strong><br/>
+              Pembina Utama Muda<br/>
+              NIP. 19731019 199311 1 001
+            </td>
+          </tr>
         </table>
       </body>
       </html>
@@ -1667,20 +1722,6 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           .header {
             text-align: center;
             margin-bottom: 30px;
-            border-bottom: 3px double #000;
-            padding-bottom: 20px;
-          }
-          .logo-placeholder {
-            font-size: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-          }
-          .subtitle {
-            font-size: 12px;
-            font-weight: normal;
-            color: #475569;
-            margin-top: 5px;
           }
           .title {
             font-size: 16px;
@@ -1720,17 +1761,17 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           .footer {
             margin-top: 50px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             font-size: 11px;
           }
           .signature-box {
-            text-align: center;
-            width: 250px;
+            text-align: left;
+            width: 320px;
+            line-height: 1.45;
           }
-          .signature-line {
-            margin-top: 70px;
-            border-top: 1px solid #000;
+          .signature-name {
             font-weight: bold;
+            margin-top: 65px;
           }
           @media print {
             @page {
@@ -1745,10 +1786,25 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       </head>
       <body>
         <div class="header">
-          <div class="logo-placeholder">PEMERINTAH KABUPATEN DAIRI</div>
-          <div class="logo-placeholder" style="font-size: 14px; margin-top: 5px;">BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA (BKPSDM)</div>
-          <div class="subtitle">Jl. Sisingamangaraja No. 3 Sidikalang Kode Pos 22211 - Telepon (0627) 21010</div>
-          <div class="title" style="margin-top: 15px; border-top: 1px solid #475569; padding-top: 10px;">${title}</div>
+          <table style="width: 100%; border-collapse: collapse; border: none; margin-bottom: 5px;">
+            <tr style="border: none; background: none;">
+              <td style="width: 14%; text-align: center; vertical-align: middle; border: none; padding: 0;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Logo_Kabupaten_Dairi.png/240px-Logo_Kabupaten_Dairi.png" style="width: 80px; height: auto; max-width: 100%; display: block; margin: 0 auto;" referrerPolicy="no-referrer" />
+              </td>
+              <td style="width: 86%; text-align: center; vertical-align: middle; border: none; padding: 0 10px 0 0;">
+                <div style="font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000; margin: 0; line-height: 1.25;">PEMERINTAH KABUPATEN DAIRI</div>
+                <div style="font-family: Arial, sans-serif; font-size: 16.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2px; color: #000; margin: 2px 0 0 0; line-height: 1.25;">BADAN KEPEGAWAIAN DAN PENGEMBANGAN</div>
+                <div style="font-family: Arial, sans-serif; font-size: 16.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2px; color: #000; margin: 0; line-height: 1.25;">SUMBER DAYA MANUSIA</div>
+                <div style="font-family: Arial, sans-serif; font-size: 11px; font-weight: normal; color: #000; margin: 4px 0 0 0; line-height: 1.3;">Jalan Ki Hajar Dewantara No. 1 Sidikalang 22211</div>
+                <div style="font-family: Arial, sans-serif; font-size: 11px; font-weight: normal; color: #000; margin: 1px 0 0 0; line-height: 1.3;">Telepon (0627) 23787 Faksimile (0627) 23787</div>
+                <div style="font-family: Arial, sans-serif; font-size: 11px; font-weight: normal; color: #000; margin: 1px 0 0 0; line-height: 1.3;">Website : www.dairikab.go.id</div>
+              </td>
+            </tr>
+          </table>
+          <div style="border-bottom: 3.5px solid #000; margin-top: 5px; width: 100%;"></div>
+          <div style="border-bottom: 1.2px solid #000; margin-top: 2px; margin-bottom: 15px; width: 100%;"></div>
+
+          <div class="title">${title}</div>
           <div style="font-size: 11px; margin-top: 5px; color: #475569; font-weight: bold;">Periode: ${selectedPeriod.name} (${selectedPeriod.start} s.d ${selectedPeriod.end})</div>
         </div>
 
@@ -1770,16 +1826,12 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
 
         <div class="footer">
           <div class="signature-box">
-            <p>Divalidasi Oleh,</p>
-            <p style="font-weight: bold; margin-top: 5px;">Administrator Sistem BKPSDM</p>
-            <div class="signature-line">PANITIA PENILAIAN DAIRI</div>
-            <p style="font-size: 10px; color:#475569;">NIP. 198803152007011004</p>
-          </div>
-          <div class="signature-box">
-            <p>Sidikalang, ${currentDate.split(", ")[1] || currentDate}</p>
-            <p style="font-weight: bold; margin-top: 5px;">Kepala BKPSDM Kab. Dairi</p>
-            <div class="signature-line">KEPALA BADAN BKPSDM</div>
-            <p style="font-size: 10px; color:#475569;">NIP. 196906031990091001</p>
+            <p style="margin: 0;">Sidikalang, ${currentDate.split(", ")[1] || currentDate}</p>
+            <p style="margin: 0;">Kepala Badan Kepegawaian dan Pengembangan</p>
+            <p style="margin: 0;">Sumber Daya Manusia Kabupaten Dairi</p>
+            <p class="signature-name" style="margin: 65px 0 0 0; font-weight: bold;">Yon Henrik, AP, M.Si</p>
+            <p style="margin: 0;">Pembina Utama Muda</p>
+            <p style="margin: 0;">NIP. 19731019 199311 1 001</p>
           </div>
         </div>
       </body>
