@@ -39,40 +39,56 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
     year: "numeric"
   });
 
-  // HTML to DOC Word Document Export Flow
+  // HTML to PDF Document Print and Export Flow
   const handleDownloadDoc = () => {
-    toast("Menyusun panduan lengkap E-Kinerja 360 dalam format Word... 📄");
+    toast("Menyusun panduan lengkap E-Kinerja 360 dalam format PDF... 📄");
 
     const isAdminRole = user.role === "Admin BKPSDM";
 
     const header = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <!DOCTYPE html>
+      <html>
       <head>
+        <meta charset="utf-8">
         <title>Panduan E-Kinerja 360 BKPSDM Kabupaten Dairi</title>
-        <!--[if gte mso 9]>
-        <xml>
-          <w:WordDocument>
-            <w:View>Print</w:View>
-            <w:Zoom>100</w:Zoom>
-            <w:DoNotOptimizeForBrowser/>
-          </w:WordDocument>
-        </xml>
-        <![endif]-->
         <style>
+          @media print {
+            body {
+              background-color: #ffffff !important;
+              color: #000000 !important;
+              font-family: 'Calibri', 'Arial', sans-serif;
+              font-size: 11pt;
+              line-height: 1.6;
+              padding: 0;
+              margin: 0;
+            }
+            .page-break {
+              page-break-before: always !important;
+              break-before: page !important;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          }
           @page {
-            size: 8.5in 11in;
-            margin: 1.0in 1.0in 1.0in 1.0in;
+            size: A4;
+            margin: 20mm 20mm 20mm 20mm;
           }
           body {
             font-family: 'Calibri', 'Arial', sans-serif;
             font-size: 11pt;
             line-height: 1.6;
             color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
           }
           .cover {
             text-align: center;
             padding-top: 100px;
             page-break-after: always;
+            break-after: page;
           }
           .logo-box {
             margin-bottom: 30px;
@@ -664,41 +680,77 @@ Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
     `;
 
     const fileContent = header + bodyContent;
-    const blob = new Blob(['\ufeff' + fileContent], {
-      type: "application/msword;charset=utf-8"
-    });
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Panduan_Penggunaan_E-Kinerja_360_BKPSDM_Dairi_v2.4.2.doc`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast("Dokumen Panduan (.docx / .doc) berhasil diunduh! 💚");
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const iframeWindow = iframe.contentWindow;
+    if (iframeWindow) {
+      const doc = iframeWindow.document;
+      doc.open();
+      doc.write(fileContent);
+      doc.close();
+
+      setTimeout(() => {
+        iframeWindow.focus();
+        iframeWindow.print();
+        document.body.removeChild(iframe);
+      }, 500);
+      toast("Menu cetak/simpan PDF berhasil dimuat! Silakan pilih 'Simpan sebagai PDF' (Save as PDF) di jendela cetak 📄💚");
+    } else {
+      toast("Gagal menyiapkan lembar PDF.");
+    }
   };
 
   const handleDownloadPresentation = () => {
-    toast("Menyusun bahan presentasi sosialisasi dalam format Word Slide... 📈");
+    toast("Menyusun bahan presentasi sosialisasi dalam format PDF Slides... 📈");
 
     const header = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <!DOCTYPE html>
+      <html>
       <head>
+        <meta charset="utf-8">
         <title>Materi Sosialisasi E-Kinerja 360 BKPSDM Kabupaten Dairi</title>
-        <!--[if gte mso 9]>
-        <xml>
-          <w:WordDocument>
-            <w:View>Print</w:View>
-            <w:Zoom>100</w:Zoom>
-            <w:DoNotOptimizeForBrowser/>
-          </w:WordDocument>
-        </xml>
-        <![endif]-->
         <style>
+          @media print {
+            body {
+              background-color: #f1f5f9 !important;
+              color: #0f172a !important;
+              font-family: 'Calibri', 'Arial', sans-serif;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            .slide {
+              page-break-after: always !important;
+              break-after: page !important;
+              margin-bottom: 0 !important;
+              height: 100vh !important;
+              width: 100vw !important;
+              border: none !important;
+              box-sizing: border-box !important;
+            }
+            .slide-cover {
+              page-break-after: always !important;
+              break-after: page !important;
+              height: 100vh !important;
+              width: 100vw !important;
+              border: none !important;
+              box-sizing: border-box !important;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          }
           @page {
-            size: 11in 8.5in;
-            margin: 0.5in 0.5in 0.5in 0.5in;
+            size: A4 landscape;
+            margin: 0;
           }
           body {
             font-family: 'Calibri', 'Arial', sans-serif;
@@ -1442,19 +1494,32 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
     `;
 
     const fileContent = header + bodyContent + "</body></html>";
-    const blob = new Blob(['\ufeff' + fileContent], {
-      type: "application/msword;charset=utf-8"
-    });
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Slide_Materi_Presentasi_Sosialisasi_E-Kinerja_360_BKPSDM_Dairi.doc`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast("Materi Presentasi Sosialisasi (.docx / .doc) berhasil diunduh! 📈💚");
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const iframeWindow = iframe.contentWindow;
+    if (iframeWindow) {
+      const doc = iframeWindow.document;
+      doc.open();
+      doc.write(fileContent);
+      doc.close();
+
+      setTimeout(() => {
+        iframeWindow.focus();
+        iframeWindow.print();
+        document.body.removeChild(iframe);
+      }, 500);
+      toast("Menu cetak/simpan PDF Bahan Presentasi berhasil dimuat! Silakan pilih opsi 'Simpan sebagai PDF' (Save as PDF) dan atur orientasi ke 'Landscape' (Lansekap) 📈💚");
+    } else {
+      toast("Gagal memuat lembaran PDF.");
+    }
   };
 
 
@@ -1478,8 +1543,8 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
             <p className="text-xs text-blue-200 max-w-2xl font-bold leading-relaxed">
               Panduan operasional lengkap, penjelasan detail metodologi perhitungan skor indeks perilaku, konfigurasi server database administrator, s.d catatan rekayasa rilis ter-update.
             </p>
-            <p className="text-[11px] text-amber-250 max-w-2xl font-semibold bg-blue-950/80 border border-blue-900 p-2.5 rounded-lg mt-2 leading-relaxed" style={{ color: "#fef3c7" }}>
-              💡 <strong>Petunjuk Membuka File:</strong> Dokumen diunduh dalam format Dokumen Word (.doc). Jika Microsoft Word memunculkan dialog <em>"Convert File"</em> (terutama jika fitur keamanan Word aktif), silakan langsung pilih <strong>"HTML Document"</strong> (pilihan bawaan) lalu klik <strong>"OK"</strong>. Dokumen akan terbuka dengan layout berwarna, kop surat, tabel, dan format visual penuh secara sempurna.
+            <p className="text-[11px] text-emerald-300 max-w-2xl font-semibold bg-emerald-950/45 border border-emerald-900 p-2.5 rounded-lg mt-2 leading-relaxed" style={{ color: "#a7f3d0" }}>
+              💡 <strong>Petunjuk Format PDF:</strong> Dokumen panduan dan bahan presentasi sekarang dicetak/disimpan langsung dalam format **PDF** beresolusi tinggi. Desain layout warna, tabel, kop surat, dan slide presentasi dipastikan tampil rapi, konsisten, dan siap saji tanpa memerlukan konversi tambahan! Saat dialog printer terbuka, Anda dapat memilih <strong>"Save as PDF" (Simpan sebagai PDF)</strong> sebagai tujuan (Destination).
             </p>
           </div>
           <div className="shrink-0 flex flex-col sm:flex-row gap-3">
@@ -1488,8 +1553,8 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
               onClick={handleDownloadDoc}
               className="bg-yellow-300 hover:bg-yellow-400 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
             >
-              <Download className="w-4 h-4 stroke-[2.5]" />
-              Unduh Panduan (.DOC)
+              <FileText className="w-4 h-4 stroke-[2.5]" />
+              Cetak / Simpan PDF Panduan (.PDF)
             </Button>
             <Button
               id="btn-download-presentation"
@@ -1497,7 +1562,7 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
               className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
             >
               <Presentation className="w-4 h-4 stroke-[2.5]" />
-              Unduh Slide (.DOC)
+              Cetak / Simpan PDF Slide (.PDF)
             </Button>
           </div>
         </div>
