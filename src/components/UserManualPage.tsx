@@ -1543,28 +1543,32 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
             <p className="text-xs text-blue-200 max-w-2xl font-bold leading-relaxed">
               Panduan operasional lengkap, penjelasan detail metodologi perhitungan skor indeks perilaku, konfigurasi server database administrator, s.d catatan rekayasa rilis ter-update.
             </p>
-            <p className="text-[11px] text-emerald-300 max-w-2xl font-semibold bg-emerald-950/45 border border-emerald-900 p-2.5 rounded-lg mt-2 leading-relaxed" style={{ color: "#a7f3d0" }}>
-              💡 <strong>Petunjuk Format PDF:</strong> Dokumen panduan dan bahan presentasi sekarang dicetak/disimpan langsung dalam format **PDF** beresolusi tinggi. Desain layout warna, tabel, kop surat, dan slide presentasi dipastikan tampil rapi, konsisten, dan siap saji tanpa memerlukan konversi tambahan! Saat dialog printer terbuka, Anda dapat memilih <strong>"Save as PDF" (Simpan sebagai PDF)</strong> sebagai tujuan (Destination).
-            </p>
+            {user.role === "Admin BKPSDM" && (
+              <p className="text-[11px] text-emerald-300 max-w-2xl font-semibold bg-emerald-950/45 border border-emerald-900 p-2.5 rounded-lg mt-2 leading-relaxed" style={{ color: "#a7f3d0" }}>
+                💡 <strong>Petunjuk Format PDF:</strong> Dokumen panduan dan bahan presentasi sekarang dicetak/disimpan langsung dalam format **PDF** beresolusi tinggi. Desain layout warna, tabel, kop surat, dan slide presentasi dipastikan tampil rapi, konsisten, dan siap saji tanpa memerlukan konversi tambahan! Saat dialog printer terbuka, Anda dapat memilih <strong>"Save as PDF" (Simpan sebagai PDF)</strong> sebagai tujuan (Destination).
+              </p>
+            )}
           </div>
-          <div className="shrink-0 flex flex-col sm:flex-row gap-3">
-            <Button
-              id="btn-download-manual"
-              onClick={handleDownloadDoc}
-              className="bg-yellow-300 hover:bg-yellow-400 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
-            >
-              <FileText className="w-4 h-4 stroke-[2.5]" />
-              Cetak / Simpan PDF Panduan (.PDF)
-            </Button>
-            <Button
-              id="btn-download-presentation"
-              onClick={handleDownloadPresentation}
-              className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
-            >
-              <Presentation className="w-4 h-4 stroke-[2.5]" />
-              Cetak / Simpan PDF Slide (.PDF)
-            </Button>
-          </div>
+          {user.role === "Admin BKPSDM" && (
+            <div className="shrink-0 flex flex-col sm:flex-row gap-3">
+              <Button
+                id="btn-download-manual"
+                onClick={handleDownloadDoc}
+                className="bg-yellow-300 hover:bg-yellow-400 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
+              >
+                <FileText className="w-4 h-4 stroke-[2.5]" />
+                Cetak / Simpan PDF Panduan (.PDF)
+              </Button>
+              <Button
+                id="btn-download-presentation"
+                onClick={handleDownloadPresentation}
+                className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
+              >
+                <Presentation className="w-4 h-4 stroke-[2.5]" />
+                Cetak / Simpan PDF Slide (.PDF)
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
 
