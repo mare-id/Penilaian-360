@@ -19,7 +19,8 @@ import {
   Calendar,
   Layers,
   ChevronDown,
-  Info
+  Info,
+  Presentation
 } from "lucide-react";
 import { AppState, DemoAccount } from "../types";
 import { Badge, Card, Button } from "./UIComponents";
@@ -678,6 +679,785 @@ Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
     toast("Dokumen Panduan (.docx / .doc) berhasil diunduh! 💚");
   };
 
+  const handleDownloadPresentation = () => {
+    toast("Menyusun bahan presentasi sosialisasi dalam format Word Slide... 📈");
+
+    const header = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <title>Materi Sosialisasi E-Kinerja 360 BKPSDM Kabupaten Dairi</title>
+        <!--[if gte mso 9]>
+        <xml>
+          <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+          </w:WordDocument>
+        </xml>
+        <![endif]-->
+        <style>
+          @page {
+            size: 11in 8.5in;
+            margin: 0.5in 0.5in 0.5in 0.5in;
+          }
+          body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+          }
+          .slide {
+            page-break-after: always;
+            border: 3.5px solid #1e3a8a;
+            border-radius: 8px;
+            padding: 24px;
+            background-color: #ffffff;
+            height: 6.8in;
+            position: relative;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+          }
+          .slide-title-box {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            padding: 14px 20px;
+            margin: -24px -24px 20px -24px;
+            border-bottom: 3.5px solid #d97706;
+          }
+          .slide-title {
+            font-family: 'Trebuchet MS', Arial, sans-serif;
+            font-size: 20pt;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .slide-footer {
+            border-top: 1.5px solid #cbd5e1;
+            padding-top: 4px;
+            position: absolute;
+            bottom: 12px;
+            left: 24px;
+            right: 24px;
+            color: #64748b;
+            font-size: 8.5pt;
+            font-weight: bold;
+          }
+          .col-left {
+            width: 48%;
+            vertical-align: top;
+          }
+          .col-right {
+            width: 48%;
+            vertical-align: top;
+          }
+          .highlight-card {
+            background-color: #eff6ff;
+            border: 1.5px solid #bfdbfe;
+            border-left: 5px solid #2563eb;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+          }
+          .danger-card {
+            background-color: #fef2f2;
+            border: 1.5px solid #fecaca;
+            border-left: 5px solid #dc2626;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+          }
+          .warning-card {
+            background-color: #fffbeb;
+            border: 1.5px solid #fde68a;
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+          }
+          .success-card {
+            background-color: #f0fdf4;
+            border: 1.5px solid #bbf7d0;
+            border-left: 5px solid #16a34a;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+          }
+          .card-title {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 4px;
+          }
+          .slide-cover {
+            text-align: center;
+            padding-top: 1.5in;
+            background-color: #1e3a8a;
+            color: #ffffff;
+            height: 6.8in;
+            page-break-after: always;
+            box-sizing: border-box;
+            border: 4px solid #1e3a8a;
+            position: relative;
+          }
+          .cover-title {
+            font-family: 'Trebuchet MS', Arial, sans-serif;
+            font-size: 24pt;
+            font-weight: 900;
+            line-height: 1.25;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+          }
+          .cover-subtitle {
+            font-size: 13pt;
+            color: #bfdbfe;
+            margin-bottom: 80px;
+            font-weight: bold;
+          }
+          .cover-meta {
+            font-size: 10pt;
+            color: #94a3b8;
+            border-top: 1.5px solid #475569;
+            padding-top: 15px;
+            position: absolute;
+            bottom: 40px;
+            left: 50px;
+            right: 50px;
+          }
+          ul, ol {
+            margin: 5px 0 10px 18px;
+          }
+          li {
+            margin-bottom: 5px;
+            font-size: 10.5pt;
+          }
+          .formula-text {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 5px;
+            font-size: 9pt;
+            white-space: pre-wrap;
+          }
+          .table-slide {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+          }
+          .table-slide th {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            padding: 6px;
+            border: 1px solid #cbd5e1;
+            text-align: left;
+          }
+          .table-slide td {
+            padding: 6.5px;
+            border: 1px solid #cbd5e1;
+            vertical-align: top;
+          }
+          .table-clean {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          .table-clean td {
+            border: none;
+            padding: 6px;
+            vertical-align: top;
+          }
+          .footer-logo {
+            float: right;
+            font-weight: bold;
+            color: #1e3a8a;
+          }
+          .step-pill {
+            background-color: #d97706;
+            color: #ffffff;
+            padding: 1px 7px;
+            border-radius: 9px;
+            font-weight: bold;
+            font-size: 9pt;
+            margin-right: 5px;
+          }
+        </style>
+      </head>
+      <body>
+    `;
+
+    const bodyContent = `
+      <!-- SLIDE 1: COVER -->
+      <div class="slide-cover">
+        <div class="cover-title">SOSIALISASI & OPERASIONAL BERSAMA<br>APLIKASI E-KINERJA PENILAIAN PERILAKU 360° ASN</div>
+        <div class="cover-subtitle">Penerapan Evaluasi Sikap Kerja Akurat Sesuai Core Values BerAKHLAK Di Lingkungan Pemerintah Kabupaten Dairi</div>
+        <div class="cover-meta">
+          <p style="margin: 0; font-size: 11pt;"><strong>Diselenggarakan Oleh:</strong> Badan Kepegawaian dan Pengembangan Sumber Daya Manusia (BKPSDM) Kabupaten Dairi</p>
+          <p style="margin: 5px 0 0 0; font-size: 10pt;">Edisi Materi Pembekalan Pegawai Negeri Sipil & PPPK -- Tahun 2026</p>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: LATAR BELAKANG -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">1. Latar Belakang & Reformasi Penilaian Perilaku</div>
+        </div>
+        <div class="slide-content">
+          <table class="table-clean" style="width: 100%;">
+            <tr>
+              <td class="col-left">
+                <div class="highlight-card">
+                  <div class="card-title">Mengapa Perlu E-Kinerja 360°?</div>
+                  <ul style="margin-left: 15px; margin-top: 5px;">
+                    <li><strong>Objektivitas Penuh:</strong> Menolak bias pengawasan searah (top-down) dengan menggabungkan pandangan multi-arah secara komparatif.</li>
+                    <li><strong>Anatomi Core Values BerAKHLAK:</strong> Selaras dengan amanat nasional kepatuhan instansi terhadap 7 Budaya Kerja ASN BerAKHLAK.</li>
+                    <li><strong>Integritas Data:</strong> Menggunakan deteksi anomali algoritma guna memastikan validitas data perilaku sejati.</li>
+                  </ul>
+                </div>
+              </td>
+              <td class="col-right">
+                <div class="success-card">
+                  <div class="card-title">Aspek Kerahasiaan Sempurna</div>
+                  <p style="margin: 5px 0 0 0; font-size: 10.5pt; line-height: 1.5;">
+                    Seluruh penilaian rater dari tingkat <strong>Rekan Sejawat (Peer)</strong> maupun <strong>Bawahan Langsung (Subordinate)</strong> diproteksi secara <strong>anonim mutlak</strong>. 
+                  </p>
+                  <p style="margin: 5px 0 0 0; font-size: 10.5pt; line-height: 1.5;">
+                    Pegawai target hanya diizinkan melihat skor agregasi per dimensi serta rekap komentar konstruktif kumulatif demi menjamin keadilan berekspresi tanpa takut intimidasi di lingkungan instansi.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 2</span></div>
+      </div>
+
+      <!-- SLIDE 3: LEVEL AKSES & AKTOR -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">2. Tiga Level Akses & Peran Utama Peserta</div>
+        </div>
+        <div class="slide-content">
+          <p style="font-size: 11pt; margin-top: 0; margin-bottom: 10px;">Guna memberikan pemahaman yang menyeluruh, sistem E-Kinerja 360 mengelompokkan pengguna ke dalam 3 unsur struktural berikut:</p>
+          <table class="table-slide">
+            <thead>
+              <tr>
+                <th style="width: 33%;">1. LEVEL PEGAWAI (ASN BIASA)</th>
+                <th style="width: 33%;">2. LEVEL ATASAN LANGSUNG</th>
+                <th style="width: 34%;">3. LEVEL ADMIN BKPSDM</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>Tanggung Jawab Utama:</strong>
+                  <ul style="margin-left: 15px; margin-top: 5px;">
+                    <li>Memperbarui data profil secara valid.</li>
+                    <li>Mengusulkan kuota rekan sejawat (Peer).</li>
+                    <li>Mengisi Evaluasi Diri (Self).</li>
+                    <li>Mengisi kuesioner rahasia untuk target.</li>
+                    <li>Meninjau Laporan & rekap sengketa.</li>
+                  </ul>
+                </td>
+                <td>
+                  <strong>Tanggung Jawab Utama:</strong>
+                  <ul style="margin-left: 15px; margin-top: 5px;">
+                    <li>Menjadi Pembina Langsung Bawahan.</li>
+                    <li><strong>Verifikasi Usulan Rater:</strong> Menyetujui/menolak usulan rekan sejawat bawahan.</li>
+                    <li>Mengisi penilaian wajib atas seluruh bawahan.</li>
+                    <li>Memberikan coaching bimbingan teknis.</li>
+                  </ul>
+                </td>
+                <td>
+                  <strong>Tanggung Jawab Utama:</strong>
+                  <ul style="margin-left: 15px; margin-top: 5px;">
+                    <li>Membuka & menutup Periode Penilaian.</li>
+                    <li>Menyaring audit anomali pengisian.</li>
+                    <li>Mengelola master data ASN secara nasional.</li>
+                    <li>Merekap ekspor file instansi (Excel & PDF).</li>
+                    <li>Memproses banding formulir sengketa.</li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 3</span></div>
+      </div>
+
+      <!-- SLIDE 4: CARA LOGIN DAN PEMBARUAN PROFIL -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">3. Panduan Cepat: Akses Login & Update Profil</div>
+        </div>
+        <div class="slide-content">
+          <table class="table-clean" style="width: 100%;">
+            <tr>
+              <td class="col-left">
+                <div class="highlight-card">
+                  <div class="card-title">Langkah Login Otoritas Pegawai</div>
+                  <ol style="margin-left: 15px; margin-top: 5px;">
+                    <li>Akselerasikan penjelajah web ke URL sistem E-Kinerja 360.</li>
+                    <li>Gunakan <strong>NIP 18-Digit tanpa spasi</strong> Anda sebagai NIP/Username resmi.</li>
+                    <li>Sandi standar awal sistem adalah <code class="font-mono" style="font-weight: bold; background-color: #dbeafe; padding: 1px 3px;">admin123</code>.</li>
+                    <li>Gunakan tombol <strong>"Akses Cepat"</strong> di bawah form login dwi-fungsi jika mendemokan di hadapan peserta sosialisasi untuk akses instan.</li>
+                  </ol>
+                </div>
+              </td>
+              <td class="col-right">
+                <div class="warning-card">
+                  <div class="card-title">Mengapa Update Profil Karakternya Krusial?</div>
+                  <p style="margin: 5px 0 0 0; font-size: 10pt; line-height: 1.5;">
+                    Data profil yang salah (khususnya status Jabatan/Golongan dan Unit Kerja) berisiko menyulitkan proses verifikasi korespondensi rater oleh atasan.
+                  </p>
+                  <p style="margin: 5px 0 0 0; font-size: 10pt; line-height: 1.5;">
+                    <strong>Hal Penting:</strong> Pastikan kotak centang <strong>"Memiliki Bawahan Langsung (Has Subordinates)"</strong> diatur sesuai kondisi struktural nyata. Kegagalan mencentang menyebabkan bawahan mendaftarkan Anda sebagai rater atasan terhambat.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 4</span></div>
+      </div>
+
+      <!-- SLIDE 5: ALUR PENGUSULAN RATER -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">4. Prosedur Pengusulan Rekan Sejawat (Peer)</div>
+        </div>
+        <div class="slide-content">
+          <table class="table-clean" style="width: 100%;">
+            <tr>
+              <td class="col-left">
+                <div class="highlight-card">
+                  <div class="card-title">Kriteria Pemilihan Rekan Sejawat</div>
+                  <ul style="margin-left: 15px; margin-top: 5px;">
+                    <li>Harus bersumber dari <strong>satu unit kerja</strong> (atau urusan tupoksi sejenis yang intensitas kerjanya tumpang-tindih).</li>
+                    <li>Tingkatan klasifikasi pangkat atau jabatan setara/se-level.</li>
+                    <li>Memiliki integritas perilaku kerja yang netral.</li>
+                    <li>Jumlah pengusulan kuota: minimal <strong>\${state.period.minPeer} orang</strong> dan maksimal <strong>\${state.period.maxPeer} orang</strong>.</li>
+                  </ul>
+                </div>
+              </td>
+              <td class="col-right">
+                <div class="success-card">
+                  <div class="card-title">Alur Pengajuan & Persetujuan Rater</div>
+                  <div style="font-size: 10pt; margin-top: 5px;">
+                    <span class="step-pill">1</span> Pegawai membuka tab <strong>"Evaluator (Rater)"</strong> lama.<br>
+                    <span class="step-pill">2</span> Klik tambah, cari nama rekan kerja yang ditargetkan.<br>
+                    <span class="step-pill">3</span> Usulan rater masuk daftar tunggu verifikasi Atasan.<br>
+                    <span class="step-pill">4</span> Atasan meninjau usulan pegawainya.<br>
+                    <span class="step-pill">5</span> Jika terverifikasi Disetujui, target rater tersebut diaktifkan di dasbor penilai secepatnya.
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 5</span></div>
+      </div>
+
+      <!-- SLIDE 6: VERIFIKASI OLEH ATASAN -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">5. Peran Atasan: Pintu Gerbang Validitas Evaluator</div>
+        </div>
+        <div class="slide-content">
+          <table class="table-clean" style="width: 100%;">
+            <tr>
+              <td class="col-left">
+                <div class="highlight-card">
+                  <div class="card-title">Mengapa Atasan Wajib Melakukan Verifikasi?</div>
+                  <p style="margin: 5px 0 0 0; font-size: 10pt; line-height: 1.5;">
+                    Untuk menghindari persekongkolan nilai (bias penilai / rater collusion) di mana para pegawai bersepakat mengusulkan rekan kerja tertentu yang berpotensi memberi nilai tinggi secara tidak objektif.
+                  </p>
+                  <p style="margin: 5px 0 0 0; font-size: 10pt; line-height: 1.5;">
+                    Atasan berwenang menuntut kelayakan rater tersebut demi kesahihan nilai kepegawaian.
+                  </p>
+                </div>
+              </td>
+              <td class="col-right">
+                <div class="danger-card">
+                  <div class="card-title">Protokol Penolakan Rater Mandiri Atasan</div>
+                  <ul style="margin-left: 15px; margin-top: 5px;">
+                    <li>Jika atasan merasa usulan rater kurang relevan, atasan dapat menekan klik tombol <strong>"Tolak Usulan"</strong>.</li>
+                    <li>Sistem mewajibkan isi <strong>"Alasan Penolakan secara Formal"</strong> dalam kotak entri.</li>
+                    <li>Bawahan akan melihat sanksi penolakan ini di tab miliknya untuk secepatnya mengusulkan kandidat sejawat alternatif yang disepakati.</li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 6</span></div>
+      </div>
+
+      <!-- SLIDE 7: PENGISIAN KUESIONER BERAKHLAK -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">6. Tata Cara Pengisian Kuesioner BerAKHLAK</div>
+        </div>
+        <div class="slide-content">
+          <p style="font-size: 11pt; margin-top: 0; margin-bottom: 5px;">Kuisioner mengadopsi <strong>Metodologi Likert Berpangkat (Skala 1 s.d 5)</strong> yang terdiri dari 14 kuesioner fungsional (masing-masing 2 butir indikator per nilai dwi-unsur perilaku BerAKHLAK):</p>
+          <table class="table-slide">
+            <thead>
+              <tr>
+                <th style="width: 30%;">NILAI INTI BerAKHLAK</th>
+                <th style="width: 70%;">INDIKATOR PERILAKU PENILAIAN NYATA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Berorientasi Pelayanan & Akuntabel</strong></td>
+                <td>Bersikap ramah, peduli keluhan pengguna layanan; Menjalankan amanah instansi jujur & mematuhi SOP.</td>
+              </tr>
+              <tr>
+                <td><strong>Kompeten & Harmonis</strong></td>
+                <td>Mengembangkan kapasitas diri fungsional; Menghargai keberagaman suku/agama rekan sekantor tanpa konflik.</td>
+              </tr>
+              <tr>
+                <td><strong>Loyal & Adaptif</strong></td>
+                <td>Memegang teguh rahasia instansi/korps korporat; Tangkas beradaptasi dengan modifikasi aturan dan sistem digital baru.</td>
+              </tr>
+              <tr>
+                <td><strong>Kolaboratif</strong></td>
+                <td>Menitikberatkan sinergitas dwi-kerja guna mencapai output target sasaran program bersama optimal.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size: 9.5pt; margin-top: 8px; color: #475569;"><em>Catatan:</em> Pilih Skala 5 bagi "Sangat Sering (Sempurna)", Skala 4 bagi "Sering", Skala 3 bagi "Kadang-kadang", Skala 2 bagi "Jarang", dan Skala 1 bagi "Sangat Jarang". Tuliskan saran konstruktif di bawah kuesioner.</p>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 7</span></div>
+      </div>
+
+      <!-- SLIDE 8: METODE FORMULA & BOBOT SKORING -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">7. Metode Penghitungan Skor & Matriks Pembobotan</div>
+        </div>
+        <div class="slide-content">
+          <table class="table-clean" style="width: 100%;">
+            <tr>
+              <td class="col-left">
+                <div class="highlight-card">
+                  <div class="card-title">Formula Agregasi Bebas Bias</div>
+                  <ul style="margin-left: 15px; margin-top: 5px; font-size: 10pt;">
+                    <li><strong>Bobot Evaluasi Diri = 0%:</strong> Penilaian mandiri dikeluarkan sepenuhnya dari agregasi akhir untuk menghindari bias narsisme kepegawaian.</li>
+                    <li>Sistem mengambil rata-rata murni tiap sektor evaluator eksternal.</li>
+                    <li><strong>Konversi Resmi Skala 100:</strong><br>
+                      <code class="formula-text">Skor_100 = (Skor_Agregat_Skala_5 / 5) * 100</code>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+              <td class="col-right">
+                <div class="success-card">
+                  <div class="card-title">Pembobotan Berdasarkan Jenjang Jabatan</div>
+                  <p style="margin: 0; font-size: 10pt; font-weight: bold; color: #1e3a8a;">A. Jabatan Struktural / Memiliki Bawahan Langsung:</p>
+                  <ul style="margin-left: 15px; margin-top: 3px; font-size: 10pt;">
+                    <li>Bobot Evaluasi Atasan Langsung: <strong>\${state.period.weightsWithSub.Atasan}%</strong></li>
+                    <li>Bobot Rekan Sejawat (Peer Average): <strong>\${state.period.weightsWithSub.Peer}%</strong></li>
+                    <li>Bobot Bawahan Langsung (Sub Average): <strong>\${state.period.weightsWithSub.Bawahan || 0}%</strong></li>
+                  </ul>
+                  <p style="margin: 5px 0 0 0; font-size: 10pt; font-weight: bold; color: #1e3a8a;">B. Jabatan Pelaksana / Fungsional (Tanpa Bawahan):</p>
+                  <ul style="margin-left: 15px; margin-top: 3px; font-size: 10pt;">
+                    <li>Bobot Evaluasi Atasan Langsung: <strong>\${state.period.weightsNoSub.Atasan}%</strong></li>
+                    <li>Bobot Rekan Sejawat (Peer Average): <strong>\${state.period.weightsNoSub.Peer}%</strong></li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 8</span></div>
+      </div>
+
+      <!-- SLIDE 9: SIMULASI KASUS ROBINSON -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">8. Simulasi Kasus 1: PNS Pelaksana (Tanpa Bawahan)</div>
+        </div>
+        <div class="slide-content">
+          <div class="highlight-card">
+            <div class="card-title" style="color: #1e3a8a;">KASUS NYATA: Robinson Silalahi, S.E (Penelaah Teknis Kebijakan)</div>
+            <p style="margin: 5px 0; font-size: 10.5pt; line-height: 1.5;">
+              Melakukan pengukuran perilaku dimensi <strong>"Berorientasi Pelayanan"</strong>. Bobot aktif adalah Atasan: \${state.period.weightsNoSub.Atasan}% dan Rekan Sejawat: \${state.period.weightsNoSub.Peer}%.
+            </p>
+            <table class="table-slide" style="margin-top: 5px; font-size: 9.5pt;">
+              <thead>
+                <tr>
+                  <th style="width: 25%;">EVALUATOR</th>
+                  <th style="width: 50%;">RINCIAN BUTIR INPUT LIKERT (SKALA 1-5)</th>
+                  <th style="width: 25%;">RATA-RATA GRUP</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Atasan (1 orang)</strong></td>
+                  <td>Butir 1: 5 (Sangat Sering), Butir 2: 4 (Sering), Butir 3: 5, Butir 4: 4</td>
+                  <td><strong>4.50</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Rekan Sejawat (3 Peers)</strong></td>
+                  <td>
+                    Peer 1: [4, 4, 4, 4] &rarr; Rerata 4.00<br>
+                    Peer 2: [5, 4, 4, 3] &rarr; Rerata 4.00<br>
+                    Peer 3: [4, 5, 4, 5] &rarr; Rerata 4.50
+                  </td>
+                  <td><strong>4.17</strong> (Agregat)</td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <p style="margin: 10px 0 0 0; font-size: 10pt; font-weight: bold; color: #1e3a8a;">Langkah Kalkulasi Aturan Terpadu:</p>
+            <div class="formula-text" style="margin-top: 3px;">
+Skor_Dimensi = (4.50 * \${state.period.weightsNoSub.Atasan / 100}) + (4.17 * \${state.period.weightsNoSub.Peer / 100}) = 2.70 + 1.668 = 4.368 (Skala 5)
+Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 &rarr; Predikat Capaian: BAIK (Interval 76 s.d 89)
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 9</span></div>
+      </div>
+
+      <!-- SLIDE 10: SIMULASI KASUS RIKSON -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">9. Simulasi Kasus 2: Pejabat Struktural (Memiliki Bawahan)</div>
+        </div>
+        <div class="slide-content">
+          <div class="success-card">
+            <div class="card-title" style="color: #16a34a;">KASUS NYATA: Rikson B Sihombing, S.Psi (Kepala Bidang Pengembangan SDM)</div>
+            <p style="margin: 5px 0; font-size: 10.5pt; line-height: 1.5;">
+              Pengukuran dimensi <strong>"Akuntabel"</strong>. Bobot aktif adalah Atasan: \${state.period.weightsWithSub.Atasan}%, Sejawat: \${state.period.weightsWithSub.Peer}%, dan Bawahan: \${state.period.weightsWithSub.Bawahan || 0}%.
+            </p>
+            <table class="table-slide" style="margin-top: 5px; font-size: 9.5pt;">
+              <thead>
+                <tr>
+                  <th style="width: 25%;">EVALUATOR</th>
+                  <th style="width: 50%;">RINCIAN INPUT NILAI LIKERT KELOMPOK</th>
+                  <th style="width: 25%;">RATA-RATA KLASIFIKASI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Atasan (1 orang)</strong></td>
+                  <td>Yon Henrik, AP, M.Si (Kepala BKPSDM) memberi nilai: [4, 4, 4, 4]</td>
+                  <td><strong>4.00</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Rekan Sejawat (2 Peers)</strong></td>
+                  <td>Kabid Pengadaan: 4.50 (Baik) & Sekban: 3.50 (Cukup)</td>
+                  <td><strong>4.00</strong> (Agregat Peers)</td>
+                </tr>
+                <tr>
+                  <td><strong>Bawahan (2 orang)</strong></td>
+                  <td>Penelaah Teknis 1: 4.50 (Sangat Baik) & Penelaah 2: 4.30 (Baik)</td>
+                  <td><strong>4.40</strong> (Agregat Subs)</td>
+                </tr>
+              </tbody>
+            </table>
+            
+            <p style="margin: 8px 0 0 0; font-size: 10pt; font-weight: bold; color: #16a34a;">Langkah Kalkulasi Bobot Sempurna:</p>
+            <div class="formula-text" style="margin-top: 3px;">
+Skor_Dimensi = (4.00 * \${state.period.weightsWithSub.Atasan / 100}) + (4.00 * \${state.period.weightsWithSub.Peer / 100}) + (4.40 * \${(state.period.weightsWithSub.Bawahan || 0) / 100}) = 2.40 + 0.60 + 1.10 = 4.10 (Skala 5)
+Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Skala Resmi E-Kinerja)
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 10</span></div>
+      </div>
+
+      <!-- SLIDE 11: KLASIFIKASI PREDIKAT -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">10. Predikat Capaian Nilai Akhir Perilaku</div>
+        </div>
+        <div class="slide-content">
+          <table class="table-slide" style="width: 100%;">
+            <thead>
+              <tr>
+                <th style="width: 25%;">SKOR ELEKTIF (100)</th>
+                <th style="width: 20%;">EKUIVALEN (SKALA 5)</th>
+                <th style="width: 20%;">KATEGORI PREDIKAT</th>
+                <th style="width: 35%;">ARAHAN DAN TINDAK LANJUT BINWAS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background-color: #f0fdf4;">
+                <td><strong>90 s.d 100</strong></td>
+                <td>4.50 s.d 5.00</td>
+                <td style="color: #16a34a; font-weight: bold;">Sangat Baik</td>
+                <td>Maintain, rekomendasikan promosional serta apresiasi prestasi instansi.</td>
+              </tr>
+              <tr style="background-color: #eff6ff;">
+                <td><strong>76 s.d 89</strong></td>
+                <td>3.80 s.d 4.49</td>
+                <td style="color: #2563eb; font-weight: bold;">Baik</td>
+                <td>Standar melampaui, lanjutkan pembinaan karier operasional.</td>
+              </tr>
+              <tr style="background-color: #fffbeb;">
+                <td><strong>61 s.d 75</strong></td>
+                <td>3.05 s.d 3.79</td>
+                <td style="color: #d97706; font-weight: bold;">Butuh Perbaikan</td>
+                <td>Mentoring intensif berkala oleh atasan langsung pada dimensi lemah.</td>
+              </tr>
+              <tr style="background-color: #fdf5e6;">
+                <td><strong>51 s.d 60</strong></td>
+                <td>2.55 s.d 3.04</td>
+                <td style="color: #ea580c; font-weight: bold;">Kurang</td>
+                <td>Pembinaan disiplin, konseling khusus, dan pemantauan ketat tim instansi.</td>
+              </tr>
+              <tr style="background-color: #fef2f2;">
+                <td><strong>Di bawah 51</strong></td>
+                <td>Di bawah 2.55</td>
+                <td style="color: #dc2626; font-weight: bold;">Sangat Kurang</td>
+                <td>Evaluasi kelayakan posisi struktural / sanksi keras pegawai.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 11</span></div>
+      </div>
+
+      <!-- SLIDE 12: TRANSPARANSI & SENGKETA -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">11. Garansi Keadilan: Menu Sengketa Keberatan</div>
+        </div>
+        <div class="slide-content">
+          <table class="table-clean" style="width: 100%;">
+            <tr>
+              <td class="col-left">
+                <div class="warning-card">
+                  <div class="card-title">Mengapa Menu Keberatan Sangat Vital?</div>
+                  <p style="margin: 5px 0 0 0; font-size: 10.5pt; line-height: 1.5;">
+                    Untuk mengimbangi penilaian yang tidak berimbang, jahat, atau bersifat personal (personal dislike) dari rater terpilih. 
+                  </p>
+                  <p style="margin: 5px 0 0 0; font-size: 10.5pt; line-height: 1.5;">
+                    Sistem memberikan hak sanggah dwi-pihak beradab bagi setiap pegawai untuk menyampaikan argumentasi rill pembelaan perilaku kerja mereka.
+                  </p>
+                </div>
+              </td>
+              <td class="col-right">
+                <div class="highlight-card">
+                  <div class="card-title">Alur Proses Sengketa/Keberatan ASN</div>
+                  <ol style="margin-left: 15px; margin-top: 5px;">
+                    <li>Pegawai mengunduh laporan & klik tombol <strong>"Ajukan Sengketa"</strong> jika tidak setuju.</li>
+                    <li>Isikan deskripsi argumentasi bukti konkrit (Contoh: Prestasi kerja rill).</li>
+                    <li>Status laporan diklasifikasikan menjadi <strong>"Sedang Ditinjau Tim"</strong>.</li>
+                    <li>Admin BKPSDM & Atasan mereviu laporan sanggahan pegawai secara jeli.</li>
+                    <li>Tim berhak menyesuaikan atau menolak sangkalan tersebut sesuai asas kepantasan.</li>
+                  </ol>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 12</span></div>
+      </div>
+
+      <!-- SLIDE 13: PEMELIHARAAN DATA ADMIN -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">12. Pemeliharaan Integritas & Fitur Administrasi</div>
+        </div>
+        <div class="slide-content">
+          <table class="table-clean" style="width: 100%;">
+            <tr>
+              <td class="col-left">
+                <div class="danger-card">
+                  <div class="card-title">Detektor Otomatis Anomali & Manipulasi</div>
+                  <ul style="margin-left: 15px; margin-top: 5px; font-size: 10pt;">
+                    <li><strong>Penilaian Terlalu Seragam (Bias Rater):</strong> Sistem memprogram bendera merah (Red Flag) otomatis terhadap rater sejawat yang sengaja memberi nilai linear monoton (misal memberi angka 5 semua di seluruh dimensi tanpa reviu).</li>
+                    <li><strong>Outliers Audit:</strong> Mendeteksi deviasi ekstrem di mana 90% penilai memberi nilai sangat baik, namun ada 1 penilai memberi nilai terburuk atas motif personal.</li>
+                  </ul>
+                </div>
+              </td>
+              <td class="col-right">
+                <div class="success-card">
+                  <div class="card-title">Kemudahan Ekspor Laporan BKPSDM</div>
+                  <ul style="margin-left: 15px; margin-top: 5px; font-size: 10pt;">
+                    <li><strong>Keamanan NIP Excel:</strong> Fitur ekspor Excel didukung proteksi format visual <code class="font-mono" style="font-weight: bold; background-color: #dcfce7;">mso-number-format:\\"\\\\@\\"</code> guna menjamin nomor NIP 18-Digit tidak hancur menjadi angka eksponensial ilmiah.</li>
+                    <li><strong>Pencetakan Kop Surat PDF:</strong> Cetak lembar laporan perilaku ASN secara formal lengkap dengan Lambang Kabupaten Dairi resmi.</li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 13</span></div>
+      </div>
+
+      <!-- SLIDE 14: STRATEGI IMPLEMENTASI -->
+      <div class="slide">
+        <div class="slide-title-box">
+          <div class="slide-title">13. Jadwal Strategis Implementasi E-Kinerja 360</div>
+        </div>
+        <div class="slide-content">
+          <p style="font-size: 11pt; margin-top: 0; margin-bottom: 5px;">Aksi nyata pelaksanaan di lapangan dibagi menjadi 4 tahapan krusial berikut:</p>
+          <div style="margin-top: 10px;">
+            <table class="table-slide">
+              <thead>
+                <tr>
+                  <th style="width: 25%; text-align: center;">TAHAP 1 (MINGGU I)</th>
+                  <th style="width: 25%; text-align: center;">TAHAP 2 (MINGGU II)</th>
+                  <th style="width: 25%; text-align: center;">TAHAP 3 (MINGGU III)</th>
+                  <th style="width: 25%; text-align: center;">TAHAP 4 (MINGGU IV)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: center;">
+                    <strong>PEMBEKALAN & DATA</strong><br>
+                    <p style="font-size: 9.5pt; text-align: left; margin-top: 5px;">Sosialisasi massal di seluruh OPD, pemutakhiran data profil mandiri para pegawai, dan penegasan status "Memiliki Bawahan".</p>
+                  </td>
+                  <td style="text-align: center;">
+                    <strong>USUL EVALUATOR & VERIFIKASI</strong><br>
+                    <p style="font-size: 9.5pt; text-align: left; margin-top: 5px;">Setiap ASN mengusulkan rekan sejawat (Peer). Atasan sigap memantau sistem untuk menyetujui / menolak usulan rater bawahannya.</p>
+                  </td>
+                  <td style="text-align: center;">
+                    <strong>PENILAIAN AKTIF (ANONIM)</strong><br>
+                    <p style="font-size: 9.5pt; text-align: left; margin-top: 5px;">Membuka survei kuesioner rahasia. Rater melakukan pengisian secara objektif melalui dwi-aspek antarmuka web.</p>
+                  </td>
+                  <td style="text-align: center;">
+                    <strong>REKAP & BANDING</strong><br>
+                    <p style="font-size: 9.5pt; text-align: left; margin-top: 5px;">Penutupan kuesioner, verifikasi indeks agregasi akhir, pelayanan pengaduan keberatan, dan ekspor formal ke dokumen administrasi.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 14</span></div>
+      </div>
+
+      <!-- SLIDE 15: Q&A -->
+      <div class="slide" style="text-align: center; padding-top: 1.0in; background-color: #1e3a8a; color: #ffffff;">
+        <div class="cover-title" style="font-size: 26pt;">SESI DISKUSI DAN TANYA JAWAB</div>
+        <div class="cover-subtitle" style="color: #fcd34d; font-size: 13.5pt; margin-bottom: 25px;">"Mari Bergotong-Royong Mewujudkan Meritokrasi Dan ASN Kabupaten Dairi Yang BerAKHLAK Dan Berintegritas!"</div>
+        <p style="font-size: 11pt; color: #bfdbfe; margin: 0;"><strong>BKPSDM Kabupaten Dairi - Bidang Pembinaan & Pengembangan SDM</strong></p>
+        <p style="font-size: 10pt; color: #94a3b8; margin-top: 5px;">Hubungi Layanan Meja Bantuan (Helpdesk) BKPSDM Dairi jika menemukan kendala operasional.</p>
+        <div class="slide-footer" style="color: #bfdbfe; border-top: 1.5px solid #475569;">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo" style="color: #ffffff;">Halaman 15</span></div>
+      </div>
+    `;
+
+    const fileContent = header + bodyContent + "</body></html>";
+    const blob = new Blob(['\ufeff' + fileContent], {
+      type: "application/msword;charset=utf-8"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Slide_Materi_Presentasi_Sosialisasi_E-Kinerja_360_BKPSDM_Dairi.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast("Materi Presentasi Sosialisasi (.docx / .doc) berhasil diunduh! 📈💚");
+  };
+
+
   return (
     <div className="space-y-6">
       {/* HEADER SECTION WITH HERO CARD */}
@@ -699,14 +1479,22 @@ Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
               Panduan operasional lengkap, penjelasan detail metodologi perhitungan skor indeks perilaku, konfigurasi server database administrator, s.d catatan rekayasa rilis ter-update.
             </p>
           </div>
-          <div className="shrink-0">
+          <div className="shrink-0 flex flex-col sm:flex-row gap-3">
             <Button
               id="btn-download-manual"
               onClick={handleDownloadDoc}
-              className="bg-yellow-300 hover:bg-yellow-400 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2"
+              className="bg-yellow-300 hover:bg-yellow-400 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
             >
               <Download className="w-4 h-4 stroke-[2.5]" />
               Unduh Panduan (.DOCX)
+            </Button>
+            <Button
+              id="btn-download-presentation"
+              onClick={handleDownloadPresentation}
+              className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
+            >
+              <Presentation className="w-4 h-4 stroke-[2.5]" />
+              Unduh Slide (.DOCX)
             </Button>
           </div>
         </div>
