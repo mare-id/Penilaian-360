@@ -1478,6 +1478,9 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
             <p className="text-xs text-blue-200 max-w-2xl font-bold leading-relaxed">
               Panduan operasional lengkap, penjelasan detail metodologi perhitungan skor indeks perilaku, konfigurasi server database administrator, s.d catatan rekayasa rilis ter-update.
             </p>
+            <p className="text-[11px] text-amber-250 max-w-2xl font-semibold bg-blue-950/80 border border-blue-900 p-2.5 rounded-lg mt-2 leading-relaxed" style={{ color: "#fef3c7" }}>
+              💡 <strong>Petunjuk Membuka File:</strong> Dokumen diunduh dalam format Dokumen Word (.doc). Jika Microsoft Word memunculkan dialog <em>"Convert File"</em> (terutama jika fitur keamanan Word aktif), silakan langsung pilih <strong>"HTML Document"</strong> (pilihan bawaan) lalu klik <strong>"OK"</strong>. Dokumen akan terbuka dengan layout berwarna, kop surat, tabel, dan format visual penuh secara sempurna.
+            </p>
           </div>
           <div className="shrink-0 flex flex-col sm:flex-row gap-3">
             <Button
@@ -1486,7 +1489,7 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
               className="bg-yellow-300 hover:bg-yellow-400 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
             >
               <Download className="w-4 h-4 stroke-[2.5]" />
-              Unduh Panduan (.DOCX)
+              Unduh Panduan (.DOC)
             </Button>
             <Button
               id="btn-download-presentation"
@@ -1494,7 +1497,7 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
               className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-black text-xs py-3 px-5 flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#090d16] active:translate-y-1 active:shadow-none"
             >
               <Presentation className="w-4 h-4 stroke-[2.5]" />
-              Unduh Slide (.DOCX)
+              Unduh Slide (.DOC)
             </Button>
           </div>
         </div>
