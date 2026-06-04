@@ -1150,7 +1150,7 @@ Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
           <div class="slide-title">6. Tata Cara Pengisian Kuesioner BerAKHLAK</div>
         </div>
         <div class="slide-content">
-          <p style="font-size: 11pt; margin-top: 0; margin-bottom: 5px;">Kuisioner mengadopsi <strong>Metodologi Likert Berpangkat (Skala 1 s.d 5)</strong> yang terdiri dari 14 kuesioner fungsional (masing-masing 2 butir indikator per nilai dwi-unsur perilaku BerAKHLAK):</p>
+          <p style="font-size: 11pt; margin-top: 0; margin-bottom: 5px;">Kuesioner mengadopsi <strong>Metodologi Likert Berpangkat (Skala 1 s.d 5)</strong> yang terdiri dari 4 butir indikator perilaku per dimensi BerAKHLAK (total 28 butir utama), ditambah 5 butir khusus untuk dimensi Kepemimpinan (bagi pegawai dengan bawahan):</p>
           <table class="table-slide">
             <thead>
               <tr>
@@ -1767,9 +1767,9 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
                   <div className="bg-white border-2 border-slate-300 rounded-xl p-3.5 space-y-2">
                     <span className="text-[10px] bg-sky-200 text-sky-950 font-black px-2 py-0.5 rounded border border-sky-400">Tahap A</span>
                     <h4 className="font-extrabold text-[#0f172a] text-[11px]">Rata-rata Dimensi per Rater Kepegawaian</h4>
-                    <p className="text-slate-600 text-[11px] font-sans">Setiap dimensi memiliki 2 butir kuesioner. Skor dimensi rater individu dihitung:</p>
+                    <p className="text-slate-600 text-[11px] font-sans">Setiap dimensi memiliki 4 butir kuesioner (5 butir untuk dimensi Kepemimpinan). Skor rater individu dihitung:</p>
                     <div className="bg-slate-100 border border-slate-200 p-2.5 rounded font-mono text-[10.5px] text-indigo-950">
-                      Skor_Dimensi = (Butir_1 + Butir_2) / 2
+                      Skor_Dimensi = (Σ Butir_i) / Jumlah_Butir
                     </div>
                   </div>
 
