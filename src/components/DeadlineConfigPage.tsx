@@ -307,8 +307,8 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
     if ((c5.Bawahan || 0) !== 100) {
       return toast("Total bobot Kondisi 5 (Tanpa Atasan, Tanpa Sejawat, Ada Bawahan) harus 100% pada Bawahan.");
     }
-    if (period.minPeer < 1 || period.maxPeer > 12 || period.minPeer > period.maxPeer) {
-      return toast("Aturan rekan sejawat (Peer) harus valid (Minimal 1, maksimal 12).");
+    if (period.maxPeer < 1 || period.maxPeer > 12) {
+      return toast("Aturan rekan sejawat (Peer) harus valid (Maksimal rater 1 s.d. 12).");
     }
     if (!period.maxBawahan || period.maxBawahan < 1 || period.maxBawahan > 30) {
       return toast("Batas maksimal bawahan penilai atasannya wajib bernilai 1 s.d. 30.");
@@ -316,6 +316,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
 
     const updatedPeriodObj: Period = {
       ...period,
+      minPeer: 1,
       deadlineStart: dStart,
       deadlineEnd: dEnd,
       weightsCond3: c3,
@@ -385,8 +386,8 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
     if ((c5.Bawahan || 0) !== 100) {
       return toast("Total bobot Kondisi 5 (Tanpa Atasan, Tanpa Sejawat, Ada Bawahan) harus 100% pada Bawahan.");
     }
-    if (period.minPeer < 1 || period.maxPeer > 12 || period.minPeer > period.maxPeer) {
-      return toast("Aturan rekan sejawat (Peer) harus valid (Minimal 1, maksimal 12).");
+    if (period.maxPeer < 1 || period.maxPeer > 12) {
+      return toast("Aturan rekan sejawat (Peer) harus valid (Maksimal rater 1 s.d. 12).");
     }
     if (!period.maxBawahan || period.maxBawahan < 1 || period.maxBawahan > 30) {
       return toast("Batas maksimal bawahan penilai atasannya wajib bernilai 1 s.d. 30.");
@@ -399,6 +400,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
 
     const newPeriodObj: Period = {
       ...period,
+      minPeer: 1,
       id: newId,
       deadlineStart: dStart,
       deadlineEnd: dEnd,
@@ -801,17 +803,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                   ⚖️ C. Batasan Jumlah & Sifat Verifikasi Rater (Aturan Kepatuhan)
                 </span>
                 
-                <div className="grid gap-4 md:grid-cols-3 mb-4">
-                  <Field label="Min Peer Rater">
-                    <input
-                      type="number"
-                      className="w-full rounded-xl border p-2.5 font-semibold text-xs bg-white"
-                      value={period.minPeer}
-                      min="1"
-                      max="12"
-                      onChange={(e) => setPeriod({ ...period, minPeer: Number(e.target.value) })}
-                    />
-                  </Field>
+                <div className="grid gap-4 md:grid-cols-2 mb-4">
                   <Field label="Max Peer Rater">
                     <input
                       type="number"
