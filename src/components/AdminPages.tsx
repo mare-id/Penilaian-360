@@ -818,20 +818,13 @@ export function JobCrudPage({ state, setState, toast }: PageProps) {
                     <option value="">-- Pilih Jenjang --</option>
                     <option value="Pemula">Pemula</option>
                     <option value="Terampil">Terampil</option>
-                    <option value="Mahir">Mahir (Setara Ahli Pertama)</option>
-                    <option value="Penyelia">Penyelia (Setara Ahli Muda)</option>
+                    <option value="Mahir">Mahir</option>
+                    <option value="Penyelia">Penyelia</option>
                     <option value="Ahli Pertama">Ahli Pertama</option>
                     <option value="Ahli Muda">Ahli Muda</option>
                     <option value="Ahli Madya">Ahli Madya</option>
                     <option value="Ahli Utama">Ahli Utama</option>
                   </select>
-                  <div className="mt-1.5 text-xs bg-indigo-50 border border-indigo-200 text-indigo-950 p-2.5 rounded-xl font-medium tracking-normal leading-relaxed">
-                    💡 <b>Aturan Kesetaraan Jabatan:</b>
-                    <ul className="list-disc pl-4 mt-1 space-y-0.5 text-[11px] text-indigo-900">
-                      <li><b>Jenjang Mahir</b> setara dengan <b>Ahli Pertama</b></li>
-                      <li><b>Jenjang Penyelia</b> setara dengan <b>Ahli Muda</b></li>
-                    </ul>
-                  </div>
                 </Field>
               )}
               <Field label="Unit Default">
@@ -894,11 +887,6 @@ export function JobCrudPage({ state, setState, toast }: PageProps) {
                       {j.type === "Fungsional" && j.jenjang && (
                         <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-1.5 py-0.5 mt-0.5 font-sans leading-none">
                           {j.jenjang}
-                          {(j.jenjang === "Mahir" || j.jenjang === "Penyelia") && (
-                            <span className="text-slate-500 font-medium ml-1">
-                              {j.jenjang === "Mahir" ? " (≡ Ahli Pertama)" : " (≡ Ahli Muda)"}
-                            </span>
-                          )}
                         </div>
                       )}
                     </div>
