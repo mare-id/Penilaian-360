@@ -267,7 +267,7 @@ END:VCALENDAR`;
                   <div className="bg-white/80 p-3 rounded-xl border border-slate-200">
                     <h4 className="text-[11px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
                       <Sparkles className="h-3 w-3 text-indigo-500" />
-                      Status Kepanitiaan & Kepatuhan
+                      Status Kepatuhan
                     </h4>
                     <p className="text-[11.5px] font-semibold text-slate-700 mt-1">
                       {isAdmin 
@@ -326,7 +326,7 @@ END:VCALENDAR`;
                         </span>
                       </div>
                       <p className="text-[11.5px] font-bold leading-normal mt-1.5 text-slate-200">
-                        {textUrgency[level]} Periode ditutup serentak se-Kabupaten Dairi pada tanggal <b>{formatIndoDate(state.period.end)} pukul 23:59 WIB</b>.
+                        {textUrgency[level]} Periode ditutup pada tanggal <b>{formatIndoDate(state.period.end)} pukul 23:59 WIB</b>.
                       </p>
                     </div>
 
