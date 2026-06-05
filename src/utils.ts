@@ -183,15 +183,37 @@ export function calculateResult(employee: Employee, assignments: Assignment[], r
   }
 
   const finalScale = usedWeight ? weighted / usedWeight : 0;
-  const final100 = Math.round((finalScale / 5) * 100);
+  const behaviorScore = Math.round((finalScale / 5) * 100);
+
+  // Compliance calculations for the employee as an evaluator
+  const pId = period?.id || 2;
+  const evaluatorTasks = assignments.filter(
+    (a) => a.evaluatorId === employee.id && a.approved && a.periodId === pId
+  );
+  const wajibMenilaiCount = evaluatorTasks.length;
+  const sudahMenilaiCount = evaluatorTasks.filter((a) =>
+    responses.some((r) => r.assignmentId === a.id)
+  ).length;
+
+  const complianceScore = wajibMenilaiCount === 0 ? 100 : (sudahMenilaiCount / wajibMenilaiCount) * 100;
+
+  const wWeightBehavior = period?.weightBehavior ?? 80;
+  const wWeightCompliance = period?.weightCompliance ?? 20;
+
+  const finalScoreVal = (behaviorScore * (wWeightBehavior / 100)) + (complianceScore * (wWeightCompliance / 100));
+  const roundedFinal = Number(finalScoreVal.toFixed(1));
 
   return {
     atasan: Math.round((atasan / 5) * 100) || 0,
     peer: Math.round((peer / 5) * 100) || 0,
     bawahan: Math.round((bawahan / 5) * 100) || 0,
     self: Math.round((self / 5) * 100) || 0,
-    final: final100,
-    category: final100 ? getCategory(final100) : "Belum Lengkap",
+    behaviorScore,
+    complianceScore: Number(complianceScore.toFixed(1)),
+    wajibMenilaiCount,
+    sudahMenilaiCount,
+    final: roundedFinal,
+    category: behaviorScore ? getCategory(roundedFinal) : "Belum Lengkap",
     completed: relevant.filter((a) => responses.some((r) => r.assignmentId === a.id)).length,
     total: relevant.length,
     conditionName: cond.name,

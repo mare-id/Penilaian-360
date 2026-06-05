@@ -337,7 +337,9 @@ export const initialState: AppState = {
     type: "Triwulan",
     selectedMonth: "01",
     selectedQuarter: "Q2",
-    selectedYear: 2026
+    selectedYear: 2026,
+    weightBehavior: 80,
+    weightCompliance: 20
   },
   periods: [
     {
@@ -360,7 +362,9 @@ export const initialState: AppState = {
       type: "Triwulan",
       selectedMonth: "01",
       selectedQuarter: "Q2",
-      selectedYear: 2026
+      selectedYear: 2026,
+      weightBehavior: 80,
+      weightCompliance: 20
     }
   ],
   admins: [

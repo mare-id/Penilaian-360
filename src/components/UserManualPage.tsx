@@ -1805,6 +1805,19 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                       Skor_Total_Gabungan = (Skor_Dimensi_Akhir_Rerata / 5) * 100
                     </div>
                   </div>
+
+                  <div className="bg-slate-900 text-white rounded-xl p-3.5 space-y-2 md:col-span-2 shadow-lg border-2 border-slate-950">
+                    <span className="text-[10px] bg-rose-500 text-white font-black px-2 py-0.5 rounded border border-rose-600">Tahap E (Terbaru)</span>
+                    <h4 className="font-extrabold text-white text-[11px] flex items-center gap-1">⚖️ Sanksi Pengurangan & Rumusan Nilai Akhir Terintegrasi</h4>
+                    <p className="text-slate-300 text-[11px] font-sans">Sesuai Peraturan BKPSDM Dairi, ASN wajib meyelesaikan kewajiban mengisi kuesioner sebagai evaluator bagi ASN lain. Jika lalai atau belum selesai, diberikan sanksi pengurangan proporsional menggunakan Skor Kepatuhan:</p>
+                    <div className="bg-slate-950 border border-slate-800 p-3 rounded font-mono text-[10.5px] text-emerald-400 space-y-2 leading-relaxed">
+                      <div><b>1. Rumus Skor Kepatuhan Anda (%):</b></div>
+                      <div className="text-white">Skor_Kepatuhan = (Jumlah_Evaluatee_Selesai_Dinilai / Jumlah_Evaluatee_Wajib_Dinilai) * 100</div>
+                      <div className="text-[10px] text-slate-400 italic font-sans">*Jika pegawai tidak memiliki kewajiban menilai siapapun (Wajib_Dinilai = 0), maka secara otomatis Skor_Kepatuhan = 100%.</div>
+                      <div className="mt-2 text-indigo-300"><b>2. Rumus Nilai Akhir Terintegrasi:</b></div>
+                      <div className="text-white">Nilai_Akhir = (Skor_Perilaku_360 * {state.period.weightBehavior ?? 80}%) + (Skor_Kepatuhan * {state.period.weightCompliance ?? 20}%)</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

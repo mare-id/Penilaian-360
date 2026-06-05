@@ -1105,16 +1105,31 @@ export function Results({ state, user }: { state: AppState; user: DemoAccount })
       <div className="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
         <Card className="bg-slate-950 text-white flex flex-col justify-between">
           <div>
-            <p className="text-sm text-slate-300">Skor Akhir Perilaku</p>
+            <p className="text-xs uppercase font-extrabold tracking-widest text-slate-400">Nilai Akhir Terintegrasi</p>
             <div className="mt-2 text-6xl font-black font-display text-white">{result.final || "-"}</div>
             <Badge className={`mt-4 ${categoryClass(result.category)}`}>{result.category}</Badge>
+            
+            <div className="mt-5 space-y-2 text-xs border-t border-slate-800 pt-4 text-slate-300 font-sans">
+              <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded-lg">
+                <span>🧠 Skor Perilaku (360°):</span>
+                <span className="font-extrabold text-white text-sm">{result.behaviorScore || "-"}</span>
+              </div>
+              <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded-lg">
+                <span>📝 Skor Kepatuhan Anda:</span>
+                <span className="font-extrabold text-white text-sm">
+                  {result.complianceScore}% <span className="text-[10px] font-normal text-slate-400">({result.sudahMenilaiCount}/{result.wajibMenilaiCount} dikerjakan)</span>
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="mt-6 space-y-2 text-xs text-slate-300 border-t border-slate-800 pt-4">
+          <div className="mt-6 space-y-1.5 text-xs text-slate-300 border-t border-slate-800 pt-4 font-sans">
             <p>Pegawai: <b>{employee.nama}</b></p>
             <p>NIP: {employee.nip}</p>
             <p>Jabatan: {employee.jabatan}</p>
             <p>Unit Kerja: {employee.unit}</p>
-            <p>Kepatuhan Penilai: {result.completed}/{result.total}</p>
+            <p className="mt-1 text-[10px] text-slate-400 flex items-center gap-1">
+              <span>👥</span> Progress Rater Anda: <b>{result.completed}/{result.total}</b> tugas selesai
+            </p>
           </div>
         </Card>
         
@@ -1408,7 +1423,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
 
     if (tab === "individu") {
       title = `Rekap_Laporan_Perilaku_Individu_ASN_Periode_${selectedPeriod.id}`;
-      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori", "Kondisi Struktur Evaluator", "Konfigurasi Bobot"];
+      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Progres Rater Selesai", "Skor Perilaku (360°)", "Kepatuhan Anda Menilai", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Akhir Terintegrasi", "Kategori", "Kondisi Struktur Evaluator", "Konfigurasi Bobot"];
       rows = state.employees.map((e, idx) => {
         const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
         return [
@@ -1418,6 +1433,8 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           e.jabatan,
           e.unit,
           `${result.completed}/${result.total}`,
+          result.behaviorScore.toString(),
+          `${result.complianceScore}% (${result.sudahMenilaiCount}/${result.wajibMenilaiCount})`,
           result.atasan.toString(),
           result.peer.toString(),
           result.bawahan.toString(),
@@ -1523,7 +1540,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
 
     if (tab === "individu") {
       title = `Rekap Laporan Perilaku Individu ASN (${selectedPeriod.name})`;
-      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori", "Kondisi Struktur Evaluator", "Konfigurasi Bobot"];
+      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Progres Rater Selesai", "Skor Perilaku (360°)", "Kepatuhan Anda Menilai", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Akhir Terintegrasi", "Kategori", "Kondisi Struktur Evaluator", "Konfigurasi Bobot"];
       rows = state.employees.map((e, idx) => {
         const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
         return [
@@ -1533,6 +1550,8 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           e.jabatan,
           e.unit,
           `${result.completed}/${result.total}`,
+          result.behaviorScore.toString(),
+          `${result.complianceScore}% (${result.sudahMenilaiCount}/${result.wajibMenilaiCount})`,
           result.atasan.toString(),
           result.peer.toString(),
           result.bawahan.toString(),
@@ -1673,17 +1692,18 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
 
     if (tab === "individu") {
       title = "Rekap Laporan Perilaku Individu ASN";
-      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator", "Nilai Agregat", "Kategori"];
+      headers = ["No", "Nama Pegawai", "Jabatan", "Unit Kerja", "Progres Rater", "Skor Perilaku 360", "Kepatuhan Menilai", "Nilai Akhir", "Kategori"];
       rows = state.employees.map((e, idx) => {
         const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
         return [
           (idx + 1).toString(),
-          e.nama,
-          e.nip,
+          `${e.nama} (NIP. ${e.nip})`,
           e.jabatan,
           e.unit,
-          `${result.completed}/${result.total} rater`,
-          (result.final || 0).toString(),
+          `${result.completed}/${result.total}`,
+          result.behaviorScore.toString(),
+          `${result.complianceScore}% (${result.sudahMenilaiCount}/${result.wajibMenilaiCount})`,
+          result.final.toString(),
           result.category
         ];
       });
@@ -1969,12 +1989,13 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead>
                 <tr className="border-b text-xs uppercase tracking-wide text-slate-500">
-                  <th className="py-3">Nama Pegawai</th>
-                  <th>Jabatan</th>
-                  <th>Unit</th>
-                  <th>Kepatuhan Evaluator</th>
+                  <th className="py-3">Nama Pegawai / Jabatan</th>
+                  <th>Unit Kerja</th>
+                  <th>Progres Rater</th>
+                  <th>Kepatuhan Menilai (Anda)</th>
                   <th>Kondisi & Bobot</th>
-                  <th>Nilai Agregat</th>
+                  <th>Skor Perilaku (360)</th>
+                  <th>Nilai Akhir</th>
                   <th>Kategori</th>
                 </tr>
               </thead>
@@ -1982,24 +2003,31 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
                 {state.employees.map((e) => {
                   const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
                   return (
-                    <tr key={e.id} className="border-b border-slate-100">
-                      <td className="py-3">
-                        <b>{e.nama}</b>
-                        <div className="text-xs text-slate-500">{e.nip}</div>
+                    <tr key={e.id} className="border-b border-slate-100 text-xs text-slate-700">
+                      <td className="py-3 pr-2">
+                        <div className="font-extrabold text-slate-900 leading-normal">{e.nama}</div>
+                        <div className="text-[11px] text-slate-500 font-mono mt-0.5">NIP. {e.nip}</div>
+                        <div className="text-[10px] text-indigo-600 font-medium leading-normal mt-0.5">{e.jabatan}</div>
                       </td>
-                      <td>{e.jabatan}</td>
-                      <td>{e.unit}</td>
-                      <td>{result.completed}/{result.total} rater</td>
+                      <td className="max-w-[150px] truncate" title={e.unit}>{e.unit}</td>
                       <td>
-                        <div className="text-xs font-extrabold text-indigo-950">Code {result.conditionCode}</div>
-                        <div className="text-[10px] text-slate-500 font-mono mt-0.5">{result.conditionName.replace("Kondisi ", "")}</div>
-                        <div className="text-[10px] bg-slate-100 text-slate-800 px-1 py-0.5 mt-1 rounded border font-mono font-bold inline-block">
+                        <div className="font-bold text-slate-800">{result.completed}/{result.total}</div>
+                        <div className="text-[10px] text-slate-400">Rater Selesai</div>
+                      </td>
+                      <td>
+                        <div className="font-extrabold text-slate-800">{result.complianceScore}%</div>
+                        <div className="text-[10px] text-slate-500">({result.sudahMenilaiCount}/{result.wajibMenilaiCount} Dinilai)</div>
+                      </td>
+                      <td>
+                        <div className="text-[11px] font-extrabold text-indigo-950">Code {result.conditionCode}</div>
+                        <div className="text-[10px] bg-slate-100/80 text-slate-800 px-1.5 py-0.5 mt-1 rounded border font-mono font-bold inline-block">
                           {result.weightsApplied.Atasan}/{result.weightsApplied.Peer}/{result.weightsApplied.Bawahan || 0}
                         </div>
                       </td>
-                      <td className="font-bold">{result.final || "-"}</td>
+                      <td className="font-bold text-center">{result.behaviorScore || "-"}</td>
+                      <td className="font-black text-center text-[13px] text-slate-950">{result.final || "-"}</td>
                       <td>
-                        <Badge className={categoryClass(result.category)}>{result.category}</Badge>
+                        <Badge className={`${categoryClass(result.category)} font-bold text-[10px] pr-2`}>{result.category}</Badge>
                       </td>
                     </tr>
                   );

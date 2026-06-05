@@ -97,6 +97,8 @@ export interface Period {
   selectedMonth?: string;
   selectedQuarter?: string;
   selectedYear?: number;
+  weightBehavior?: number;
+  weightCompliance?: number;
 }
 
 export interface AdminUser {

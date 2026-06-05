@@ -1058,6 +1058,67 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
           )}
         </div>
 
+        {/* SECTION 2.1: INTEGRASI KEPATUHAN & PENALTIES (NILAI AKHIR ASN) */}
+        <div className="mt-6 border-t pt-5 border-slate-200">
+          <div className="mb-4">
+            <h3 className="font-extrabold text-xs text-slate-850 uppercase tracking-widest flex items-center gap-2">
+              ⚖️ Integrasi Penalti Kepatuhan & Rumusan Nilai Akhir
+            </h3>
+            <p className="text-[11px] text-slate-500 mt-0.5 font-sans">
+              Tentukan porsi kontribusi (%) antara Skor Perilaku Hasil Evaluasi 360° dengan Skor Kepatuhan Pengisian Kuesioner (Sanksi bagi yang lalai menilai). Total persentase harus tepat 100%.
+            </p>
+          </div>
+          
+          <div className="grid gap-4 md:grid-cols-2 rounded-2xl border border-slate-200 bg-slate-50/50 p-4 font-display">
+            <Field label="Porsi Skor Perilaku 360° (%)">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                value={period.weightBehavior ?? 80}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setPeriod({
+                    ...period,
+                    weightBehavior: val,
+                    weightCompliance: 100 - val
+                  });
+                }}
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block font-sans">
+                Bobot utama hasil kuesioner dari Atasan, Peer, dan Bawahan.
+              </span>
+            </Field>
+
+            <Field label="Porsi Skor Kepatuhan Penilai (%)">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                value={period.weightCompliance ?? 20}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setPeriod({
+                    ...period,
+                    weightCompliance: val,
+                    weightBehavior: 100 - val
+                  });
+                }}
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block font-sans">
+                Sanksi porsi kepatuhan penyelesaian tugas menilai orang lain.
+              </span>
+            </Field>
+          </div>
+          
+          <div className="mt-3 p-3 bg-indigo-50 border border-indigo-100/80 rounded-xl text-[11px] text-indigo-950 font-medium font-display leading-relaxed">
+            💡 <b>Logika Rumus Terpadu:</b> Nilai Akhir Pegawai = (Skor Perilaku × <b>{(period.weightBehavior ?? 80)}%</b>) + (Skor Kepatuhan × <b>{(period.weightCompliance ?? 20)}%</b>). <br/>
+            Jika pegawai tidak memiliki kewajiban menilai (wajib dinilai = 0), maka Skor Kepatuhan otomatis bernilai <b>100%</b> sehingga tidak ada sanksi pengurangan nilai.
+          </div>
+        </div>
+
         <div className="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <input
