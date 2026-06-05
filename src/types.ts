@@ -103,6 +103,14 @@ export interface AdminUser {
   role: string;
 }
 
+export interface BehaviorDimension {
+  key: string;
+  name: string;
+  icon: string;
+  questions: string[];
+  leadershipOnly?: boolean;
+}
+
 export interface AppState {
   employees: Employee[];
   assignments: Assignment[];
@@ -114,6 +122,7 @@ export interface AppState {
   period: Period;
   periods?: Period[];
   admins?: AdminUser[];
+  dimensions?: BehaviorDimension[];
 }
 
 export interface DemoAccount {

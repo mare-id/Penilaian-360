@@ -783,7 +783,7 @@ interface AssessmentFormProps {
 export function AssessmentForm({ state, setState, assignment, onBack, toast }: AssessmentFormProps) {
   const evaluee = state.employees.find((e) => e.id === assignment.evalueeId)!;
   const includeLeadership = ["Struktural", "JPT Pratama", "Administrator", "Pengawas"].includes(evaluee.jenis) || evaluee.hasSub;
-  const visibleDims = dimensions.filter((d) => includeLeadership || !d.leadershipOnly);
+  const visibleDims = (state.dimensions || dimensions).filter((d) => includeLeadership || !d.leadershipOnly);
   
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -1031,8 +1031,8 @@ export function Results({ state, user }: { state: AppState; user: DemoAccount })
   const options = canChoose ? state.employees.filter((e) => e.atasanId === current.id) : [current];
   const employee = state.employees.find((e) => e.id === selectedId) || current;
 
-  const result = calculateResult(employee, state.assignments, state.responses, state.period);
-  const dims = dimensionScores(employee, state.assignments, state.responses, state.period);
+  const result = calculateResult(employee, state.assignments, state.responses, state.period, state.dimensions);
+  const dims = dimensionScores(employee, state.assignments, state.responses, state.period, state.dimensions);
   
   const scoredDims = dims.filter((d) => d.score > 0);
   const weakest = scoredDims.length > 0 ? [...scoredDims].sort((a, b) => a.score - b.score)[0] : undefined;
@@ -1380,7 +1380,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       title = `Rekap_Laporan_Perilaku_Individu_ASN_Periode_${selectedPeriod.id}`;
       headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori"];
       rows = state.employees.map((e, idx) => {
-        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod);
+        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
         return [
           (idx + 1).toString(),
           e.nama,
@@ -1493,7 +1493,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       title = `Rekap Laporan Perilaku Individu ASN (${selectedPeriod.name})`;
       headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori"];
       rows = state.employees.map((e, idx) => {
-        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod);
+        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
         return [
           (idx + 1).toString(),
           e.nama,
@@ -1641,7 +1641,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
       title = "Rekap Laporan Perilaku Individu ASN";
       headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator", "Nilai Agregat", "Kategori"];
       rows = state.employees.map((e, idx) => {
-        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod);
+        const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
         return [
           (idx + 1).toString(),
           e.nama,
@@ -1945,7 +1945,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
               </thead>
               <tbody>
                 {state.employees.map((e) => {
-                  const result = calculateResult(e, state.assignments, state.responses, selectedPeriod);
+                  const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
                   return (
                     <tr key={e.id} className="border-b border-slate-100">
                       <td className="py-3">

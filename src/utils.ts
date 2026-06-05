@@ -43,13 +43,14 @@ export function statusClass(status: string): string {
   return mapping[status] || "bg-slate-100 text-slate-700 border-slate-200";
 }
 
-export function scoreFromResponse(response?: Response, includeLeadership = true): number {
+export function scoreFromResponse(response?: Response, includeLeadership = true, customDimensions?: any[]): number {
   if (!response) return 0;
-  const keys = dimensions.filter((d) => includeLeadership || !d.leadershipOnly).map((d) => d.key);
+  const activeDims = customDimensions || dimensions;
+  const keys = activeDims.filter((d) => includeLeadership || !d.leadershipOnly).map((d) => d.key);
   return average(keys.map((k) => response.scores[k]).filter((v) => typeof v === "number"));
 }
 
-export function calculateResult(employee: Employee, assignments: Assignment[], responses: Response[], period?: Period) {
+export function calculateResult(employee: Employee, assignments: Assignment[], responses: Response[], period?: Period, customDimensions?: any[]) {
   const relevant = assignments.filter((a) => a.evalueeId === employee.id && a.approved && (!period || a.periodId === period.id));
   const includeLeadership = ["Struktural", "JPT Pratama", "Administrator", "Pengawas"].includes(employee.jenis) || employee.hasSub;
   const byType: Record<string, number[]> = {};
@@ -58,7 +59,7 @@ export function calculateResult(employee: Employee, assignments: Assignment[], r
     const response = responses.find((r) => r.assignmentId === a.id);
     if (!response) return;
     byType[a.type] = byType[a.type] || [];
-    byType[a.type].push(scoreFromResponse(response, includeLeadership));
+    byType[a.type].push(scoreFromResponse(response, includeLeadership, customDimensions));
   });
 
   const atasan = average(byType.Atasan || []);
@@ -103,9 +104,10 @@ export function calculateResult(employee: Employee, assignments: Assignment[], r
   };
 }
 
-export function dimensionScores(employee: Employee, assignments: Assignment[], responses: Response[], period?: Period) {
+export function dimensionScores(employee: Employee, assignments: Assignment[], responses: Response[], period?: Period, customDimensions?: any[]) {
   const includeLeadership = ["Struktural", "JPT Pratama", "Administrator", "Pengawas"].includes(employee.jenis) || employee.hasSub;
-  return dimensions
+  const activeDims = customDimensions || dimensions;
+  return activeDims
     .filter((d) => includeLeadership || !d.leadershipOnly)
     .map((d) => {
       const scores = assignments
@@ -120,12 +122,13 @@ export function dimensionScores(employee: Employee, assignments: Assignment[], r
 export function unitStats(state: AppState, period?: Period) {
   const activePeriod = period || state.period;
   const activeUnits = (state.orgUnits && state.orgUnits.length > 0 ? state.orgUnits : orgUnitCatalog).map((u) => u.name);
+  const customDimensions = state.dimensions;
   return activeUnits.map((unit) => {
     const emp = state.employees.filter((e) => e.unit === unit);
     const assignments = state.assignments.filter((a) => emp.some((e) => e.id === a.evalueeId) && (!activePeriod || a.periodId === activePeriod.id));
     const completed = assignments.filter((a) => state.responses.some((r) => r.assignmentId === a.id)).length;
     const pct = Math.round((completed / Math.max(1, assignments.length)) * 100);
-    const results = emp.map((e) => calculateResult(e, state.assignments, state.responses, activePeriod).final).filter(Boolean);
+    const results = emp.map((e) => calculateResult(e, state.assignments, state.responses, activePeriod, customDimensions).final).filter(Boolean);
     return {
       unit,
       totalAsn: emp.length,

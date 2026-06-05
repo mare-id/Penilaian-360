@@ -16,7 +16,7 @@ import {
   Reports,
   ChangePasswordPage,
 } from "./components/UserPages";
-import { DataASNPage, UnitCrudPage, JobCrudPage } from "./components/AdminPages";
+import { DataASNPage, UnitCrudPage, JobCrudPage, DimensionCrudPage } from "./components/AdminPages";
 import { UserManualPage } from "./components/UserManualPage";
 import {
   getSupabaseConfig,
@@ -1074,6 +1074,9 @@ export default function App() {
       if (!parsed.admins) {
         parsed.admins = initialState.admins;
       }
+      if (!parsed.dimensions || parsed.dimensions.length === 0) {
+        parsed.dimensions = initialState.dimensions;
+      }
       const synced = syncMandatoryAssignments(
         parsed.employees, 
         parsed.assignments, 
@@ -1261,6 +1264,7 @@ export default function App() {
     dataAsn: "Master Data ASN",
     unitCrud: "Master Unit Kerja",
     jobCrud: "Master Jabatan",
+    dimensionCrud: "Pengaturan Butir Dimensi Kuesioner",
     settings: "Setelan Sistem",
     changePassword: "Ganti Kata Sandi",
     userManual: "Panduan Aplikasi",
@@ -1295,6 +1299,8 @@ export default function App() {
         return <UnitCrudPage {...pageProps} />;
       case "jobCrud":
         return <JobCrudPage {...pageProps} />;
+      case "dimensionCrud":
+        return <DimensionCrudPage state={state} setState={setState} toast={toast} />;
       case "settings":
         return <SettingsPage state={state} setState={setState} toast={toast} />;
       case "changePassword":

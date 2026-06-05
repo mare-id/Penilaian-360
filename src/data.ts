@@ -273,4 +273,5 @@ export const initialState: AppState = {
   admins: [
     { id: "admin", username: "admin", name: "Administrator BKPSDM Utama", password: "Mare123.", role: "Admin BKPSDM" }
   ],
+  dimensions: dimensions,
 };
