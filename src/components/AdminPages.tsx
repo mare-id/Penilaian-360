@@ -29,6 +29,7 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
     role: "ASN",
     username: "",
     password: "admin123",
+    jenjang: "",
   });
 
   const [query, setQuery] = useState("");
@@ -95,6 +96,7 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
       jenis: job?.type || form.jenis,
       unit: newUnit,
       hasSub: job?.leadership || false,
+      jenjang: job?.jenjang || "",
     };
     setForm(updatedForm);
     const suggestedAtasanId = getSuggestedAtasanId(newUnit, updatedForm);
@@ -286,7 +288,7 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
                   </select>
                 </Field>
                 <Field label="Jenis Jabatan">
-                  <select id="select-asn-jenis" className="w-full rounded-xl border p-3 font-semibold text-sm bg-white" value={form.jenis} onChange={(e) => setForm({ ...form, jenis: e.target.value })}>
+                  <select id="select-asn-jenis" className="w-full rounded-xl border p-3 font-semibold text-sm bg-white" value={form.jenis} onChange={(e) => setForm({ ...form, jenis: e.target.value, jenjang: e.target.value === "Fungsional" ? form.jenjang || "Ahli Pertama" : "" })}>
                     <option value="JPT Pratama">JPT Pratama</option>
                     <option value="Administrator">Administrator</option>
                     <option value="Pengawas">Pengawas</option>
@@ -294,6 +296,26 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
                     <option value="Pelaksana">Pelaksana</option>
                   </select>
                 </Field>
+                {form.jenis === "Fungsional" && (
+                  <Field label="Jenjang Jabatan Fungsional">
+                    <select
+                      id="select-asn-jenjang"
+                      className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
+                      value={form.jenjang || ""}
+                      onChange={(e) => setForm({ ...form, jenjang: e.target.value })}
+                    >
+                      <option value="">-- Pilih Jenjang --</option>
+                      <option value="Pemula">Pemula</option>
+                      <option value="Terampil">Terampil</option>
+                      <option value="Mahir">Mahir</option>
+                      <option value="Penyelia">Penyelia</option>
+                      <option value="Ahli Pertama">Ahli Pertama</option>
+                      <option value="Ahli Muda">Ahli Muda</option>
+                      <option value="Ahli Madya">Ahli Madya</option>
+                      <option value="Ahli Utama">Ahli Utama</option>
+                    </select>
+                  </Field>
+                )}
                 <Field label="Unit Kerja">
                   <select
                     id="select-asn-unit"
@@ -359,53 +381,70 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
           </div>
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="border-b text-xs uppercase tracking-wide text-slate-500">
-                <th className="py-3">Nama</th>
-                <th>NIP</th>
-                <th>Username</th>
-                <th>Jabatan</th>
-                <th>Unit</th>
-                <th>Role</th>
-                <th>Atasan</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((e) => {
-                const boss = state.employees.find((b) => b.id === e.atasanId);
-                return (
-                  <tr key={e.id} className="border-b border-slate-100">
-                    <td className="py-3 font-bold">{e.nama}</td>
-                    <td>{e.nip}</td>
-                    <td>{e.username || e.nip}</td>
-                    <td>
-                      {e.jabatan}
-                      <div className="text-xs text-slate-500">{e.jenis} • {e.gol}</div>
-                    </td>
-                    <td>{e.unit}</td>
-                    <td>
-                      <Badge className="border-slate-200 bg-slate-50 text-slate-705 font-bold">
-                        {e.jabatan.toLowerCase() === "kepala badan" || e.id === 1
-                          ? "ASN (Kepala Badan)"
-                          : e.hasSub
-                          ? "ASN (Atasan)"
-                          : "ASN (Pegawai)"}
-                      </Badge>
-                    </td>
-                    <td>{boss?.nama || "-"}</td>
-                    <td>
-                      <div className="flex gap-2">
-                        <Button variant="secondary" onClick={() => edit(e)}>Edit</Button>
-                        <Button variant="danger" onClick={() => remove(e)}>Hapus</Button>
-                      </div>
-                    </td>
+          {(() => {
+            const hasFungsional = rows.some((e) => e.jenis === "Fungsional");
+            return (
+              <table className="w-full min-w-[980px] text-left text-sm">
+                <thead>
+                  <tr className="border-b text-xs uppercase tracking-wide text-slate-500">
+                    <th className="py-3">Nama</th>
+                    <th>NIP</th>
+                    <th>Username</th>
+                    <th>Jabatan</th>
+                    {hasFungsional && <th className="px-3">Jenjang</th>}
+                    <th>Unit</th>
+                    <th>Role</th>
+                    <th>Atasan</th>
+                    <th>Aksi</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {rows.map((e) => {
+                    const boss = state.employees.find((b) => b.id === e.atasanId);
+                    return (
+                      <tr key={e.id} className="border-b border-slate-100">
+                        <td className="py-3 font-bold">{e.nama}</td>
+                        <td>{e.nip}</td>
+                        <td>{e.username || e.nip}</td>
+                        <td>
+                          {e.jabatan}
+                          <div className="text-xs text-slate-500">{e.jenis} • {e.gol}</div>
+                        </td>
+                        {hasFungsional && (
+                          <td className="px-3">
+                            {e.jenis === "Fungsional" ? (
+                              <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-md px-2 py-0.5 whitespace-nowrap">
+                                {e.jenjang || jobs.find((j) => j.name === e.jabatan)?.jenjang || "Ahli Pertama"}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 font-medium">-</span>
+                            )}
+                          </td>
+                        )}
+                        <td>{e.unit}</td>
+                        <td>
+                          <Badge className="border-slate-200 bg-slate-50 text-slate-705 font-bold">
+                            {e.jabatan.toLowerCase() === "kepala badan" || e.id === 1
+                              ? "ASN (Kepala Badan)"
+                              : e.hasSub
+                              ? "ASN (Atasan)"
+                              : "ASN (Pegawai)"}
+                          </Badge>
+                        </td>
+                        <td>{boss?.nama || "-"}</td>
+                        <td>
+                          <div className="flex gap-2">
+                            <Button variant="secondary" onClick={() => edit(e)}>Edit</Button>
+                            <Button variant="danger" onClick={() => remove(e)}>Hapus</Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            );
+          })()}
         </div>
       </Card>
 

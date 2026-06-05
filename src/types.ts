@@ -13,6 +13,7 @@ export interface Employee {
   password?: string;
   email?: string;
   hp?: string;
+  jenjang?: string;
 }
 
 export interface Assignment {
