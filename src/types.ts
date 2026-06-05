@@ -90,6 +90,9 @@ export interface Period {
   randomizePeers?: boolean;
   weightsWithSub: Weights;
   weightsNoSub: Weights;
+  weightsCond3?: Weights;
+  weightsCond4?: Weights;
+  weightsCond5?: Weights;
   type?: "Bulanan" | "Triwulan" | "Custom";
   selectedMonth?: string;
   selectedQuarter?: string;

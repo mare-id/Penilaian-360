@@ -59,16 +59,22 @@ export function getEvaluatorConditionAndWeights(
   // Use period configurations as the base if provided, otherwise standard fallbacks
   const defaultWeightsWithSub = { Atasan: 60, Peer: 20, Bawahan: 20 };
   const defaultWeightsNoSub = { Atasan: 60, Peer: 40 };
+  const defaultWeightsCond3 = { Atasan: 75, Peer: 0, Bawahan: 25 };
+  const defaultWeightsCond4 = { Atasan: 100, Peer: 0, Bawahan: 0 };
+  const defaultWeightsCond5 = { Atasan: 0, Peer: 0, Bawahan: 100 };
 
   const wWithSub = period?.weightsWithSub || defaultWeightsWithSub;
   const wNoSub = period?.weightsNoSub || defaultWeightsNoSub;
+  const wCond3 = period?.weightsCond3 || defaultWeightsCond3;
+  const wCond4 = period?.weightsCond4 || defaultWeightsCond4;
+  const wCond5 = period?.weightsCond5 || defaultWeightsCond5;
 
   // 1. Kondisi Ada Atasan, Ada Sejawat, Ada Bawahan
   if (hasAtasan && hasPeer && hasBawahan) {
     return {
       code: 1,
       name: "Kondisi Ada Atasan, Ada Sejawat, Ada Bawahan",
-      weights: { Atasan: wWithSub.Atasan, Peer: wWithSub.Peer, Bawahan: wWithSub.Bawahan || 25 }
+      weights: { Atasan: wWithSub.Atasan, Peer: wWithSub.Peer, Bawahan: wWithSub.Bawahan || 20 }
     };
   }
 
@@ -83,13 +89,10 @@ export function getEvaluatorConditionAndWeights(
 
   // 3. Kondisi Ada Atasan, Tidak Ada Sejawat, Ada Bawahan
   if (hasAtasan && !hasPeer && hasBawahan) {
-    const totalW = wWithSub.Atasan + (wWithSub.Bawahan || 25);
-    const scaleAtasan = totalW > 0 ? Math.round((wWithSub.Atasan / totalW) * 100) : 70;
-    const scaleBawahan = 100 - scaleAtasan;
     return {
       code: 3,
       name: "Kondisi Ada Atasan, Tidak Ada Sejawat, Ada Bawahan",
-      weights: { Atasan: scaleAtasan, Peer: 0, Bawahan: scaleBawahan }
+      weights: { Atasan: wCond3.Atasan, Peer: 0, Bawahan: wCond3.Bawahan || 25 }
     };
   }
 
@@ -98,7 +101,7 @@ export function getEvaluatorConditionAndWeights(
     return {
       code: 4,
       name: "Kondisi Ada Atasan, Tidak Ada Sejawat, Tidak Ada Bawahan",
-      weights: { Atasan: 100, Peer: 0, Bawahan: 0 }
+      weights: { Atasan: wCond4.Atasan, Peer: 0, Bawahan: 0 }
     };
   }
 
@@ -107,7 +110,7 @@ export function getEvaluatorConditionAndWeights(
     return {
       code: 5,
       name: "Tidak Ada Atasan, Tidak Ada Sejawat, Ada Bawahan",
-      weights: { Atasan: 0, Peer: 0, Bawahan: 100 }
+      weights: { Atasan: 0, Peer: 0, Bawahan: wCond5.Bawahan || 100 }
     };
   }
 

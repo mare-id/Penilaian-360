@@ -78,6 +78,7 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
   }));
 
   const [copyDemoData, setCopyDemoData] = useState(true);
+  const [activeWeightTab, setActiveWeightTab] = useState<"cond1" | "cond2" | "cond3" | "cond4" | "cond5">("cond1");
 
   // Supabase states
   const [dbConfig, setDbConfig] = useState(() => getSupabaseConfig());
@@ -282,12 +283,24 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
   const save = () => {
     const w = period.weightsWithSub;
     const n = period.weightsNoSub;
+    const c3 = period.weightsCond3 || { Atasan: 75, Peer: 0, Bawahan: 25 };
+    const c4 = period.weightsCond4 || { Atasan: 100, Peer: 0, Bawahan: 0 };
+    const c5 = period.weightsCond5 || { Atasan: 0, Peer: 0, Bawahan: 100 };
 
     if (w.Atasan + w.Peer + (w.Bawahan || 0) !== 100) {
-      return toast("Total bobot ASN dengan bawahan harus 100%.");
+      return toast("Total bobot Kondisi 1 (Ada Atasan, Ada Sejawat, Ada Bawahan) harus 100%.");
     }
     if (n.Atasan + n.Peer !== 100) {
-      return toast("Total bobot ASN tanpa bawahan harus 100%.");
+      return toast("Total bobot Kondisi 2 (Ada Atasan, Ada Sejawat, Tanpa Bawahan) harus 100%.");
+    }
+    if (c3.Atasan + (c3.Bawahan || 0) !== 100) {
+      return toast("Total bobot Kondisi 3 (Ada Atasan, Tanpa Sejawat, Ada Bawahan) harus 100%.");
+    }
+    if (c4.Atasan !== 100) {
+      return toast("Total bobot Kondisi 4 (Ada Atasan, Tanpa Sejawat, Tanpa Bawahan) harus 100% pada Atasan.");
+    }
+    if ((c5.Bawahan || 0) !== 100) {
+      return toast("Total bobot Kondisi 5 (Tanpa Atasan, Tanpa Sejawat, Ada Bawahan) harus 100% pada Bawahan.");
     }
     if (period.minPeer < 1 || period.maxPeer > 12 || period.minPeer > period.maxPeer) {
       return toast("Aturan rekan sejawat (Peer) harus valid (Minimal 1, maksimal 12).");
@@ -299,21 +312,28 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
       return toast("Tanggal selesai harus melampaui tanggal mulai.");
     }
 
+    const compiledPeriodObj = {
+      ...period,
+      weightsCond3: c3,
+      weightsCond4: c4,
+      weightsCond5: c5
+    };
+
     setState((s) => {
       const currentList = s.periods || [];
       const existsIndex = currentList.findIndex(p => p.id === period.id);
       let updatedList = [...currentList];
 
       if (existsIndex >= 0) {
-        updatedList[existsIndex] = period;
+        updatedList[existsIndex] = compiledPeriodObj;
       } else {
-        updatedList.push(period);
+        updatedList.push(compiledPeriodObj);
       }
 
       const isActiveEdited = s.period.id === period.id;
       return {
         ...s,
-        period: isActiveEdited ? period : s.period,
+        period: isActiveEdited ? compiledPeriodObj : s.period,
         periods: updatedList
       };
     });
@@ -324,12 +344,24 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
   const saveAsNew = () => {
     const w = period.weightsWithSub;
     const n = period.weightsNoSub;
+    const c3 = period.weightsCond3 || { Atasan: 75, Peer: 0, Bawahan: 25 };
+    const c4 = period.weightsCond4 || { Atasan: 100, Peer: 0, Bawahan: 0 };
+    const c5 = period.weightsCond5 || { Atasan: 0, Peer: 0, Bawahan: 100 };
 
     if (w.Atasan + w.Peer + (w.Bawahan || 0) !== 100) {
-      return toast("Total bobot ASN dengan bawahan harus 100%.");
+      return toast("Total bobot Kondisi 1 (Ada Atasan, Ada Sejawat, Ada Bawahan) harus 100%.");
     }
     if (n.Atasan + n.Peer !== 100) {
-      return toast("Total bobot ASN tanpa bawahan harus 100%.");
+      return toast("Total bobot Kondisi 2 (Ada Atasan, Ada Sejawat, Tanpa Bawahan) harus 100%.");
+    }
+    if (c3.Atasan + (c3.Bawahan || 0) !== 100) {
+      return toast("Total bobot Kondisi 3 (Ada Atasan, Tanpa Sejawat, Ada Bawahan) harus 100%.");
+    }
+    if (c4.Atasan !== 100) {
+      return toast("Total bobot Kondisi 4 (Ada Atasan, Tanpa Sejawat, Tanpa Bawahan) harus 100% pada Atasan.");
+    }
+    if ((c5.Bawahan || 0) !== 100) {
+      return toast("Total bobot Kondisi 5 (Tanpa Atasan, Tanpa Sejawat, Ada Bawahan) harus 100% pada Bawahan.");
     }
     if (period.minPeer < 1 || period.maxPeer > 12 || period.minPeer > period.maxPeer) {
       return toast("Aturan rekan sejawat (Peer) harus valid (Minimal 1, maksimal 12).");
@@ -345,6 +377,9 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
     const newId = Math.max(0, ...currentList.map(p => p.id)) + 1;
     const newPeriodObj = {
       ...period,
+      weightsCond3: c3,
+      weightsCond4: c4,
+      weightsCond5: c5,
       id: newId
     };
 
@@ -673,18 +708,18 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
         <div className="border-b pb-3 mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-black font-display text-slate-900">Bobot Persentase Penilai (360°)</h2>
-            <p className="text-xs text-slate-500 font-medium">Konfigurasi bobot pengali untuk masing-masing rumpun evaluator. Total penjumlahan pada masing-masing jenis wajib berjumlah 100%.</p>
+            <p className="text-xs text-slate-500 font-medium">Konfigurasi bobot pengali secara presisi untuk 5 kondisi ketersediaan evaluator di lapangan.</p>
           </div>
-          <span className="text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-mono text-center">
-            Dengan Bawahan: {period.weightsWithSub.Atasan}%/{period.weightsWithSub.Peer}%/{period.weightsWithSub.Bawahan}% • Tanpa: {period.weightsNoSub.Atasan}%/{period.weightsNoSub.Peer}%
+          <span className="text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl border-2 border-slate-900 bg-slate-50 text-slate-900 font-mono text-center">
+            Mode Multi-Kondisi Aktif (1 s.d. 5)
           </span>
         </div>
 
         {/* PRESET SYSTEM CHIPS */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 font-display">
           <div>
-            <span className="block font-bold text-xs text-slate-900">⚡ Preset Pembobotan Cepat (Regulasi)</span>
-            <span className="block text-[11px] text-slate-500">Pilih skema standar regulasi resmi atau kustomisasi secara mandiri di bawah ini.</span>
+            <span className="block font-bold text-xs text-slate-900">⚡ Preset Pembobotan Otomatis (Semua Kondisi)</span>
+            <span className="block text-[11px] text-slate-500">Sesuaikan instan seluruh rumus pembobotan berdasarkan standardisasi regulasi.</span>
           </div>
           <div className="flex flex-wrap gap-1.5 self-stretch sm:self-auto justify-start">
             <button
@@ -693,11 +728,14 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
                 setPeriod({
                   ...period,
                   weightsWithSub: { Atasan: 60, Peer: 20, Bawahan: 20 },
-                  weightsNoSub: { Atasan: 60, Peer: 40 }
+                  weightsNoSub: { Atasan: 60, Peer: 40 },
+                  weightsCond3: { Atasan: 75, Peer: 0, Bawahan: 25 },
+                  weightsCond4: { Atasan: 100, Peer: 0, Bawahan: 0 },
+                  weightsCond5: { Atasan: 0, Peer: 0, Bawahan: 100 }
                 });
-                toast("Preset Regulasi Terbaru Permenpan RB 6/2022 diterapkan! (Dengan Bawahan: 60-20-20, Tanpa Bawahan: 60-40)");
+                toast("Preset Regulasi Terbaru Permenpan RB 6/2022 diterapkan ke semua kondisi!");
               }}
-              className="px-3 py-1.5 text-[10px] font-extrabold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-sm"
+              className="px-3 py-1.5 text-[10px] font-extrabold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-sm cursor-pointer"
             >
               ⭐ Regulasi BKN Terbaru (60-20-20 %)
             </button>
@@ -707,11 +745,14 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
                 setPeriod({
                   ...period,
                   weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
-                  weightsNoSub: { Atasan: 60, Peer: 40 }
+                  weightsNoSub: { Atasan: 60, Peer: 40 },
+                  weightsCond3: { Atasan: 70, Peer: 0, Bawahan: 30 },
+                  weightsCond4: { Atasan: 100, Peer: 0, Bawahan: 0 },
+                  weightsCond5: { Atasan: 0, Peer: 0, Bawahan: 100 }
                 });
-                toast("Preset BKPSDM Klasik diterapkan! (Dengan Bawahan: 60-15-25, Tanpa Bawahan: 60-40)");
+                toast("Preset BKPSDM Klasik diterapkan ke semua kondisi!");
               }}
-              className="px-3 py-1.5 text-[10px] font-extrabold bg-white hover:bg-slate-100 text-slate-800 border rounded-lg transition-all shadow-sm"
+              className="px-3 py-1.5 text-[10px] font-extrabold bg-white hover:bg-slate-100 text-slate-800 border rounded-lg transition-all shadow-sm cursor-pointer"
             >
               BKPSDM Klasik (60-15-25 %)
             </button>
@@ -721,94 +762,300 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
                 setPeriod({
                   ...period,
                   weightsWithSub: { Atasan: 50, Peer: 25, Bawahan: 25 },
-                  weightsNoSub: { Atasan: 50, Peer: 50 }
+                  weightsNoSub: { Atasan: 50, Peer: 50 },
+                  weightsCond3: { Atasan: 50, Peer: 0, Bawahan: 50 },
+                  weightsCond4: { Atasan: 100, Peer: 0, Bawahan: 0 },
+                  weightsCond5: { Atasan: 0, Peer: 0, Bawahan: 100 }
                 });
-                toast("Preset Seimbang diterapkan! (Dengan Bawahan: 50-25-25, Tanpa Bawahan: 50-50)");
+                toast("Preset Sama Rata diterapkan ke semua kondisi!");
               }}
-              className="px-3 py-1.5 text-[10px] font-extrabold bg-white hover:bg-slate-100 text-slate-800 border rounded-lg transition-all shadow-sm"
+              className="px-3 py-1.5 text-[10px] font-extrabold bg-white hover:bg-slate-100 text-slate-800 border rounded-lg transition-all shadow-sm cursor-pointer"
             >
               Sama Rata (50-25-25 %)
             </button>
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100 font-display">
-            <h3 className="font-bold text-slate-800 mb-3 text-xs uppercase tracking-wider">Jenis ASN Memiliki Bawahan (%)</h3>
-            <div className="space-y-3">
-              <Field label="Atasan Langsung">
-                <input
-                  type="number"
-                  className="w-full rounded-xl border p-2.5 font-semibold text-sm bg-white"
-                  value={period.weightsWithSub.Atasan}
-                  onChange={(e) =>
-                    setPeriod({
-                      ...period,
-                      weightsWithSub: { ...period.weightsWithSub, Atasan: Number(e.target.value) },
-                    })
-                  }
-                />
-              </Field>
-              <Field label="Rekan Sejawat (Peer)">
-                <input
-                  type="number"
-                  className="w-full rounded-xl border p-2.5 font-semibold text-sm bg-white"
-                  value={period.weightsWithSub.Peer}
-                  onChange={(e) =>
-                    setPeriod({
-                      ...period,
-                      weightsWithSub: { ...period.weightsWithSub, Peer: Number(e.target.value) },
-                    })
-                  }
-                />
-              </Field>
-              <Field label="Bawahan Langsung">
-                <input
-                  type="number"
-                  className="w-full rounded-xl border p-2.5 font-semibold text-sm bg-white"
-                  value={period.weightsWithSub.Bawahan || 0}
-                  onChange={(e) =>
-                    setPeriod({
-                      ...period,
-                      weightsWithSub: { ...period.weightsWithSub, Bawahan: Number(e.target.value) },
-                    })
-                  }
-                />
-              </Field>
-            </div>
-          </div>
+        {/* TABS SELECTOR */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4 font-display">
+          {[
+            {
+              id: "cond1",
+              num: "1",
+              title: "Atasan + Peer + Sub",
+              desc: "Ada Atasan, Sejawat & Bawahan",
+              total: period.weightsWithSub.Atasan + period.weightsWithSub.Peer + (period.weightsWithSub.Bawahan || 0)
+            },
+            {
+              id: "cond2",
+              num: "2",
+              title: "Atasan + Peer",
+              desc: "Ada Atasan & Sejawat (Tanpa Bawahan)",
+              total: period.weightsNoSub.Atasan + period.weightsNoSub.Peer
+            },
+            {
+              id: "cond3",
+              num: "3",
+              title: "Atasan + Sub",
+              desc: "Ada Atasan & Bawahan (Tanpa Sejawat)",
+              total: (period.weightsCond3?.Atasan ?? 75) + (period.weightsCond3?.Bawahan ?? 25)
+            },
+            {
+              id: "cond4",
+              num: "4",
+              title: "Atasan Sahaja",
+              desc: "Hanya Ada Atasan Langsung",
+              total: period.weightsCond4?.Atasan ?? 100
+            },
+            {
+              id: "cond5",
+              num: "5",
+              title: "Bawahan Sahaja",
+              desc: "Hanya Ada Bawahan (Asessor Khusus)",
+              total: period.weightsCond5?.Bawahan ?? 100
+            }
+          ].map((tab) => {
+            const isActive = activeWeightTab === tab.id;
+            const isValid = tab.total === 100;
 
-          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100 font-display">
-            <h3 className="font-bold text-slate-800 mb-3 text-xs uppercase tracking-wider">Jenis ASN Tanpa Bawahan (%)</h3>
-            <div className="space-y-3">
-              <Field label="Atasan Langsung">
-                <input
-                  type="number"
-                  className="w-full rounded-xl border p-2.5 font-semibold text-sm bg-white"
-                  value={period.weightsNoSub.Atasan}
-                  onChange={(e) =>
-                    setPeriod({
-                      ...period,
-                      weightsNoSub: { ...period.weightsNoSub, Atasan: Number(e.target.value) },
-                    })
-                  }
-                />
-              </Field>
-              <Field label="Rekan Sejawat (Peer)">
-                <input
-                  type="number"
-                  className="w-full rounded-xl border p-2.5 font-semibold text-sm bg-white"
-                  value={period.weightsNoSub.Peer}
-                  onChange={(e) =>
-                    setPeriod({
-                      ...period,
-                      weightsNoSub: { ...period.weightsNoSub, Peer: Number(e.target.value) },
-                    })
-                  }
-                />
-              </Field>
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveWeightTab(tab.id as any)}
+                className={`p-3 rounded-2xl text-left transition-all relative border flex flex-col justify-between cursor-pointer ${
+                  isActive
+                    ? "bg-slate-900 border-slate-900 text-white shadow-md shadow-slate-100 ring-2 ring-slate-800 ring-offset-1"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-1">
+                  <span className={`text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded-md ${
+                    isActive ? "bg-slate-800 text-slate-100" : "bg-slate-100 text-slate-600"
+                  }`}>
+                    Kondisi {tab.num}
+                  </span>
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                    isValid
+                      ? "bg-emerald-500 text-white"
+                      : "bg-red-500 text-white animate-pulse"
+                  }`}>
+                    {tab.total}%
+                  </span>
+                </div>
+                <span className="block font-bold text-xs truncate">{tab.title}</span>
+                <span className={`block text-[10px] leading-tight select-none truncate ${isActive ? "text-slate-300" : "text-slate-400"}`}>
+                  {tab.desc}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ACTIVE TAB LAYOUT */}
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 font-display">
+          {activeWeightTab === "cond1" && (
+            <div>
+              <div className="flex items-center justify-between mb-4 border-b border-dashed border-slate-200 pb-3">
+                <div>
+                  <h3 className="font-extrabold text-xs text-slate-800 uppercase tracking-widest">Kondisi 1: Ada Atasan, Ada Sejawat, Ada Bawahan</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Diterapkan untuk ASN pemangku jabatan struktural/kepemimpinan yang kuesionernya telah diisi lengkap oleh ketiga rumpun.</p>
+                </div>
+                <span className="text-xs font-bold text-slate-600">Total penjumlahan wajib 100%</span>
+              </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <Field label="Atasan Langsung (%)">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                    value={period.weightsWithSub.Atasan}
+                    onChange={(e) =>
+                      setPeriod({
+                        ...period,
+                        weightsWithSub: { ...period.weightsWithSub, Atasan: Number(e.target.value) },
+                      })
+                    }
+                  />
+                </Field>
+                <Field label="Rekan Sejawat (Peer) (%)">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                    value={period.weightsWithSub.Peer}
+                    onChange={(e) =>
+                      setPeriod({
+                        ...period,
+                        weightsWithSub: { ...period.weightsWithSub, Peer: Number(e.target.value) },
+                      })
+                    }
+                  />
+                </Field>
+                <Field label="Bawahan Langsung (%)">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                    value={period.weightsWithSub.Bawahan || 0}
+                    onChange={(e) =>
+                      setPeriod({
+                        ...period,
+                        weightsWithSub: { ...period.weightsWithSub, Bawahan: Number(e.target.value) },
+                      })
+                    }
+                  />
+                </Field>
+              </div>
             </div>
-          </div>
+          )}
+
+          {activeWeightTab === "cond2" && (
+            <div>
+              <div className="flex items-center justify-between mb-4 border-b border-dashed border-slate-200 pb-3">
+                <div>
+                  <h3 className="font-extrabold text-xs text-slate-800 uppercase tracking-widest">Kondisi 2: Ada Atasan, Ada Sejawat, Tidak Ada Bawahan</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Diterapkan untuk ASN staf pelaksana atau jabatan fungsional murni yang tidak mengampu bawahan di organisasinya.</p>
+                </div>
+                <span className="text-xs font-bold text-slate-600">Total penjumlahan wajib 100%</span>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Atasan Langsung (%)">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                    value={period.weightsNoSub.Atasan}
+                    onChange={(e) =>
+                      setPeriod({
+                        ...period,
+                        weightsNoSub: { ...period.weightsNoSub, Atasan: Number(e.target.value) },
+                      })
+                    }
+                  />
+                </Field>
+                <Field label="Rekan Sejawat (Peer) (%)">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                    value={period.weightsNoSub.Peer}
+                    onChange={(e) =>
+                      setPeriod({
+                        ...period,
+                        weightsNoSub: { ...period.weightsNoSub, Peer: Number(e.target.value) },
+                      })
+                    }
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
+
+          {activeWeightTab === "cond3" && (
+            <div>
+              <div className="flex items-center justify-between mb-4 border-b border-dashed border-slate-200 pb-3">
+                <div>
+                  <h3 className="font-extrabold text-xs text-slate-800 uppercase tracking-widest">Kondisi 3: Ada Atasan, Tidak Ada Sejawat, Ada Bawahan</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Diterapkan bila ASN memiliki bawahan namun berada di unit kerja tunggal tanpa rekan sejawat yang selevel.</p>
+                </div>
+                <span className="text-xs font-bold text-slate-600">Total penjumlahan wajib 100%</span>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Atasan Langsung (%)">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                    value={period.weightsCond3?.Atasan ?? 75}
+                    onChange={(e) =>
+                      setPeriod({
+                        ...period,
+                        weightsCond3: {
+                          Atasan: Number(e.target.value),
+                          Peer: 0,
+                          Bawahan: period.weightsCond3?.Bawahan ?? 25
+                        }
+                      })
+                    }
+                  />
+                </Field>
+                <Field label="Bawahan Langsung (%)">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-white"
+                    value={period.weightsCond3?.Bawahan ?? 25}
+                    onChange={(e) =>
+                      setPeriod({
+                        ...period,
+                        weightsCond3: {
+                          Atasan: period.weightsCond3?.Atasan ?? 75,
+                          Peer: 0,
+                          Bawahan: Number(e.target.value)
+                        }
+                      })
+                    }
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
+
+          {activeWeightTab === "cond4" && (
+            <div>
+              <div className="flex items-center justify-between mb-4 border-b border-dashed border-slate-200 pb-3">
+                <div>
+                  <h3 className="font-extrabold text-xs text-slate-800 uppercase tracking-widest">Kondisi 4: Ada Atasan, Tidak Ada Sejawat, Tidak Ada Bawahan</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Diterapkan bagi ASN di unit terkecil/isolasi yang hanya dinilai langsung oleh pimpinannya saja secara penuh.</p>
+                </div>
+                <span className="text-xs font-bold text-slate-600">Mutlak wajib diset 100%</span>
+              </div>
+              <div className="grid gap-4 md:grid-cols-1">
+                <Field label="Atasan Langsung (%) - Atasan murni memegang kendali">
+                  <input
+                    type="number"
+                    min="100"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-slate-100 text-slate-600 cursor-not-allowed"
+                    value={period.weightsCond4?.Atasan ?? 100}
+                    disabled
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
+
+          {activeWeightTab === "cond5" && (
+            <div>
+              <div className="flex items-center justify-between mb-4 border-b border-dashed border-slate-200 pb-3">
+                <div>
+                  <h3 className="font-extrabold text-xs text-slate-800 uppercase tracking-widest">Kondisi 5: Tidak Ada Atasan, Tidak Ada Sejawat, Ada Bawahan</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Diterapkan jika pimpinan berhalangan tetap atau kosong, dan penilaian murni diaudit oleh staf bawahan langsung.</p>
+                </div>
+                <span className="text-xs font-bold text-slate-600">Mutlak wajib diset 100%</span>
+              </div>
+              <div className="grid gap-4 md:grid-cols-1">
+                <Field label="Bawahan Langsung (%) - Bawahan murni memegang kendali">
+                  <input
+                    type="number"
+                    min="100"
+                    max="100"
+                    className="w-full rounded-xl border p-2.5 font-bold text-sm bg-slate-100 text-slate-600 cursor-not-allowed"
+                    value={period.weightsCond5?.Bawahan ?? 100}
+                    disabled
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
