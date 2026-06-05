@@ -81,8 +81,8 @@ export function DeadlineWarningBanner({ state, user, setActive }: DeadlineWarnin
   const unfAss = unfinished.length;
   const completionPercentage = totalAss > 0 ? Math.round((compAss / totalAss) * 100) : 100;
 
-  // Calculate days remaining dynamically
-  const endDateStr = state.period.end;
+  // Calculate days remaining dynamically based on manual deadline input
+  const endDateStr = state.period.deadlineEnd || state.period.end;
   const today = new Date();
   
   // Create Date instances reset to midnight to calculate correct integer days remaining
@@ -229,26 +229,40 @@ END:VCALENDAR`;
         </div>
 
         {/* Dynamic Warning Notification Statement Summary (Always Visible even when collapsed) */}
-        <div className="mt-2.5 text-xs font-semibold pl-11 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t pt-2 border-slate-200/50">
-          <div>
-            Periode: <b className="text-slate-900">{state.period.name}</b>
-            <span className="hidden sm:inline-block mx-2 text-slate-300">|</span>
-            Batas Akhir: <b className="text-red-700 font-extrabold">{formatIndoDate(state.period.end)}</b>
-            <span className="text-[11px] ml-1.5 text-slate-500 font-normal">
-              ({diffDays > 0 ? `Tinggal ${diffDays} Hari Lagi` : "Telah Ditutup"})
-            </span>
+        <div className="mt-2.5 text-xs font-semibold pl-11 flex flex-col gap-2 border-t pt-2 border-slate-200/50">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 text-slate-700">
+              <span>Periode Penilaian Pekerjaan:</span>
+              <strong className="text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                {state.period.name} ({formatIndoDate(state.period.start)} s.d {formatIndoDate(state.period.end)})
+              </strong>
+            </div>
+
+            {!isAdmin && totalAss > 0 && (
+              <div className="text-[11.5px] font-bold">
+                Tugas Anda: <b className="text-indigo-900">{compAss}/{totalAss} Selesai</b>
+                <span className={`inline-block ml-2 px-2 py-0.5 text-[9px] font-extrabold rounded-md ${
+                  unfAss > 0 ? "bg-amber-100 text-amber-800 border-2 border-amber-300" : "bg-emerald-100 text-emerald-800 border-2 border-emerald-300"
+                }`}>
+                  {unfAss > 0 ? `${unfAss} Menunggu Pengisian` : "Selesai 100%!"}
+                </span>
+              </div>
+            )}
           </div>
 
-          {!isAdmin && totalAss > 0 && (
-            <div className="text-[11.5px]">
-              Tugas Anda: <b className="text-indigo-900">{compAss}/{totalAss} Selesai</b>
-              <span className={`inline-block ml-2 px-2 py-0.5 text-[9px] font-extrabold rounded-md ${
-                unfAss > 0 ? "bg-amber-100 text-amber-800 border-2 border-amber-300" : "bg-emerald-100 text-emerald-800 border-2 border-emerald-300"
-              }`}>
-                {unfAss > 0 ? `${unfAss} Menunggu Pengisian` : "Selesai 100%!"}
-              </span>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-x-2 text-slate-800 mt-1">
+            <span className="flex items-center gap-1 text-indigo-950 font-black">
+              🔒 Batas Waktu Penilaian (Pengisian Kuesioner):
+            </span>
+            <strong className="text-indigo-900 bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200 font-black">
+              {formatIndoDate(state.period.deadlineStart || state.period.start)} s.d {formatIndoDate(state.period.deadlineEnd || state.period.end)}
+            </strong>
+            <span className={`px-2 py-0.5 text-[10px] font-black uppercase rounded ${
+              diffDays > 0 ? "bg-amber-150 text-amber-900 animate-pulse bg-yellow-400" : "bg-red-500 text-white"
+            }`}>
+              {diffDays > 0 ? `Sisa ${diffDays} Hari Lagi` : "Tutup / Selesai"}
+            </span>
+          </div>
         </div>
 
         {/* Collapsible Panel with full feature elements */}
@@ -326,7 +340,7 @@ END:VCALENDAR`;
                         </span>
                       </div>
                       <p className="text-[11.5px] font-bold leading-normal mt-1.5 text-slate-200">
-                        {textUrgency[level]} Periode ditutup pada tanggal <b>{formatIndoDate(state.period.end)} pukul 23:59 WIB</b>.
+                        {textUrgency[level]} Pengisian ditutup pada tanggal <b>{formatIndoDate(endDateStr)} pukul 23:59 WIB</b>.
                       </p>
                     </div>
 

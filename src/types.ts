@@ -82,6 +82,8 @@ export interface Period {
   name: string;
   start: string;
   end: string;
+  deadlineStart?: string;
+  deadlineEnd?: string;
   status: string;
   minPeer: number;
   maxPeer: number;

@@ -37,6 +37,8 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
   // Local state for the editor inputs
   const [startDate, setStartDate] = useState(editingPeriod.start);
   const [endDate, setEndDate] = useState(editingPeriod.end);
+  const [deadlineStart, setDeadlineStart] = useState(editingPeriod.deadlineStart || editingPeriod.start);
+  const [deadlineEnd, setDeadlineEnd] = useState(editingPeriod.deadlineEnd || editingPeriod.end);
   const [status, setStatus] = useState(editingPeriod.status);
   const [name, setName] = useState(editingPeriod.name);
   
@@ -53,18 +55,20 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
   useEffect(() => {
     setStartDate(editingPeriod.start);
     setEndDate(editingPeriod.end);
+    setDeadlineStart(editingPeriod.deadlineStart || editingPeriod.start);
+    setDeadlineEnd(editingPeriod.deadlineEnd || editingPeriod.end);
     setStatus(editingPeriod.status);
     setName(editingPeriod.name);
   }, [selectedPeriodId, editingPeriod]);
 
-  // Update live countdown timer every second
+  // Update live countdown timer every second based on manual BATAS AKHIR (deadlineEnd)
   useEffect(() => {
     const updateTimer = () => {
-      if (!endDate) return;
+      if (!deadlineEnd) return;
       const today = new Date();
       
       // Assume deadline is end of day 23:59:59 local time for precise countdown
-      const deadlineDate = new Date(`${endDate}T23:59:59`);
+      const deadlineDate = new Date(`${deadlineEnd}T23:59:59`);
       const diffMs = deadlineDate.getTime() - today.getTime();
       
       if (diffMs <= 0) {
@@ -81,11 +85,11 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [endDate]);
+  }, [deadlineEnd]);
 
-  // Handle extension presets
+  // Handle extension presets (Extends the BATAS WAKTU pengisian, not the nominal period)
   const handleExtendDays = (daysToAdd: number) => {
-    const currentEnd = new Date(endDate || new Date());
+    const currentEnd = new Date(deadlineEnd || new Date());
     currentEnd.setDate(currentEnd.getDate() + daysToAdd);
     
     const yyyy = currentEnd.getFullYear();
@@ -93,11 +97,11 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
     const dd = String(currentEnd.getDate()).padStart(2, "0");
     
     const newEndStr = `${yyyy}-${mm}-${dd}`;
-    setEndDate(newEndStr);
-    toast(`Tenggat berhasil diperpanjang sebanyak +${daysToAdd} hari di form editor (Batas Baru: ${formatIndoDate(newEndStr)}). Simpan untuk menerapkan.`);
+    setDeadlineEnd(newEndStr);
+    toast(`Batas waktu pengisian kuesioner berhasil diperpanjang +${daysToAdd} hari di form (Batas Pengisian Baru: ${formatIndoDate(newEndStr)}). Klik Simpan untuk menerapkan.`);
   };
 
-  // Set to today
+  // Set manual deadline to today
   const handleSetToToday = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -105,19 +109,25 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
     const dd = String(today.getDate()).padStart(2, "0");
     
     const todayStr = `${yyyy}-${mm}-${dd}`;
-    setStartDate(todayStr);
-    setEndDate(todayStr);
-    toast("Tenggat pengisian disesuaikan ke Hari Ini di editor.");
+    setDeadlineStart(todayStr);
+    setDeadlineEnd(todayStr);
+    toast("Rentang batas waktu pengisian disesuaikan ke Hari Ini di editor.");
   };
 
   // Save changes to system state
   const handleSaveDeadline = () => {
     if (!startDate || !endDate) {
-      return toast("Tanggal mulai dan tanggal selesai wajib diisi.");
+      return toast("Tanggal mulai dan selesai Periode Penilaian nominal wajib diisi.");
+    }
+    if (!deadlineStart || !deadlineEnd) {
+      return toast("Tanggal batas waktu mulai dan selesai pengisian kuesioner wajib diisi.");
     }
     
     if (new Date(endDate) < new Date(startDate)) {
-      return toast("Tanggal batas akhir (selesai) tidak boleh mendahului tanggal mulai.");
+      return toast("Tanggal akhir periode nominal tidak boleh mendahului tanggal mulai.");
+    }
+    if (new Date(deadlineEnd) < new Date(deadlineStart)) {
+      return toast("Tanggal batas akhir pengisian kuesioner tidak boleh mendahului tanggal mulainya.");
     }
 
     const updatedPeriodObj: Period = {
@@ -125,6 +135,8 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
       name,
       start: startDate,
       end: endDate,
+      deadlineStart,
+      deadlineEnd,
       status
     };
 
@@ -149,7 +161,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
       };
     });
 
-    toast(`Sukses! Batas waktu & tanggal pengisian periode '${name}' berhasil diperbarui.`);
+    toast(`Sukses! Data Periode & Batas Waktu Pengisian untuk '${name}' berhasil diperbarui.`);
   };
 
   // Quick Action to activate a period directly
@@ -196,24 +208,24 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard 
           icon={Calendar} 
-          label="Masa Aktif Penilaian" 
-          value={formatIndoDate(activePeriod.end)} 
-          tone={urgencyMode === "danger" ? "red" : urgencyMode === "warning" ? "yellow" : "blue"}
+          label="Periode Evaluasi Kinerja (Nominal)" 
+          value={`${formatIndoDate(activePeriod.start)} s.d ${formatIndoDate(activePeriod.end)}`} 
+          tone="blue"
           note={`PERIODE: ${activePeriod.name}`}
         />
         <StatCard 
           icon={Timer} 
-          label="Sisa Waktu Penilaian" 
-          value={timeRemaining.isOver ? "TUTUP" : `${timeRemaining.days} H, ${timeRemaining.hours} J`} 
+          label="Tenggat Batas Pengisian Kuesioner" 
+          value={formatIndoDate(activePeriod.deadlineEnd || activePeriod.end)} 
           tone={urgencyMode === "danger" ? "red" : urgencyMode === "warning" ? "yellow" : "emerald"}
-          note={timeRemaining.isOver ? "Penilaian telah dikunci" : "Hitung mundur tenggat aktif"}
+          note={timeRemaining.isOver ? "Gerbang pengisian ditutup" : `Hitung mundur: ${timeRemaining.days} Hari ${timeRemaining.hours} Jam lagi`}
         />
         <StatCard 
           icon={Clock} 
-          label="Status Operasional" 
+          label="Status Operasional Sistem" 
           value={activePeriod.status} 
           tone={activePeriod.status === "Aktif" ? "emerald" : "slate"}
-          note="Status Kontrol Distribusi Rater"
+          note="Status Akses Input Kuesioner ASN"
         />
       </div>
 
@@ -225,10 +237,10 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
               <div>
                 <h2 className="text-lg font-black font-display text-slate-900 flex items-center gap-1.5">
                   <Sliders className="w-5 h-5 text-indigo-600" />
-                  Formulir Atur Batas Waktu & Rentang Tanggal
+                  Konfigurasi Rentang Periode &amp; Tenggat Pengisian
                 </h2>
                 <p className="text-xs text-slate-500 mt-1 font-medium">
-                  Sesuaikan rentang pengisian kuesioner dan tenggat batas waktu pengisian di bawah.
+                  Atur jangka waktu kerja yang dievaluasi terpisah dari toleransi tenggat waktu pengisian kuesioner.
                 </p>
               </div>
               <Badge className="bg-indigo-100 text-indigo-900 border-none text-[10px] font-black uppercase py-1 px-2">
@@ -241,20 +253,20 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
               <AlertTriangle className={`w-5 h-5 shrink-0 stroke-[2.5] ${urgencyStyles[urgencyMode].text}`} />
               <div>
                 <span className={`font-black uppercase block mb-0.5 ${urgencyStyles[urgencyMode].text}`}>
-                  {editingPeriod.id === activePeriod.id ? "PERINGATAN TENGGAT DARI PERIODE AKTIF" : "PERINGATAN ARSIP PERIODE"}
+                  {editingPeriod.id === activePeriod.id ? "KONFIGURASI PERIODE AKTIF" : "KONFIGURASI ARSIP PERIODE"}
                 </span>
                 <p className="text-slate-800">
                   {editingPeriod.id === activePeriod.id 
-                    ? `Perubahan di sini langsung berimplikasi pada sisa hari pengerjaan instrumen bagi seluruh pegawai. Batas aktif saat ini adalah ${formatIndoDate(editingPeriod.end)}.`
-                    : `Anda sedang mengedit tenggat dari periode alternatif: "${editingPeriod.name}". Ini tidak memengaruhi hitung mundur utama sampai Anda mengaktifkan periode ini.`
+                    ? `Perubahan tenggat langsung memengaruhi sisa hari pengisian kuesioner bagi seluruh pegawai rater secara instan. Batas rater saat ini adalah ${formatIndoDate(deadlineEnd)}.`
+                    : `Anda sedang menyunting data dari periode alternatif: "${editingPeriod.name}". Ini tidak memengaruhi hitung mundur utama sampai Anda mengaktifkan periode ini.`
                   }
                 </p>
               </div>
             </div>
 
             {/* Editor fields */}
-            <div className="space-y-4">
-              <Field label="Nama Periode">
+            <div className="space-y-6">
+              <Field label="Nama Periode Penilaian">
                 <input
                   type="text"
                   className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
@@ -264,27 +276,114 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                 />
               </Field>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Tanggal Mulai Pengerjaan">
-                  <input
-                    type="date"
-                    className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                  />
-                </Field>
+              {/* SECTION A: EVAL LOG nominal */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="block text-[10px] uppercase font-black tracking-wider text-slate-500 mb-2">
+                  📅 A. Rentang Jangka Waktu Kerja yang Dievaluasi (Nominal Periode)
+                </span>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label="Tanggal Mulai Kerja">
+                    <input
+                      type="date"
+                      className="w-full rounded-xl border p-2.5 font-semibold text-xs bg-white"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                    />
+                  </Field>
 
-                <Field label="Tanggal Selesai (Batas Akhir / Deadline)">
-                  <input
-                    type="date"
-                    className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                  />
-                </Field>
+                  <Field label="Tanggal Selesai Kerja">
+                    <input
+                      type="date"
+                      className="w-full rounded-xl border p-2.5 font-semibold text-xs bg-white"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                    />
+                  </Field>
+                </div>
+                <span className="block text-[10px] text-slate-400 mt-2 font-medium">
+                  * Rentang waktu resmi sasaran kinerja yang dinilai (Misal: 01 April s.d 30 Juni).
+                </span>
               </div>
 
-              <Field label="Status Operasional">
+              {/* SECTION B: DEADLINE SETTINGS manual */}
+              <div className="p-4 rounded-xl bg-indigo-50/50 border border-indigo-100">
+                <span className="block text-[10.5px] uppercase font-black tracking-wider text-indigo-900 mb-2">
+                  🔒 B. Batas Waktu Aktivitas Sistem (Tenggat Pengisian Kuesioner)
+                </span>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field label="Tanggal Pengisian Mulai Dibuka">
+                    <input
+                      type="date"
+                      className="w-full rounded-xl border border-indigo-200 p-2.5 font-bold text-xs bg-white text-indigo-950"
+                      value={deadlineStart}
+                      onChange={(e) => setDeadlineStart(e.target.value)}
+                    />
+                  </Field>
+
+                  <Field label="Tanggal Akhir Ditutup (Deadline)">
+                    <input
+                      type="date"
+                      className="w-full rounded-xl border border-indigo-200 p-2.5 font-bold text-xs bg-white text-indigo-950"
+                      value={deadlineEnd}
+                      onChange={(e) => setDeadlineEnd(e.target.value)}
+                    />
+                  </Field>
+                </div>
+                <span className="block text-[10.5px] text-indigo-700/80 mt-2 font-bold leading-normal">
+                  * Admin dapat menyesuaikan tanggal ini secara manual kapan saja tanpa mengganggu rentang tanggal kinerja asli. Seluruh instrumen kuesioner perilaku 360° akan terkunci begitu ia melewati batas akhir di atas.
+                </span>
+
+                {/* QUICK CONTROL PRESETS CONTAINER */}
+                <div className="mt-3 pt-3 border-t border-indigo-100">
+                  <span className="block text-[9.5px] font-black uppercase tracking-wider text-slate-500 mb-2">
+                    ⚡ Perpanjang Batas Pengisian Kuesioner Secara Instan:
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => handleExtendDays(1)}
+                      className="flex items-center gap-1 py-1 px-2.5 text-[10px] font-bold bg-white"
+                    >
+                      <CalendarPlus className="w-3.5 h-3.5" />
+                      +1 Hari
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => handleExtendDays(3)}
+                      className="flex items-center gap-1 py-1 px-2.5 text-[10px] font-bold bg-white"
+                    >
+                      <CalendarPlus className="w-3.5 h-3.5" />
+                      +3 Hari
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => handleExtendDays(7)}
+                      className="flex items-center gap-1 py-1 px-2.5 text-[10px] font-bold bg-white"
+                    >
+                      <CalendarPlus className="w-3.5 h-3.5" />
+                      +7 Hari
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => handleExtendDays(14)}
+                      className="flex items-center gap-1 py-1 px-2.5 text-[10px] font-bold bg-white"
+                    >
+                      <CalendarPlus className="w-3.5 h-3.5" />
+                      +14 Hari
+                    </Button>
+                    <Button 
+                      variant="warning" 
+                      onClick={handleSetToToday}
+                      className="flex items-center gap-1 py-1 px-2.5 text-[10px] font-bold"
+                    >
+                      <Clock className="w-3.5 h-3.5" />
+                      Set Hari Ini
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <Field label="Status Operasional Periode">
                 <select
                   className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
                   value={status}
@@ -296,55 +395,6 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                   <option value="Final">Final (Laporan Terkunci)</option>
                 </select>
               </Field>
-
-              {/* QUICK CONTROL PRESETS CONTAINER */}
-              <div className="pt-3 border-t border-slate-100">
-                <span className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">
-                  ⚡ Opsi Reset & Perpanjangan Instan (Quick Presets)
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  <Button 
-                    variant="secondary" 
-                    onClick={() => handleExtendDays(1)}
-                    className="flex items-center gap-1 py-1.5 px-3 text-[10px]"
-                  >
-                    <CalendarPlus className="w-3.5 h-3.5" />
-                    +1 Hari
-                  </Button>
-                  <Button 
-                    variant="secondary" 
-                    onClick={() => handleExtendDays(3)}
-                    className="flex items-center gap-1 py-1.5 px-3 text-[10px]"
-                  >
-                    <CalendarPlus className="w-3.5 h-3.5" />
-                    +3 Hari
-                  </Button>
-                  <Button 
-                    variant="secondary" 
-                    onClick={() => handleExtendDays(7)}
-                    className="flex items-center gap-1 py-1.5 px-3 text-[10px]"
-                  >
-                    <CalendarPlus className="w-3.5 h-3.5" />
-                    +7 Hari
-                  </Button>
-                  <Button 
-                    variant="secondary" 
-                    onClick={() => handleExtendDays(14)}
-                    className="flex items-center gap-1 py-1.5 px-3 text-[10px]"
-                  >
-                    <CalendarPlus className="w-3.5 h-3.5" />
-                    +14 Hari
-                  </Button>
-                  <Button 
-                    variant="warning" 
-                    onClick={handleSetToToday}
-                    className="flex items-center gap-1 py-1.5 px-3 text-[10px]"
-                  >
-                    <Clock className="w-3.5 h-3.5" />
-                    Set Hari Ini
-                  </Button>
-                </div>
-              </div>
 
               {/* ACTION FOOTER */}
               <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
@@ -364,7 +414,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                   className="flex items-center gap-1.5"
                 >
                   <Save className="w-4 h-4" />
-                  Simpan Batas Waktu
+                  Simpan Masa Tenggat Aturan
                 </Button>
               </div>
             </div>
@@ -378,7 +428,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
 
             <h3 className="font-black text-xs uppercase tracking-widest text-indigo-950 flex items-center gap-1.5 mb-3">
               <Timer className="w-4 h-4 text-indigo-600 animate-pulse" />
-              HITUNG MUNDUR TENGGAT AKTIF (LIVE COUNTDOWN)
+              HITUNG MUNDUR BATAS PENGISIAN LIVE (DEADLINE)
             </h3>
 
             <div className="grid grid-cols-4 gap-3 text-center my-2">
@@ -401,7 +451,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
             </div>
 
             <div className="mt-4 flex items-center justify-between text-xs border-t border-dashed border-slate-200 pt-3">
-              <span className="font-semibold text-slate-500">Kondisi Loket Pengisian:</span>
+              <span className="font-semibold text-slate-500">Status Akses Loket Penginputan:</span>
               <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase border border-slate-950 ${
                 timeRemaining.isOver 
                   ? "bg-red-500 text-white" 
@@ -420,7 +470,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
           <div className="border-b pb-3 mb-4">
             <h2 className="text-lg font-black font-display text-slate-900 flex items-center gap-1.5">
               <History className="w-5 h-5 text-indigo-600" />
-              Kelola Tanggal Seluruh Periode
+              Daftar Periode &amp; Tenggat Waktu
             </h2>
             <p className="text-xs text-slate-500 mt-1 font-medium">
               Daftar seluruh periode penilaian di sistem. Klik salah satu untuk menyesuaikan tenggat sisa harinya.
@@ -431,8 +481,8 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
             <table className="w-full text-left text-xs text-slate-700 border-collapse table-auto">
               <thead>
                 <tr className="bg-[#1e3a8a] text-white">
-                  <th className="py-2.5 px-3">Nama & Jenis</th>
-                  <th className="px-3">Batas Akhir (Deadline)</th>
+                  <th className="py-2.5 px-3">Nama &amp; Jenis</th>
+                  <th className="px-3">Detail Masa Tanggal</th>
                   <th className="px-3">Status</th>
                   <th className="text-center px-3">Kontrol</th>
                 </tr>
@@ -466,9 +516,15 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                           <span className="text-[10px] text-slate-400 font-bold uppercase">{p.type || "Custom"}</span>
                         </div>
                       </td>
-                      <td className="px-3 font-extrabold text-slate-800">
-                        {formatIndoDate(p.end)}
-                        <div className="text-[10px] text-slate-400 font-normal mt-0.5">Mulai: {formatIndoDate(p.start)}</div>
+                      <td className="px-3 py-2 text-[11px] leading-normal">
+                        <div className="text-slate-500">
+                          📦 Periode Kerja: <br />
+                          <b className="text-slate-800">{formatIndoDate(p.start)} s.d {formatIndoDate(p.end)}</b>
+                        </div>
+                        <div className="text-indigo-950 mt-1 border-t border-dashed border-slate-200 pt-1">
+                          🔒 Tenggat Isi: <br />
+                          <b className="text-indigo-800 font-extrabold">{formatIndoDate(p.deadlineStart || p.start)} s.d {formatIndoDate(p.deadlineEnd || p.end)}</b>
+                        </div>
                       </td>
                       <td className="px-3">
                         <span className={`inline-block text-[9px] uppercase font-black px-1.5 py-0.5 rounded ${
@@ -488,7 +544,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                           <button
                             type="button"
                             onClick={() => setSelectedPeriodId(p.id)}
-                            className="px-2 py-1 text-[9px] font-black uppercase bg-white hover:bg-slate-100 border-2 border-slate-950 rounded-lg transition-all shadow-[1.5px_1.5px_0px_0px_rgba(15,23,42,1)]"
+                            className="px-2 py-1 text-[9px] font-black uppercase bg-white hover:bg-slate-100 border-2 border-slate-950 rounded-lg transition-all shadow-[1.5px_1.5px_0px_0px_rgba(15,23,42,1)] whitespace-nowrap"
                           >
                             Atur Tenggat
                           </button>
