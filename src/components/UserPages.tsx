@@ -1072,6 +1072,36 @@ export function Results({ state, user }: { state: AppState; user: DemoAccount })
         </div>
       </Card>
 
+      <Card className="border-indigo-200 bg-indigo-50/50 border-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 font-display">
+          <div>
+            <p className="text-[10px] font-black uppercase text-indigo-600 tracking-wider">
+              PERSISTENSI AKTIF EVALUATOR
+            </p>
+            <h3 className="text-sm font-extrabold text-indigo-950 mt-1 flex items-center gap-1.5">
+              <span>⚙️</span> {result.conditionName}
+            </h3>
+            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+              Sistem mendeteksi struktur evaluator yang aktif untuk pegawai ini. Rumus perhitungan nilai rata-rata disesuaikan secara otomatis:
+            </p>
+          </div>
+          <div className="flex gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
+            <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
+              <div className="text-[10px] text-slate-500 font-bold uppercase">Atasan</div>
+              <div className="text-xs font-black text-blue-700 mt-0.5">{result.weightsApplied.Atasan}%</div>
+            </div>
+            <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
+              <div className="text-[10px] text-slate-500 font-bold uppercase">Sejawat</div>
+              <div className="text-xs font-black text-indigo-700 mt-0.5">{result.weightsApplied.Peer}%</div>
+            </div>
+            <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
+              <div className="text-[10px] text-slate-500 font-bold uppercase">Bawahan</div>
+              <div className="text-xs font-black text-emerald-700 mt-0.5">{result.weightsApplied.Bawahan || 0}%</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
         <Card className="bg-slate-950 text-white flex flex-col justify-between">
           <div>
@@ -1378,7 +1408,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
 
     if (tab === "individu") {
       title = `Rekap_Laporan_Perilaku_Individu_ASN_Periode_${selectedPeriod.id}`;
-      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori"];
+      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori", "Kondisi Struktur Evaluator", "Konfigurasi Bobot"];
       rows = state.employees.map((e, idx) => {
         const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
         return [
@@ -1393,7 +1423,9 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           result.bawahan.toString(),
           result.self.toString(),
           (result.final || 0).toString(),
-          result.category
+          result.category,
+          result.conditionName,
+          `Atasan:${result.weightsApplied.Atasan}%, Sejawat:${result.weightsApplied.Peer}%, Bawahan:${result.weightsApplied.Bawahan || 0}%`
         ];
       });
     } else if (tab === "unit") {
@@ -1491,7 +1523,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
 
     if (tab === "individu") {
       title = `Rekap Laporan Perilaku Individu ASN (${selectedPeriod.name})`;
-      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori"];
+      headers = ["No", "Nama Pegawai", "NIP", "Jabatan", "Unit Kerja", "Kepatuhan Evaluator (Selesai/Target)", "Nilai Atasan", "Nilai Peer", "Nilai Bawahan", "Nilai Diri", "Nilai Agregat", "Kategori", "Kondisi Struktur Evaluator", "Konfigurasi Bobot"];
       rows = state.employees.map((e, idx) => {
         const result = calculateResult(e, state.assignments, state.responses, selectedPeriod, state.dimensions);
         return [
@@ -1506,7 +1538,9 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
           result.bawahan.toString(),
           result.self.toString(),
           (result.final || 0).toString(),
-          result.category
+          result.category,
+          result.conditionName,
+          `Atasan:${result.weightsApplied.Atasan}%, Sejawat:${result.weightsApplied.Peer}%, Bawahan:${result.weightsApplied.Bawahan || 0}%`
         ];
       });
     } else if (tab === "unit") {
@@ -1939,6 +1973,7 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
                   <th>Jabatan</th>
                   <th>Unit</th>
                   <th>Kepatuhan Evaluator</th>
+                  <th>Kondisi & Bobot</th>
                   <th>Nilai Agregat</th>
                   <th>Kategori</th>
                 </tr>
@@ -1955,6 +1990,13 @@ export function Reports({ state, toast }: { state: AppState; toast: (msg: string
                       <td>{e.jabatan}</td>
                       <td>{e.unit}</td>
                       <td>{result.completed}/{result.total} rater</td>
+                      <td>
+                        <div className="text-xs font-extrabold text-indigo-950">Code {result.conditionCode}</div>
+                        <div className="text-[10px] text-slate-500 font-mono mt-0.5">{result.conditionName.replace("Kondisi ", "")}</div>
+                        <div className="text-[10px] bg-slate-100 text-slate-800 px-1 py-0.5 mt-1 rounded border font-mono font-bold inline-block">
+                          {result.weightsApplied.Atasan}/{result.weightsApplied.Peer}/{result.weightsApplied.Bawahan || 0}
+                        </div>
+                      </td>
                       <td className="font-bold">{result.final || "-"}</td>
                       <td>
                         <Badge className={categoryClass(result.category)}>{result.category}</Badge>

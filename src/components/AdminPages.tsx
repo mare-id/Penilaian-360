@@ -708,7 +708,7 @@ export function UnitCrudPage({ state, setState, toast }: PageProps) {
 export function JobCrudPage({ state, setState, toast }: PageProps) {
   const orgs = state.orgUnits && state.orgUnits.length > 0 ? state.orgUnits : orgUnitCatalog;
   const currentJobs = state.jobs && state.jobs.length > 0 ? state.jobs : jobCatalog;
-  const blank = (): Job => ({ id: 0, name: "", type: "Pelaksana", defaultUnit: orgs[0]?.name || "Kepala Badan", leadership: false, description: "" });
+  const blank = (): Job => ({ id: 0, name: "", type: "Pelaksana", defaultUnit: orgs[0]?.name || "Kepala Badan", leadership: false, description: "", jenjang: "" });
   const [form, setForm] = useState<Job>(blank());
   const [editing, setEditing] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
@@ -716,18 +716,26 @@ export function JobCrudPage({ state, setState, toast }: PageProps) {
 
   const save = () => {
     if (!form.name.trim()) return toast("Nama jabatan wajib diisi.");
+    if (form.type === "Fungsional" && !form.jenjang) {
+      return toast("Jenjang jabatan fungsional wajib dipilih.");
+    }
     const duplicate = currentJobs.some((j) => j.name.toLowerCase() === form.name.toLowerCase() && j.id !== form.id);
     if (duplicate) return toast("Nama jabatan sudah ada.");
 
+    const cleanedForm = {
+      ...form,
+      jenjang: form.type === "Fungsional" ? form.jenjang : undefined
+    };
+
     setState((s) => {
       const jobs = s.jobs && s.jobs.length > 0 ? s.jobs : jobCatalog;
-      const exists = jobs.some((j) => j.id === form.id);
+      const exists = jobs.some((j) => j.id === cleanedForm.id);
       const newId = Math.max(0, ...jobs.map((j) => j.id)) + 1;
       return {
         ...s,
         jobs: exists
-          ? jobs.map((j) => (j.id === form.id ? form : j))
-          : [...jobs, { ...form, id: newId }],
+          ? jobs.map((j) => (j.id === cleanedForm.id ? cleanedForm : j))
+          : [...jobs, { ...cleanedForm, id: newId }],
       };
     });
 
@@ -791,7 +799,7 @@ export function JobCrudPage({ state, setState, toast }: PageProps) {
                 <input id="input-job-name" className="w-full rounded-xl border p-3 font-semibold text-sm" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </Field>
               <Field label="Jenis Jabatan">
-                <select id="select-job-type" className="w-full rounded-xl border p-3 font-semibold text-sm bg-white" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                <select id="select-job-type" className="w-full rounded-xl border p-3 font-semibold text-sm bg-white" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value, jenjang: e.target.value === "Fungsional" ? form.jenjang || "Ahli Pertama" : undefined })}>
                   <option value="JPT Pratama">JPT Pratama</option>
                   <option value="Administrator">Administrator</option>
                   <option value="Pengawas">Pengawas</option>
@@ -799,6 +807,33 @@ export function JobCrudPage({ state, setState, toast }: PageProps) {
                   <option value="Pelaksana">Pelaksana</option>
                 </select>
               </Field>
+              {form.type === "Fungsional" && (
+                <Field label="Jenjang Jabatan Fungsional">
+                  <select
+                    id="select-job-jenjang"
+                    className="w-full rounded-xl border p-3 font-semibold text-sm bg-white"
+                    value={form.jenjang || ""}
+                    onChange={(e) => setForm({ ...form, jenjang: e.target.value })}
+                  >
+                    <option value="">-- Pilih Jenjang --</option>
+                    <option value="Pemula">Pemula</option>
+                    <option value="Terampil">Terampil</option>
+                    <option value="Mahir">Mahir (Setara Ahli Pertama)</option>
+                    <option value="Penyelia">Penyelia (Setara Ahli Muda)</option>
+                    <option value="Ahli Pertama">Ahli Pertama</option>
+                    <option value="Ahli Muda">Ahli Muda</option>
+                    <option value="Ahli Madya">Ahli Madya</option>
+                    <option value="Ahli Utama">Ahli Utama</option>
+                  </select>
+                  <div className="mt-1.5 text-xs bg-indigo-50 border border-indigo-200 text-indigo-950 p-2.5 rounded-xl font-medium tracking-normal leading-relaxed">
+                    💡 <b>Aturan Kesetaraan Jabatan:</b>
+                    <ul className="list-disc pl-4 mt-1 space-y-0.5 text-[11px] text-indigo-900">
+                      <li><b>Jenjang Mahir</b> setara dengan <b>Ahli Pertama</b></li>
+                      <li><b>Jenjang Penyelia</b> setara dengan <b>Ahli Muda</b></li>
+                    </ul>
+                  </div>
+                </Field>
+              )}
               <Field label="Unit Default">
                 <select id="select-job-unit" className="w-full rounded-xl border p-3 font-semibold text-sm bg-white" value={form.defaultUnit} onChange={(e) => setForm({ ...form, defaultUnit: e.target.value })}>
                   {orgs.map((u) => <option key={u.id} value={u.name}>{u.name}</option>)}
@@ -854,7 +889,19 @@ export function JobCrudPage({ state, setState, toast }: PageProps) {
                     <div className="text-xs text-slate-500">{j.description}</div>
                   </td>
                   <td>
-                    <Badge className="border-slate-200 bg-slate-50 text-slate-700">{j.type}</Badge>
+                    <div className="flex flex-col gap-1 items-start">
+                      <Badge className="border-slate-200 bg-slate-50 text-slate-700">{j.type}</Badge>
+                      {j.type === "Fungsional" && j.jenjang && (
+                        <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-md px-1.5 py-0.5 mt-0.5 font-sans leading-none">
+                          {j.jenjang}
+                          {(j.jenjang === "Mahir" || j.jenjang === "Penyelia") && (
+                            <span className="text-slate-500 font-medium ml-1">
+                              {j.jenjang === "Mahir" ? " (≡ Ahli Pertama)" : " (≡ Ahli Muda)"}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td>{j.defaultUnit}</td>
                   <td>

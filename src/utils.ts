@@ -50,6 +50,94 @@ export function scoreFromResponse(response?: Response, includeLeadership = true,
   return average(keys.map((k) => response.scores[k]).filter((v) => typeof v === "number"));
 }
 
+export function getEvaluatorConditionAndWeights(
+  hasAtasan: boolean, 
+  hasPeer: boolean, 
+  hasBawahan: boolean,
+  period?: Period
+) {
+  // Use period configurations as the base if provided, otherwise standard fallbacks
+  const defaultWeightsWithSub = { Atasan: 60, Peer: 15, Bawahan: 25 };
+  const defaultWeightsNoSub = { Atasan: 60, Peer: 40 };
+
+  const wWithSub = period?.weightsWithSub || defaultWeightsWithSub;
+  const wNoSub = period?.weightsNoSub || defaultWeightsNoSub;
+
+  // 1. Kondisi Ada Atasan, Ada Sejawat, Ada Bawahan
+  if (hasAtasan && hasPeer && hasBawahan) {
+    return {
+      code: 1,
+      name: "Kondisi Ada Atasan, Ada Sejawat, Ada Bawahan",
+      weights: { Atasan: wWithSub.Atasan, Peer: wWithSub.Peer, Bawahan: wWithSub.Bawahan || 25 }
+    };
+  }
+
+  // 2. Kondisi Ada Atasan, Ada Sejawat, Tidak Ada Bawahan
+  if (hasAtasan && hasPeer && !hasBawahan) {
+    return {
+      code: 2,
+      name: "Kondisi Ada Atasan, Ada Sejawat, Tidak Ada Bawahan",
+      weights: { Atasan: wNoSub.Atasan, Peer: wNoSub.Peer, Bawahan: 0 }
+    };
+  }
+
+  // 3. Kondisi Ada Atasan, Tidak Ada Sejawat, Ada Bawahan
+  if (hasAtasan && !hasPeer && hasBawahan) {
+    const totalW = wWithSub.Atasan + (wWithSub.Bawahan || 25);
+    const scaleAtasan = totalW > 0 ? Math.round((wWithSub.Atasan / totalW) * 100) : 70;
+    const scaleBawahan = 100 - scaleAtasan;
+    return {
+      code: 3,
+      name: "Kondisi Ada Atasan, Tidak Ada Sejawat, Ada Bawahan",
+      weights: { Atasan: scaleAtasan, Peer: 0, Bawahan: scaleBawahan }
+    };
+  }
+
+  // 4. Kondisi Ada Atasan, Tidak Ada Sejawat, Tidak Ada Bawahan
+  if (hasAtasan && !hasPeer && !hasBawahan) {
+    return {
+      code: 4,
+      name: "Kondisi Ada Atasan, Tidak Ada Sejawat, Tidak Ada Bawahan",
+      weights: { Atasan: 100, Peer: 0, Bawahan: 0 }
+    };
+  }
+
+  // 5. Tidak Ada Atasan, Tidak Ada Sejawat, Ada Bawahan
+  if (!hasAtasan && !hasPeer && hasBawahan) {
+    return {
+      code: 5,
+      name: "Tidak Ada Atasan, Tidak Ada Sejawat, Ada Bawahan",
+      weights: { Atasan: 0, Peer: 0, Bawahan: 100 }
+    };
+  }
+
+  // Extra combinations for resilience (e.g., if only Peer is configured, etc.):
+  if (!hasAtasan && hasPeer && hasBawahan) {
+    const totalW = wWithSub.Peer + (wWithSub.Bawahan || 25);
+    const scalePeer = totalW > 0 ? Math.round((wWithSub.Peer / totalW) * 100) : 40;
+    const scaleBawahan = 100 - scalePeer;
+    return {
+      code: 6,
+      name: "Tidak Ada Atasan, Ada Sejawat, Ada Bawahan",
+      weights: { Atasan: 0, Peer: scalePeer, Bawahan: scaleBawahan }
+    };
+  }
+
+  if (!hasAtasan && hasPeer && !hasBawahan) {
+    return {
+      code: 7,
+      name: "Tidak Ada Atasan, Ada Sejawat, Tidak Ada Bawahan",
+      weights: { Atasan: 0, Peer: 100, Bawahan: 0 }
+    };
+  }
+
+  return {
+    code: 8,
+    name: "Tidak Ada Evaluator yang Terhubung",
+    weights: { Atasan: 0, Peer: 0, Bawahan: 0 }
+  };
+}
+
 export function calculateResult(employee: Employee, assignments: Assignment[], responses: Response[], period?: Period, customDimensions?: any[]) {
   const relevant = assignments.filter((a) => a.evalueeId === employee.id && a.approved && (!period || a.periodId === period.id));
   const includeLeadership = ["Struktural", "JPT Pratama", "Administrator", "Pengawas"].includes(employee.jenis) || employee.hasSub;
@@ -67,26 +155,28 @@ export function calculateResult(employee: Employee, assignments: Assignment[], r
   const bawahan = average(byType.Bawahan || []);
   const self = average(byType.Diri || []);
 
-  const defaultWeightsWithSub = { Atasan: 60, Peer: 15, Bawahan: 25 };
-  const defaultWeightsNoSub = { Atasan: 60, Peer: 40 };
+  // Determine evaluator presence based on assignments in relevant set
+  const hasAtasan = relevant.some((a) => a.type === "Atasan");
+  const hasPeer = relevant.some((a) => a.type === "Peer");
+  const hasBawahan = relevant.some((a) => a.type === "Bawahan");
 
-  const weights = (employee.hasSub
-    ? (period?.weightsWithSub || defaultWeightsWithSub)
-    : (period?.weightsNoSub || defaultWeightsNoSub)) as Weights;
+  const cond = getEvaluatorConditionAndWeights(hasAtasan, hasPeer, hasBawahan, period);
+  const weights = cond.weights;
+
   let weighted = 0;
   let usedWeight = 0;
 
-  if (atasan) {
+  if (atasan && weights.Atasan > 0) {
     weighted += atasan * weights.Atasan;
     usedWeight += weights.Atasan;
   }
-  if (peer) {
+  if (peer && weights.Peer > 0) {
     weighted += peer * weights.Peer;
     usedWeight += weights.Peer;
   }
-  if (employee.hasSub && bawahan) {
-    weighted += bawahan * (weights.Bawahan || 0);
-    usedWeight += weights.Bawahan || 0;
+  if (bawahan && weights.Bawahan > 0) {
+    weighted += bawahan * weights.Bawahan;
+    usedWeight += weights.Bawahan;
   }
 
   const finalScale = usedWeight ? weighted / usedWeight : 0;
@@ -101,20 +191,61 @@ export function calculateResult(employee: Employee, assignments: Assignment[], r
     category: final100 ? getCategory(final100) : "Belum Lengkap",
     completed: relevant.filter((a) => responses.some((r) => r.assignmentId === a.id)).length,
     total: relevant.length,
+    conditionName: cond.name,
+    conditionCode: cond.code,
+    weightsApplied: weights,
   };
 }
 
 export function dimensionScores(employee: Employee, assignments: Assignment[], responses: Response[], period?: Period, customDimensions?: any[]) {
   const includeLeadership = ["Struktural", "JPT Pratama", "Administrator", "Pengawas"].includes(employee.jenis) || employee.hasSub;
   const activeDims = customDimensions || dimensions;
+
+  const relevant = assignments.filter((a) => a.evalueeId === employee.id && a.approved && (!period || a.periodId === period.id));
+  const hasAtasan = relevant.some((a) => a.type === "Atasan");
+  const hasPeer = relevant.some((a) => a.type === "Peer");
+  const hasBawahan = relevant.some((a) => a.type === "Bawahan");
+
+  const cond = getEvaluatorConditionAndWeights(hasAtasan, hasPeer, hasBawahan, period);
+  const weights = cond.weights;
+
   return activeDims
     .filter((d) => includeLeadership || !d.leadershipOnly)
     .map((d) => {
-      const scores = assignments
-        .filter((a) => a.evalueeId === employee.id && a.approved && a.type !== "Diri" && (!period || a.periodId === period.id))
-        .map((a) => responses.find((r) => r.assignmentId === a.id)?.scores[d.key])
-        .filter((v): v is number => typeof v === "number");
-      const score = Math.round((average(scores) / 5) * 100) || 0;
+      const byType: Record<string, number[]> = {};
+      relevant.forEach((a) => {
+        const response = responses.find((r) => r.assignmentId === a.id);
+        if (!response) return;
+        const val = response.scores[d.key];
+        if (typeof val === "number") {
+          byType[a.type] = byType[a.type] || [];
+          byType[a.type].push(val);
+        }
+      });
+
+      const atasan = average(byType.Atasan || []);
+      const peer = average(byType.Peer || []);
+      const bawahan = average(byType.Bawahan || []);
+
+      let weighted = 0;
+      let usedWeight = 0;
+
+      if (atasan && weights.Atasan > 0) {
+        weighted += atasan * weights.Atasan;
+        usedWeight += weights.Atasan;
+      }
+      if (peer && weights.Peer > 0) {
+        weighted += peer * weights.Peer;
+        usedWeight += weights.Peer;
+      }
+      if (bawahan && weights.Bawahan > 0) {
+        weighted += bawahan * weights.Bawahan;
+        usedWeight += weights.Bawahan;
+      }
+
+      const finalScale = usedWeight ? weighted / usedWeight : 0;
+      const score = Math.round((finalScale / 5) * 100) || 0;
+
       return { ...d, score };
     });
 }

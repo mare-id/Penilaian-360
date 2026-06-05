@@ -67,6 +67,7 @@ export interface Job {
   defaultUnit: string;
   leadership: boolean;
   description: string;
+  jenjang?: string;
 }
 
 export interface Weights {

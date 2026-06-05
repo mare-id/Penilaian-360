@@ -28,6 +28,7 @@ import { Badge, Card, Button } from "./UIComponents";
 export function UserManualPage({ state, user, toast }: { state: AppState; user: DemoAccount; toast: (msg: string) => void }) {
   const [activeTab, setActiveTab] = useState<string>("user");
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [sqlEngine, setSqlEngine] = useState<"postgres" | "mysql" | "seeder">("postgres");
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -2122,6 +2123,302 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                   <li>Tentukan Target Nama Tabel yang sah (Standar: <code className="bg-slate-100 font-mono py-0.5 px-1.5 rounded">bkpsdm_360_state</code>).</li>
                   <li>Klik tombol <strong>"Simpan Konfigurasi"</strong> lalu klik <strong>"Uji Koneksi Database"</strong> guna mendapat status tervalidasi.</li>
                 </ol>
+              </div>
+
+              {/* SECTION C: SQL RELATIONAL TABLES */}
+              <div className="border-2 border-slate-950 rounded-xl p-4 bg-slate-50">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 border-b-2 border-slate-100 pb-3">
+                  <h3 className="font-black text-slate-950 uppercase tracking-wide text-xs flex items-center gap-1.5">
+                    <Terminal className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                    C. Skema Tabel Relasional SQL & Inisialisasi Data
+                  </h3>
+                  <div className="flex bg-slate-200 p-0.5 rounded-lg border border-slate-300 self-start sm:self-center">
+                    <button
+                      type="button"
+                      className={`px-2 py-1 text-[10px] font-bold rounded-md transition ${sqlEngine === "postgres" ? "bg-slate-900 text-white shadow-sm" : "text-slate-600 hover:text-slate-950"}`}
+                      onClick={() => setSqlEngine("postgres")}
+                    >
+                      PostgreSQL
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-2 py-1 text-[10px] font-bold rounded-md transition ${sqlEngine === "mysql" ? "bg-slate-900 text-white shadow-sm" : "text-slate-600 hover:text-slate-950"}`}
+                      onClick={() => setSqlEngine("mysql")}
+                    >
+                      MySQL
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-2 py-1 text-[10px] font-bold rounded-md transition ${sqlEngine === "seeder" ? "bg-slate-900 text-white shadow-sm" : "text-slate-600 hover:text-slate-950"}`}
+                      onClick={() => setSqlEngine("seeder")}
+                    >
+                      Seeder SQL
+                    </button>
+                  </div>
+                </div>
+
+                <p className="font-sans text-slate-600 mb-3 leading-relaxed text-[11px]">
+                  Berikut adalah rekomendasi script DDL SQL lengkap dengan integritas data (Foreign Key) dan optimalisasi indeks untuk tabel <b>Master ASN</b>, <b>Master Unit Kerja</b>, dan <b>Master Jabatan</b>:
+                </p>
+
+                <div className="relative">
+                  <pre className="p-3.5 bg-slate-950 rounded-xl border border-slate-900 font-mono text-[10px] leading-relaxed text-slate-100 overflow-x-auto max-h-[350px] scrollbar-thin">
+                    <code>
+                      {sqlEngine === "postgres" && `-- =========================================================
+-- SCRIPT DDL SQL - POSTGRESQL / SUPABASE (REKOMENDASI)
+-- =========================================================
+
+-- 1. TABEL MASTER UNIT KERJA
+CREATE TABLE master_unit_kerja (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    parent_id INT NULL,
+    type VARCHAR(100) NOT NULL, -- e.g. 'Badan', 'Sekretariat', 'Subbagian', 'Bidang'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_unit_parent FOREIGN KEY (parent_id) 
+        REFERENCES master_unit_kerja (id) 
+        ON DELETE SET NULL
+);
+
+-- 2. TABEL MASTER JABATAN
+CREATE TABLE master_jabatan (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    type VARCHAR(50) NOT NULL, -- 'JPT Pratama' | 'Administrator' | 'Pengawas' | 'Fungsional' | 'Pelaksana'
+    jenjang VARCHAR(50) NULL, -- 'Pemula' | 'Terampil' | 'Mahir' | 'Penyelia' | 'Ahli Pertama' | ...
+    default_unit VARCHAR(255) NULL,
+    leadership BOOLEAN NOT NULL DEFAULT FALSE,
+    description TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_job_type CHECK (type IN ('JPT Pratama', 'Administrator', 'Pengawas', 'Fungsional', 'Pelaksana')),
+    CONSTRAINT chk_job_jenjang CHECK (jenjang IS NULL OR jenjang IN ('Pemula', 'Terampil', 'Mahir', 'Penyelia', 'Ahli Pertama', 'Ahli Muda', 'Ahli Madya', 'Ahli Utama'))
+);
+
+-- 3. TABEL MASTER ASN (EMPLOYEE)
+CREATE TABLE master_asn (
+    id SERIAL PRIMARY KEY,
+    nip VARCHAR(50) UNIQUE NOT NULL,
+    nama VARCHAR(255) NOT NULL,
+    gol VARCHAR(20) NOT NULL,
+    jabatan VARCHAR(255) NOT NULL, -- text representation matching types
+    jenis VARCHAR(50) NOT NULL, -- e.g. 'Pelaksana', 'Fungsional', 'Administrator'
+    unit VARCHAR(255) NOT NULL, -- text representation matching types
+    atasan_id INT NULL,
+    has_sub BOOLEAN NOT NULL DEFAULT FALSE,
+    role VARCHAR(50) NOT NULL DEFAULT 'Pegawai', -- 'Pegawai' | 'Admin'
+    username VARCHAR(100) UNIQUE NULL,
+    password VARCHAR(255) NULL,
+    email VARCHAR(255) NULL,
+    hp VARCHAR(50) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_asn_atasan FOREIGN KEY (atasan_id) 
+        REFERENCES master_asn (id) 
+        ON DELETE SET NULL
+);
+
+-- OPTIMALISASI KINERJA INDEKS
+CREATE INDEX idx_master_asn_nip ON master_asn(nip);
+CREATE INDEX idx_master_asn_atasan ON master_asn(atasan_id);
+CREATE INDEX idx_master_jabatan_type ON master_jabatan(type);
+CREATE INDEX idx_master_unit_parent ON master_unit_kerja(parent_id);`}
+
+                      {sqlEngine === "mysql" && `-- =========================================================
+-- SCRIPT DDL SQL - MYSQL / MARIADB
+-- =========================================================
+
+-- 1. TABEL MASTER UNIT KERJA
+CREATE TABLE IF NOT EXISTS master_unit_kerja (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    parent_id INT NULL,
+    type VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES master_unit_kerja(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. TABEL MASTER JABATAN
+CREATE TABLE IF NOT EXISTS master_jabatan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    type ENUM('JPT Pratama', 'Administrator', 'Pengawas', 'Fungsional', 'Pelaksana') NOT NULL,
+    jenjang ENUM('Pemula', 'Terampil', 'Mahir', 'Penyelia', 'Ahli Pertama', 'Ahli Muda', 'Ahli Madya', 'Ahli Utama') NULL,
+    default_unit VARCHAR(255) NULL,
+    leadership TINYINT(1) NOT NULL DEFAULT 0,
+    description TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 3. TABEL MASTER ASN (EMPLOYEE)
+CREATE TABLE IF NOT EXISTS master_asn (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nip VARCHAR(50) UNIQUE NOT NULL,
+    nama VARCHAR(255) NOT NULL,
+    gol VARCHAR(20) NOT NULL,
+    jabatan VARCHAR(255) NOT NULL,
+    jenis VARCHAR(50) NOT NULL,
+    unit VARCHAR(255) NOT NULL,
+    atasan_id INT NULL,
+    has_sub TINYINT(1) NOT NULL DEFAULT 0,
+    role VARCHAR(50) NOT NULL DEFAULT 'Pegawai',
+    username VARCHAR(100) UNIQUE NULL,
+    password VARCHAR(255) NULL,
+    email VARCHAR(255) NULL,
+    hp VARCHAR(50) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (atasan_id) REFERENCES master_asn(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- OPTIMALISASI KINERJA INDEKS
+CREATE INDEX idx_master_asn_nip ON master_asn(nip);
+CREATE INDEX idx_master_asn_atasan ON master_asn(atasan_id);`}
+
+                      {sqlEngine === "seeder" && `-- =========================================================
+-- DATA SEEDER AWAL (INITIAL SETUP SEEDERS)
+-- =========================================================
+
+-- 1. SEED UNIT KERJA
+INSERT INTO master_unit_kerja (id, name, parent_id, type) VALUES
+(1, 'Kepala Badan', NULL, 'Pucuk Pimpinan'),
+(2, 'Kelompok Jabatan Fungsional', 1, 'Kelompok'),
+(3, 'Sekretariat Badan', 1, 'Sekretariat'),
+(4, 'Subbagian Perencanaan, Program Pelaporan dan Keuangan', 3, 'Subbagian'),
+(5, 'Subbagian Umum Kepegawaian dan Aset', 3, 'Subbagian'),
+(6, 'Bidang Pengadaan, Mutasi dan Informasi', 1, 'Bidang'),
+(8, 'Bidang Pembinaan dan Pengembangan Sumber Daya Manusia', 1, 'Bidang');
+
+-- 2. SEED KATEGORI JABATAN (TERMASUK ATURAN JENJANG BARU)
+INSERT INTO master_jabatan (id, name, type, jenjang, default_unit, leadership, description) VALUES
+(1, 'Kepala Badan', 'JPT Pratama', NULL, 'Kepala Badan', TRUE, 'Pimpinan tertinggi BKPSDM.'),
+(2, 'Sekretaris Badan', 'Administrator', NULL, 'Sekretariat Badan', TRUE, 'Koordinasi sekretariat, program, keuangan, umum, kepegawaian, dan aset.'),
+(3, 'Kepala Subbagian Perencanaan, Program Pelaporan dan Keuangan', 'Pengawas', NULL, 'Subbagian Perencanaan, Program Pelaporan dan Keuangan', TRUE, 'Mengelola perencanaan, program, pelaporan, dan keuangan.'),
+(4, 'Kepala Subbagian Umum Kepegawaian dan Aset', 'Pengawas', NULL, 'Subbagian Umum Kepegawaian dan Aset', TRUE, 'Mengelola umum, administrasi kepegawaian internal, dan aset.'),
+(5, 'Kepala Bidang Pengadaan, Mutasi dan Informasi', 'Administrator', NULL, 'Bidang Pengadaan, Mutasi dan Informasi', TRUE, 'Mengelola pengadaan ASN, mutasi, dan informasi kepegawaian.'),
+(6, 'Kepala Bidang Pembinaan dan Pengembangan Sumber Daya Manusia', 'Administrator', NULL, 'Bidang Pembinaan dan Pengembangan Sumber Daya Manusia', TRUE, 'Mengelola pembinaan dan pengembangan SDM aparatur.'),
+(7, 'Analis SDM Aparatur', 'Fungsional', 'Ahli Pertama', 'Kelompok Jabatan Fungsional', FALSE, 'Jabatan fungsional bidang manajemen ASN.'),
+(8, 'Pranata Komputer', 'Fungsional', 'Mahir', 'Jabatan Fungsional Bidang Pengadaan, Mutasi dan Informasi', FALSE, 'Pengelolaan sistem informasi dan dukungan digital.'),
+(9, 'Pengolah Data and Informasi', 'Pelaksana', NULL, 'Sekretariat Badan', FALSE, 'Melaksanakan pengelolaan, verifikasi, dan penyusunan terhadap data dan laporan.'),
+(10, 'Pengadministrasi Kepegawaian', 'Pelaksana', NULL, 'Subbagian Umum Kepegawaian dan Aset', FALSE, 'Administrasi surat, dokumen, dan layanan internal kepegawaian.'),
+(11, 'Pranata SDM Aparatur', 'Fungsional', 'Penyelia', 'Bidang Pengadaan, Mutasi dan Informasi', FALSE, 'JF Manajemen ASN Jenjang Keterampilan');
+
+-- 3. SEED CONTOH PEGAWAI MASTER ASN
+INSERT INTO master_asn (id, nip, nama, gol, jabatan, jenis, unit, atasan_id, has_sub, role, username, password) VALUES
+(1, '197310191993111001', 'Yon Henrik, AP, M.Si', 'IV/c', 'Kepala Badan', 'JPT Pratama', 'Kepala Badan', NULL, TRUE, 'ASN', '197310191993111001', 'admin123'),
+(2, '198803152007011004', 'Roy Karya Marco Sinaga, S.IP, M.Si', 'IV/b', 'Sekretaris Badan', 'Administrator', 'Sekretariat Badan', 1, TRUE, 'ASN', '198803152007011004', 'admin123'),
+(3, '198005082006041007', 'Rikson B Sihombing, S.Psi', 'IIV/a', 'Kepala Bidang Pembinaan dan Pengembangan Sumber Daya Manusia', 'Administrator', 'Bidang Pembinaan dan Pengembangan Sumber Daya Manusia', 1, TRUE, 'ASN', '198005082006041007', 'admin123'),
+(4, '199205262014061001', 'Try Saputra Sinaga, S.STP, M.Si', 'III/d', 'Kepala Bidang Pengadaan, Mutasi dan Informasi', 'Administrator', 'Bidang Pengadaan, Mutasi dan Informasi', 1, TRUE, 'ASN', '199205262014061001', 'admin123'),
+(5, '196903091990031004', 'Buha Pasaribu', 'III/d', 'Analis SDM Aparatur', 'Fungsional', 'Bidang Pengadaan, Mutasi dan Informasi', 4, FALSE, 'ASN', '196903091990031004', 'admin123');`}
+                    </code>
+                  </pre>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const text = sqlEngine === "postgres" 
+                        ? `CREATE TABLE master_unit_kerja (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    parent_id INT NULL,
+    type VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_unit_parent FOREIGN KEY (parent_id) REFERENCES master_unit_kerja (id) ON DELETE SET NULL
+);
+
+CREATE TABLE master_jabatan (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    jenjang VARCHAR(50) NULL,
+    default_unit VARCHAR(255) NULL,
+    leadership BOOLEAN NOT NULL DEFAULT FALSE,
+    description TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE master_asn (
+    id SERIAL PRIMARY KEY,
+    nip VARCHAR(50) UNIQUE NOT NULL,
+    nama VARCHAR(255) NOT NULL,
+    gol VARCHAR(20) NOT NULL,
+    jabatan VARCHAR(255) NOT NULL,
+    jenis VARCHAR(50) NOT NULL,
+    unit VARCHAR(255) NOT NULL,
+    atasan_id INT NULL,
+    has_sub BOOLEAN NOT NULL DEFAULT FALSE,
+    role VARCHAR(50) NOT NULL DEFAULT 'Pegawai',
+    username VARCHAR(100) UNIQUE NULL,
+    password VARCHAR(255) NULL,
+    email VARCHAR(255) NULL,
+    hp VARCHAR(50) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_asn_atasan FOREIGN KEY (atasan_id) REFERENCES master_asn (id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_master_asn_nip ON master_asn(nip);
+CREATE INDEX idx_master_asn_atasan ON master_asn(atasan_id);`
+                        : sqlEngine === "mysql"
+                        ? `CREATE TABLE IF NOT EXISTS master_unit_kerja (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    parent_id INT NULL,
+    type VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES master_unit_kerja(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS master_jabatan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    type ENUM('JPT Pratama', 'Administrator', 'Pengawas', 'Fungsional', 'Pelaksana') NOT NULL,
+    jenjang ENUM('Pemula', 'Terampil', 'Mahir', 'Penyelia', 'Ahli Pertama', 'Ahli Muda', 'Ahli Madya', 'Ahli Utama') NULL,
+    default_unit VARCHAR(255) NULL,
+    leadership TINYINT(1) NOT NULL DEFAULT 0,
+    description TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS master_asn (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nip VARCHAR(50) UNIQUE NOT NULL,
+    nama VARCHAR(255) NOT NULL,
+    gol VARCHAR(20) NOT NULL,
+    jabatan VARCHAR(255) NOT NULL,
+    jenis VARCHAR(50) NOT NULL,
+    unit VARCHAR(255) NOT NULL,
+    atasan_id INT NULL,
+    has_sub TINYINT(1) NOT NULL DEFAULT 0,
+    role VARCHAR(50) NOT NULL DEFAULT 'Pegawai',
+    username VARCHAR(100) UNIQUE NULL,
+    password VARCHAR(255) NULL,
+    email VARCHAR(255) NULL,
+    hp VARCHAR(50) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (atasan_id) REFERENCES master_asn(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                        : `INSERT INTO master_unit_kerja (id, name, parent_id, type) VALUES
+(1, 'Kepala Badan', NULL, 'Pucuk Pimpinan'),
+(2, 'Kelompok Jabatan Fungsional', 1, 'Kelompok'),
+(3, 'Sekretariat Badan', 1, 'Sekretariat'),
+(4, 'Subbagian Perencanaan, Program Pelaporan dan Keuangan', 3, 'Subbagian'),
+(5, 'Subbagian Umum Kepegawaian dan Aset', 3, 'Subbagian'),
+(6, 'Bidang Pengadaan, Mutasi dan Informasi', 1, 'Bidang'),
+(8, 'Bidang Pembinaan dan Pengembangan Sumber Daya Manusia', 1, 'Bidang');`;
+                      
+                      navigator.clipboard.writeText(text);
+                      toast("Script SQL berhasil disalin ke clipboard! 📋");
+                    }}
+                    className="absolute top-2.5 right-2.5 bg-slate-900 border border-slate-700 hover:bg-slate-800 text-[10px] text-slate-300 hover:text-white font-bold py-1.5 px-2.5 rounded-lg shadow transition"
+                  >
+                    Salin Script
+                  </button>
+                </div>
               </div>
             </div>
           </Card>
