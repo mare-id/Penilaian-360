@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Lock, Home, Users, ClipboardCheck, FileText, Star, AlertTriangle, BarChart3, Download, UserCheck, Settings, Menu, LogOut, RefreshCw, Check, HelpCircle, BookOpen } from "lucide-react";
+import { Lock, Home, Users, ClipboardCheck, FileText, Star, AlertTriangle, BarChart3, Download, UserCheck, Settings, Menu, LogOut, RefreshCw, Check, HelpCircle, BookOpen, Clock } from "lucide-react";
 import { DemoAccount, AppState } from "../types";
 import { Badge, Card, Button, Field, ThemeStyles } from "./UIComponents";
 import { getSupabaseConfig } from "../utils/supabase";
@@ -271,6 +271,7 @@ export function Sidebar({ user, active, setActive, onLogout, open, setOpen, stat
     { key: "jobCrud", label: "Master Jabatan", icon: ClipboardCheck, show: user.role === "Admin BKPSDM" },
     { key: "dimensionCrud", label: "Butir Dimensi kuesioner", icon: BookOpen, show: user.role === "Admin BKPSDM" },
     { key: "settings", label: "Setelan Sistem", icon: Settings, show: user.role === "Admin BKPSDM" },
+    { key: "deadlineConfig", label: "Batas Waktu Penilaian", icon: Clock, show: user.role === "Admin BKPSDM" },
     { key: "userManual", label: "Panduan Aplikasi", icon: HelpCircle, show: true },
     { key: "changePassword", label: "Ganti Kata Sandi", icon: Lock, show: true },
   ].filter((m) => m.show);

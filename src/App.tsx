@@ -18,6 +18,7 @@ import {
 } from "./components/UserPages";
 import { DataASNPage, UnitCrudPage, JobCrudPage, DimensionCrudPage } from "./components/AdminPages";
 import { UserManualPage } from "./components/UserManualPage";
+import { DeadlineConfigPage } from "./components/DeadlineConfigPage";
 import {
   getSupabaseConfig,
   saveSupabaseConfig,
@@ -1634,6 +1635,7 @@ export default function App() {
     jobCrud: "Master Jabatan",
     dimensionCrud: "Pengaturan Butir Dimensi Kuesioner",
     settings: "Setelan Sistem",
+    deadlineConfig: "Pengaturan Batas Waktu Penilaian",
     changePassword: "Ganti Kata Sandi",
     userManual: "Panduan Aplikasi",
   };
@@ -1669,6 +1671,8 @@ export default function App() {
         return <DimensionCrudPage state={state} setState={setState} toast={toast} />;
       case "settings":
         return <SettingsPage state={state} setState={setState} toast={toast} />;
+      case "deadlineConfig":
+        return <DeadlineConfigPage state={state} setState={setState} toast={toast} />;
       case "changePassword":
         return (
           <ChangePasswordPage

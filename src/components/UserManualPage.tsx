@@ -30,6 +30,69 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [sqlEngine, setSqlEngine] = useState<"postgres" | "mysql" | "seeder">("postgres");
 
+  const wNoSubAtasan = state.period.weightsNoSub.Atasan;
+  const wNoSubPeer = state.period.weightsNoSub.Peer;
+
+  const wWithSubAtasan = state.period.weightsWithSub.Atasan;
+  const wWithSubPeer = state.period.weightsWithSub.Peer;
+  const wWithSubBawahan = state.period.weightsWithSub.Bawahan || 0;
+
+  const weightBehavior = state.period.weightBehavior ?? 80;
+  const weightCompliance = state.period.weightCompliance ?? 20;
+
+  const getPredikat = (score100: number) => {
+    if (score100 >= 90) return { name: "SANGAT BAIK", color: "text-emerald-700 font-bold", bg: "bg-emerald-100 text-emerald-800" };
+    if (score100 >= 76) return { name: "BAIK", color: "text-blue-700 font-semibold", bg: "bg-blue-100 text-blue-800" };
+    if (score100 >= 61) return { name: "BUTUH PERBAIKAN", color: "text-yellow-700 font-semibold", bg: "bg-yellow-100 text-yellow-800" };
+    if (score100 >= 51) return { name: "KURANG", color: "text-orange-700 font-semibold", bg: "bg-orange-100 text-orange-800" };
+    return { name: "SANGAT KURANG", color: "text-red-700 font-bold", bg: "bg-red-100 text-red-800" };
+  };
+
+  // Example 1 (Robinson Case: Atasan 4.40, Peer 4.20)
+  const ex1Atasan = 4.40;
+  const ex1Peer = 4.20;
+  const ex1Score = (ex1Atasan * wNoSubAtasan / 100) + (ex1Peer * wNoSubPeer / 100);
+  const ex1Score100 = (ex1Score / 5) * 100;
+  const ex1Predikat = getPredikat(ex1Score100);
+
+  // Example 2 (Rikson Case: Atasan 4.00, Peer 4.00, Bawahan 4.40)
+  const ex2Atasan = 4.00;
+  const ex2Peer = 4.00;
+  const ex2Bawahan = 4.40;
+  const ex2Score = (ex2Atasan * wWithSubAtasan / 100) + (ex2Peer * wWithSubPeer / 100) + (ex2Bawahan * wWithSubBawahan / 100);
+  const ex2Score100 = (ex2Score / 5) * 100;
+  const ex2Predikat = getPredikat(ex2Score100);
+
+  // Example 3 (Richad Case: Atasan 2.40, Peer 2.00)
+  const ex3Atasan = 2.40;
+  const ex3Peer = 2.00;
+  const ex3Score = (ex3Atasan * wNoSubAtasan / 100) + (ex3Peer * wNoSubPeer / 100);
+  const ex3Score100 = (ex3Score / 5) * 100;
+  const ex3Predikat = getPredikat(ex3Score100);
+
+  // Example 4 (Interactive Tab Robinson Case: Atasan 4.50, Peer 4.17)
+  const ex4Atasan = 4.50;
+  const ex4Peer = 4.17;
+  const ex4Score = (ex4Atasan * wNoSubAtasan / 100) + (ex4Peer * wNoSubPeer / 100);
+  const ex4Score100 = (ex4Score / 5) * 100;
+  const ex4Predikat = getPredikat(ex4Score100);
+
+  // Example 5 (Interactive Tab Rikson Case: Atasan 4.00, Peer 4.00, Bawahan 4.40)
+  // Same as ex2
+  const ex5Atasan = 4.00;
+  const ex5Peer = 4.00;
+  const ex5Bawahan = 4.40;
+  const ex5Score = (ex5Atasan * wWithSubAtasan / 100) + (ex5Peer * wWithSubPeer / 100) + (ex5Bawahan * wWithSubBawahan / 100);
+  const ex5Score100 = (ex5Score / 5) * 100;
+  const ex5Predikat = getPredikat(ex5Score100);
+
+  // Example 6 (Interactive Tab Richad Case: Atasan 2.50, Peer 2.00)
+  const ex6Atasan = 2.50;
+  const ex6Peer = 2.00;
+  const ex6Score = (ex6Atasan * wNoSubAtasan / 100) + (ex6Peer * wNoSubPeer / 100);
+  const ex6Score100 = (ex6Score / 5) * 100;
+  const ex6Predikat = getPredikat(ex6Score100);
+
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
@@ -459,13 +522,13 @@ Skor_Akhir_100 = (Skor_Akhir_Dimensi / 5) * 100
           
           <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
-Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%)
-Skor_Dimensi = (4.40 * 0.60) + (4.20 * 0.40)
-Skor_Dimensi = 2.64 + 1.68 = 4.320 (Skala 5)
+Skor_Dimensi = (Skor_Atasan * ${wNoSubAtasan}%) + (Skor_Sejawat * ${wNoSubPeer}%)
+Skor_Dimensi = (${ex1Atasan.toFixed(2)} * ${wNoSubAtasan / 100}) + (${ex1Peer.toFixed(2)} * ${wNoSubPeer / 100})
+Skor_Dimensi = ${(ex1Atasan * wNoSubAtasan / 100).toFixed(2)} + ${(ex1Peer * wNoSubPeer / 100).toFixed(2)} = ${ex1Score.toFixed(3)} (Skala 5)
 
-Konversi Skala 100 = (4.320 / 5) * 100 = 86.40 (Dibulatkan menjadi 86)
+Konversi Skala 100 = (${ex1Score.toFixed(3)} / 5) * 100 = ${ex1Score100.toFixed(2)} (Dibulatkan menjadi ${Math.round(ex1Score100)})
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>86.40 (Predikat: BAIK)</strong> karena berada pada interval interval nilai 76 - 89.</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>${ex1Score100.toFixed(2)} (Predikat: ${ex1Predikat.name})</strong> karena berada pada rentang batas nilai tersebut.</p>
         </div>
 
         <!-- CONTOH 2 -->
@@ -498,13 +561,13 @@ Konversi Skala 100 = (4.320 / 5) * 100 = 86.40 (Dibulatkan menjadi 86)
           
           <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
-Skor_Dimensi = (Skor_Atasan * ${state.period.weightsWithSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsWithSub.Peer}%) + (Skor_Bawahan * ${state.period.weightsWithSub.Bawahan || 0}%)
-Skor_Dimensi = (4.00 * 0.60) + (4.00 * 0.20) + (4.40 * 0.20)
-Skor_Dimensi = 2.40 + 0.80 + 0.88 = 4.08 (Skala 5)
+Skor_Dimensi = (Skor_Atasan * ${wWithSubAtasan}%) + (Skor_Sejawat * ${wWithSubPeer}%) + (Skor_Bawahan * ${wWithSubBawahan}%)
+Skor_Dimensi = (${ex2Atasan.toFixed(2)} * ${wWithSubAtasan / 100}) + (${ex2Peer.toFixed(2)} * ${wWithSubPeer / 100}) + (${ex2Bawahan.toFixed(2)} * ${wWithSubBawahan / 100})
+Skor_Dimensi = ${(ex2Atasan * wWithSubAtasan / 100).toFixed(2)} + ${(ex2Peer * wWithSubPeer / 100).toFixed(2)} + ${(ex2Bawahan * wWithSubBawahan / 100).toFixed(2)} = ${ex2Score.toFixed(3)} (Skala 5)
 
-Konversi Skala 100 = (4.08 / 5) * 100 = 81.60
+Konversi Skala 100 = (${ex2Score.toFixed(3)} / 5) * 100 = ${ex2Score100.toFixed(2)}
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>81.60 (Predikat: BAIK)</strong> karena berada pada interval nilai 76 - 89.</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>${ex2Score100.toFixed(2)} (Predikat: ${ex2Predikat.name})</strong> karena berada pada rentang batas nilai tersebut.</p>
         </div>
 
         <!-- CONTOH 3 -->
@@ -531,13 +594,13 @@ Konversi Skala 100 = (4.08 / 5) * 100 = 81.60
           
           <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
-Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%)
-Skor_Dimensi = (2.40 * 0.60) + (2.00 * 0.40)
-Skor_Dimensi = 1.44 + 0.80 = 2.24 (Skala 5)
+Skor_Dimensi = (Skor_Atasan * ${wNoSubAtasan}%) + (Skor_Sejawat * ${wNoSubPeer}%)
+Skor_Dimensi = (${ex3Atasan.toFixed(2)} * ${wNoSubAtasan / 100}) + (${ex3Peer.toFixed(2)} * ${wNoSubPeer / 100})
+Skor_Dimensi = ${(ex3Atasan * wNoSubAtasan / 100).toFixed(2)} + ${(ex3Peer * wNoSubPeer / 100).toFixed(2)} = ${ex3Score.toFixed(3)} (Skala 5)
 
-Konversi Skala 100 = (2.24 / 5) * 100 = 44.80
+Konversi Skala 100 = (${ex3Score.toFixed(3)} / 5) * 100 = ${ex3Score100.toFixed(2)}
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>44.80 (Predikat: SANGAT KURANG)</strong> karena berada di bawah 51. Pegawai membutuhkan pembinaan intensif atau coaching khusus dari pihak pimpinan unit kerja.</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>${ex3Score100.toFixed(2)} (Predikat: ${ex3Predikat.name})</strong> karena berada pada rentang batas nilai tersebut. Pegawai membutuhkan pembinaan intensif atau coaching khusus dari pihak pimpinan unit kerja.</p>
         </div>
 
         <h2>2.6 Klasifikasi Kategori Penilaian Perilaku (Skala 100 & Skala 5)</h2>
@@ -1089,7 +1152,7 @@ Konversi Skala 100 = (2.24 / 5) * 100 = 44.80
                     <li>Harus bersumber dari <strong>satu unit kerja</strong> (atau urusan tupoksi sejenis yang intensitas kerjanya tumpang-tindih).</li>
                     <li>Tingkatan klasifikasi pangkat atau jabatan setara/se-level.</li>
                     <li>Memiliki integritas perilaku kerja yang netral.</li>
-                    <li>Jumlah pengusulan kuota: minimal <strong>\${state.period.minPeer} orang</strong> dan maksimal <strong>\${state.period.maxPeer} orang</strong>.</li>
+                    <li>Jumlah pengusulan kuota: minimal <strong>${state.period.minPeer} orang</strong> dan maksimal <strong>${state.period.maxPeer} orang</strong>.</li>
                   </ul>
                 </div>
               </td>
@@ -1209,14 +1272,14 @@ Konversi Skala 100 = (2.24 / 5) * 100 = 44.80
                   <div class="card-title">Pembobotan Berdasarkan Jenjang Jabatan</div>
                   <p style="margin: 0; font-size: 10pt; font-weight: bold; color: #1e3a8a;">A. Jabatan Struktural / Memiliki Bawahan Langsung:</p>
                   <ul style="margin-left: 15px; margin-top: 3px; font-size: 10pt;">
-                    <li>Bobot Evaluasi Atasan Langsung: <strong>\${state.period.weightsWithSub.Atasan}%</strong></li>
-                    <li>Bobot Rekan Sejawat (Peer Average): <strong>\${state.period.weightsWithSub.Peer}%</strong></li>
-                    <li>Bobot Bawahan Langsung (Sub Average): <strong>\${state.period.weightsWithSub.Bawahan || 0}%</strong></li>
+                    <li>Bobot Evaluasi Atasan Langsung: <strong>${wWithSubAtasan}%</strong></li>
+                    <li>Bobot Rekan Sejawat (Peer Average): <strong>${wWithSubPeer}%</strong></li>
+                    <li>Bobot Bawahan Langsung (Sub Average): <strong>${wWithSubBawahan}%</strong></li>
                   </ul>
                   <p style="margin: 5px 0 0 0; font-size: 10pt; font-weight: bold; color: #1e3a8a;">B. Jabatan Pelaksana / Fungsional (Tanpa Bawahan):</p>
                   <ul style="margin-left: 15px; margin-top: 3px; font-size: 10pt;">
-                    <li>Bobot Evaluasi Atasan Langsung: <strong>\${state.period.weightsNoSub.Atasan}%</strong></li>
-                    <li>Bobot Rekan Sejawat (Peer Average): <strong>\${state.period.weightsNoSub.Peer}%</strong></li>
+                    <li>Bobot Evaluasi Atasan Langsung: <strong>${wNoSubAtasan}%</strong></li>
+                    <li>Bobot Rekan Sejawat (Peer Average): <strong>${wNoSubPeer}%</strong></li>
                   </ul>
                 </div>
               </td>
@@ -1235,7 +1298,7 @@ Konversi Skala 100 = (2.24 / 5) * 100 = 44.80
           <div class="highlight-card">
             <div class="card-title" style="color: #1e3a8a;">KASUS NYATA: Robinson Silalahi, S.E (Penelaah Teknis Kebijakan)</div>
             <p style="margin: 5px 0; font-size: 10.5pt; line-height: 1.5;">
-              Melakukan pengukuran perilaku dimensi <strong>"Berorientasi Pelayanan"</strong>. Bobot aktif adalah Atasan: \${state.period.weightsNoSub.Atasan}% dan Rekan Sejawat: \${state.period.weightsNoSub.Peer}%.
+              Melakukan pengukuran perilaku dimensi <strong>"Berorientasi Pelayanan"</strong>. Bobot aktif adalah Atasan: ${wNoSubAtasan}% dan Rekan Sejawat: ${wNoSubPeer}%.
             </p>
             <table class="table-slide" style="margin-top: 5px; font-size: 9.5pt;">
               <thead>
@@ -1265,8 +1328,8 @@ Konversi Skala 100 = (2.24 / 5) * 100 = 44.80
             
             <p style="margin: 10px 0 0 0; font-size: 10pt; font-weight: bold; color: #1e3a8a;">Langkah Kalkulasi Aturan Terpadu:</p>
             <div class="formula-text" style="margin-top: 3px;">
-Skor_Dimensi = (4.40 * \${state.period.weightsNoSub.Atasan / 100}) + (4.20 * \${state.period.weightsNoSub.Peer / 100}) = 2.64 + 1.68 = 4.320 (Skala 5)
-Konversi Skala 100 = (4.320 / 5) * 100 = 86.40 &rarr; Predikat Capaian: BAIK (Interval 76 s.d 89)
+Skor_Dimensi = (${ex1Atasan.toFixed(2)} * ${wNoSubAtasan / 100}) + (${ex1Peer.toFixed(2)} * ${wNoSubPeer / 100}) = ${(ex1Atasan * wNoSubAtasan / 100).toFixed(2)} + ${(ex1Peer * wNoSubPeer / 100).toFixed(2)} = ${ex1Score.toFixed(3)} (Skala 5)
+Konversi Skala 100 = (${ex1Score.toFixed(3)} / 5) * 100 = ${ex1Score100.toFixed(2)} &rarr; Predikat Capaian: ${ex1Predikat.name} (Interval 76 s.d 89)
             </div>
           </div>
         </div>
@@ -1282,7 +1345,7 @@ Konversi Skala 100 = (4.320 / 5) * 100 = 86.40 &rarr; Predikat Capaian: BAIK (In
           <div class="success-card">
             <div class="card-title" style="color: #16a34a;">KASUS NYATA: Rikson B Sihombing, S.Psi (Kepala Bidang Pengembangan SDM)</div>
             <p style="margin: 5px 0; font-size: 10.5pt; line-height: 1.5;">
-              Pengukuran dimensi <strong>"Akuntabel"</strong>. Bobot aktif adalah Atasan: \${state.period.weightsWithSub.Atasan}%, Sejawat: \${state.period.weightsWithSub.Peer}%, dan Bawahan: \${state.period.weightsWithSub.Bawahan || 0}%.
+              Pengukuran dimensi <strong>"Akuntabel"</strong>. Bobot aktif adalah Atasan: ${wWithSubAtasan}%, Sejawat: ${wWithSubPeer}%, dan Bawahan: ${wWithSubBawahan}%.
             </p>
             <table class="table-slide" style="margin-top: 5px; font-size: 9.5pt;">
               <thead>
@@ -1313,8 +1376,8 @@ Konversi Skala 100 = (4.320 / 5) * 100 = 86.40 &rarr; Predikat Capaian: BAIK (In
             
             <p style="margin: 8px 0 0 0; font-size: 10pt; font-weight: bold; color: #16a34a;">Langkah Kalkulasi Bobot Sempurna:</p>
             <div class="formula-text" style="margin-top: 3px;">
-Skor_Dimensi = (4.00 * \${state.period.weightsWithSub.Atasan / 100}) + (4.00 * \${state.period.weightsWithSub.Peer / 100}) + (4.40 * \${(state.period.weightsWithSub.Bawahan || 0) / 100}) = 2.40 + 0.80 + 0.88 = 4.08 (Skala 5)
-Konversi Skala 100 = (4.08 / 5) * 100 = 81.60 &rarr; Predikat Capaian: BAIK (Skala Resmi E-Kinerja)
+Skor_Dimensi = (${ex2Atasan.toFixed(2)} * ${wWithSubAtasan / 100}) + (${ex2Peer.toFixed(2)} * ${wWithSubPeer / 100}) + (${ex2Bawahan.toFixed(2)} * ${wWithSubBawahan / 100}) = ${(ex2Atasan * wWithSubAtasan / 100).toFixed(2)} + ${(ex2Peer * wWithSubPeer / 100).toFixed(2)} + ${(ex2Bawahan * wWithSubBawahan / 100).toFixed(2)} = ${ex2Score.toFixed(3)} (Skala 5)
+Konversi Skala 100 = (${ex2Score.toFixed(3)} / 5) * 100 = ${ex2Score100.toFixed(2)} &rarr; Predikat Capaian: ${ex2Predikat.name} (Skala Resmi E-Kinerja)
             </div>
           </div>
         </div>
@@ -1875,13 +1938,13 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                     <div className="bg-sky-50 p-3 rounded-xl border border-sky-200 font-mono text-[11px]">
                       <span className="font-black text-sky-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
                       Perhitungan Skor Akhir Dimensi = (Atasan * {state.period.weightsNoSub.Atasan}%) + (Peer * {state.period.weightsNoSub.Peer}%)<br />
-                      Perhitungan Skor Akhir Dimensi = (4.50 * 0.60) + (4.17 * 0.40) = 2.70 + 1.668 = <strong>4.368</strong><br />
-                      Konversi ke Skala 100 = (4.368 / 5) * 100 = <strong>87.36</strong> (Dibulatkan ke 87)
+                      Perhitungan Skor Akhir Dimensi = ({ex4Atasan.toFixed(2)} * {wNoSubAtasan / 100}) + ({ex4Peer.toFixed(2)} * {wNoSubPeer / 100}) = {(ex4Atasan * wNoSubAtasan / 100).toFixed(2)} + {(ex4Peer * wNoSubPeer / 100).toFixed(2)} = <strong>{ex4Score.toFixed(3)}</strong><br />
+                      Konversi ke Skala 100 = ({ex4Score.toFixed(3)} / 5) * 100 = <strong>{ex4Score100.toFixed(2)}</strong> (Dibulatkan ke {Math.round(ex4Score100)})
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 bg-emerald-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: BAIK</span>
-                      <p className="text-[11px] text-slate-500">Nilai total <strong>87.36</strong> berada dalam interval <strong>76 - 89 (BAIK)</strong>.</p>
+                      <span className="px-2.5 py-1 bg-emerald-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: {ex4Predikat.name}</span>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>{ex4Score100.toFixed(2)}</strong> berada dalam kriteria <strong className={ex4Predikat.color}>{ex4Predikat.name}</strong>.</p>
                     </div>
                   </div>
                 </div>
@@ -1928,14 +1991,14 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
 
                     <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-200 font-mono text-[11px]">
                       <span className="font-black text-indigo-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
-                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsWithSub.Atasan}%) + (Peer * {state.period.weightsWithSub.Peer}%) + (Bawahan * {state.period.weightsWithSub.Bawahan}%)<br />
-                      Perhitungan Skor Akhir = (4.00 * 0.60) + (4.00 * 0.15) + (4.40 * 0.25) = 2.40 + 0.60 + 1.10 = <strong>4.10</strong><br />
-                      Konversi ke Skala 100 = (4.10 / 5) * 100 = <strong>82.00</strong>
+                      Perhitungan Skor Akhir = (Atasan * {state.period.weightsWithSub.Atasan}%) + (Peer * {state.period.weightsWithSub.Peer}%) + (Bawahan * {state.period.weightsWithSub.Bawahan || 0}%)<br />
+                      Perhitungan Skor Akhir = ({ex5Atasan.toFixed(2)} * {wWithSubAtasan / 100}) + ({ex5Peer.toFixed(2)} * {wWithSubPeer / 100}) + ({ex5Bawahan.toFixed(2)} * {wWithSubBawahan / 100}) = {(ex5Atasan * wWithSubAtasan / 100).toFixed(2)} + {(ex5Peer * wWithSubPeer / 100).toFixed(2)} + {(ex5Bawahan * wWithSubBawahan / 100).toFixed(2)} = <strong>{ex5Score.toFixed(3)}</strong><br />
+                      Konversi ke Skala 100 = ({ex5Score.toFixed(3)} / 5) * 100 = <strong>{ex5Score100.toFixed(2)}</strong>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 bg-emerald-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: BAIK</span>
-                      <p className="text-[11px] text-slate-500">Nilai total <strong>82.00</strong> berada dalam predikat <strong>BAIK (76 - 89)</strong>.</p>
+                      <span className="px-2.5 py-1 bg-emerald-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: {ex5Predikat.name}</span>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>{ex5Score100.toFixed(2)}</strong> berada dalam predikat <strong className={ex5Predikat.color}>{ex5Predikat.name}</strong>.</p>
                     </div>
                   </div>
                 </div>
@@ -1975,13 +2038,13 @@ Skor_Dimensi_Akhir = (SkorAtasan * ${state.period.weightsNoSub.Atasan}%) + (Skor
                     <div className="bg-rose-50 p-3 rounded-xl border border-rose-200 font-mono text-[11px]">
                       <span className="font-black text-rose-950">[LANGKAH MATEMATIKA AGREGAT]:</span><br />
                       Perhitungan Skor Akhir = (Atasan * {state.period.weightsNoSub.Atasan}%) + (Peer * {state.period.weightsNoSub.Peer}%)<br />
-                      Perhitungan Skor Akhir = (2.50 * 0.60) + (2.00 * 0.40) = 1.50 + 0.80 = <strong>2.30</strong><br />
-                      Konversi ke Skala 100 = (2.30 / 5) * 100 = <strong>46.00</strong>
+                      Perhitungan Skor Akhir = ({ex6Atasan.toFixed(2)} * {wNoSubAtasan / 100}) + ({ex6Peer.toFixed(2)} * {wNoSubPeer / 100}) = {(ex6Atasan * wNoSubAtasan / 100).toFixed(2)} + {(ex6Peer * wNoSubPeer / 100).toFixed(2)} = <strong>{ex6Score.toFixed(3)}</strong><br />
+                      Konversi ke Skala 100 = ({ex6Score.toFixed(3)} / 5) * 100 = <strong>{ex6Score100.toFixed(2)}</strong>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 bg-red-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: SANGAT KURANG</span>
-                      <p className="text-[11px] text-slate-500">Nilai total <strong>46.00</strong> berada dalam kriteria <strong>SANGAT KURANG (di bawah 51)</strong>. Menandakan perlunya pendampingan.</p>
+                      <span className="px-2.5 py-1 bg-red-500 text-white rounded font-black text-[10px] uppercase border border-slate-950 inline-block">Hasil Kelulusan: {ex6Predikat.name}</span>
+                      <p className="text-[11px] text-slate-500">Nilai total <strong>{ex6Score100.toFixed(2)}</strong> berada dalam kriteria <strong className={ex6Predikat.color}>{ex6Predikat.name} ({ex6Score100 >= 51 ? "diatas/sama dengan 51" : "di bawah 51"})</strong>. Menandakan perlunya pendampingan.</p>
                     </div>
                   </div>
                 </div>
