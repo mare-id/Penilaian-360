@@ -1317,7 +1317,7 @@ export default function App() {
   return (
     <>
       <ThemeStyles />
-      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+      <div className="h-screen overflow-hidden flex flex-col bg-slate-50 text-slate-800">
         <Topbar
           title={titles[active] || "Dashboard"}
           user={user}
