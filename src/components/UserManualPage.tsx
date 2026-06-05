@@ -318,15 +318,16 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           <li>Masuk ke bilah menu <strong>"Kuesioner Penilaian"</strong>.</li>
           <li>Di halaman ini, sistem membagi target penilaian ke dalam 4 Tab: Atasan, Rekan Sejawat, Bawahan, dan Diri Sendiri.</li>
           <li>Pilih salah satu target pegawai yang berstatus <strong>"Belum Mulai"</strong>, lalu klik tombol <strong>"Isi Penilaian"</strong>.</li>
-          <li>Anda akan dihadapkan pada kuesioner dengan 14 butir pertanyaan penilaian perilaku yang mewakili 7 dimensi Core Values BerAKHLAK (masing-masing 2 kuesioner):
+          <li>Anda akan dihadapkan pada kuesioner dengan 35 butir pertanyaan (7 dimensi @ 5 pertanyaan untuk non-pimpinan) atau 40 butir pertanyaan (8 dimensi @ 5 pertanyaan dengan tambahan Kepemimpinan untuk pimpinan) penilaian perilaku yang mewakili klaster BerAKHLAK:
             <ul>
-              <li><strong>Berorientasi Pelayanan:</strong> Memahami kebutuhan masyarakat / bersikap ramah.</li>
-              <li><strong>Akuntabel:</strong> Melaksanakan tugas jujur / menggunakan aset negara bertanggungjawab.</li>
-              <li><strong>Kompeten:</strong> Meningkatkan diri / membantu orang lain belajar.</li>
-              <li><strong>Harmonis:</strong> Menghargai perbedaan / membangun lingkungan kondusif.</li>
-              <li><strong>Loyal:</strong> Memegang rahasia / menjaga nama baik korps.</li>
-              <li><strong>Adaptif:</strong> Cepat menyesuaikan diri / terus berinovasi.</li>
-              <li><strong>Kolaboratif:</strong> Terbuka bekerja sama / memberi kesempatan pihak lain.</li>
+              <li><strong>Berorientasi Pelayanan:</strong> Komunikatif, proaktif, ramah, pelayanan terbaik, responsif kesulitan.</li>
+              <li><strong>Akuntabel:</strong> Tanggung jawab keputusan, transparan tugas, transparan sumber daya, konsisten tenggat waktu, patuh aturan.</li>
+              <li><strong>Kompeten:</strong> Pengetahuan mumpuni, belajar berkembangan, kerja berkualitas, kreatif inovatif, mandiri inisiatif.</li>
+              <li><strong>Harmonis:</strong> Kerja sama tim, hargai perbedaan, ciptakan suasana kondusif, selesaikan konflik konstruktif, peduli kesejahteraan rekan.</li>
+              <li><strong>Loyal:</strong> Setia NKRI & pemerintah, junjung etika moral, jaga nama instansi, berani menolak pelanggaran, jaga kerahasiaan.</li>
+              <li><strong>Adaptif:</strong> Penyesuaian lingkungan kerja & teknologi, terbuka ide baru, kerja bawah tekanan, solusi kreatif, manfaatkan teknologi.</li>
+              <li><strong>Kolaboratif:</strong> Bangun jaringan kerja, kerja sama eksternal, berbagi pengetahuan, kontribusi kelompok, bangun kemitraan.</li>
+              <li><strong>Kepemimpinan (Khusus Pimpinan):</strong> Beri arahan jelas, bina bawahan adil, ambil keputusan matang, pengawasan tanpa intimidasi, teladan perilaku baik.</li>
             </ul>
           </li>
           <li>Pilih jawaban skala Likert berpangkat dari <strong>Skala 1 (Sangat Jarang/Buruk)</strong> s.d <strong>Skala 5 (Sangat Sering/Sempurna)</strong>.</li>
@@ -387,9 +388,9 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
         <p>Penghitungan skor perilaku 360-degree feedback pada Sistem Informasi E-Kinerja BKPSDM Kabupaten Dairi dilakukan melalui 3 tahapan matematis berurutan tanpa memasukkan unsur penilaian diri sendiri (Evaluasi Diri bernilai bobot 0% / dikeluarkan dari kalkulasi untuk menjaga objektivitas murni rekan sejawat, bawahan, dan atasan):</p>
 
         <h3>Tahap A: Perhitungan Rata-rata Skor per Dimensi dari Rater Individu</h3>
-        <p>Setiap dimensi perilaku terdiri dari 4 butir pertanyaan kuesioner berskala Likert (1 s.d 5). Rata-rata nilai dimensi dari satu rater dihitung dengan menjumlahkan seluruh skor butir pertanyaan pada dimensi tersebut lalu dibagi dengan 4:</p>
+        <p>Setiap dimensi perilaku terdiri dari 5 butir pertanyaan kuesioner berskala Likert (1 s.d 5). Rata-rata nilai dimensi dari satu rater dihitung dengan menjumlahkan seluruh skor butir pertanyaan pada dimensi tersebut lalu dibagi dengan 5:</p>
         <div class="formula-box">
-Skor_Dimensi_Individu = (Butir_1 + Butir_2 + Butir_3 + Butir_4) / 4
+Skor_Dimensi_Individu = (Butir_1 + Butir_2 + Butir_3 + Butir_4 + Butir_5) / 5
         </div>
 
         <h3>Tahap B: Perhitungan Rata-rata Agregat Kelompok (Group Mean Index)</h3>
@@ -439,32 +440,32 @@ Skor_Akhir_100 = (Skor_Akhir_Dimensi / 5) * 100
           <div class="example-header">KASUS SIMULASI 1: PNS Pejabat Pelaksana (Tanpa Bawahan Langsung)</div>
           <p><strong>Subjek Pegawai:</strong> Robinson Silalahi, S.E (Penelaah Teknis Kebijakan, Has Subordinates = False)</p>
           <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Rekan Sejawat = ${state.period.weightsNoSub.Peer}% (Evaluasi Diri tidak dimasukkan dalam perhitungan skor)</p>
-          <p><strong>Dimensi Pengukuran:</strong> Berorientasi Pelayanan (Merespons kebutuhan layanan dengan cepat dan tepat, Menunjukkan sikap ramah dalam memberikan pelayanan, Memberikan solusi atas kebutuhan atau keluhan pemangku kepentingan, Menindaklanjuti permintaan layanan secara jelas)</p>
+          <p><strong>Dimensi Pengukuran:</strong> Berorientasi Pelayanan (Komunikatif, Proaktif, Sikap Ramah, Pelayanan Terbaik, Responsif terhadap kesulitan)</p>
           <ul>
             <li>
               <strong>1. Penilaian Atasan Langsung (1 Rater):</strong><br>
-              - Butir 1 (Respons Layan) = 5, Butir 2 (Sikap Ramah) = 4, Butir 3 (Pemberian Solusi) = 5, Butir 4 (Follow up) = 4<br>
-              <em>Rata-rata Atasan</em> = (5 + 4 + 5 + 4) / 4 = <strong>4.50</strong>
+              - Butir 1 (Komunikatif) = 5, Butir 2 (Proaktif) = 4, Butir 3 (Sikap Ramah) = 5, Butir 4 (Pelayanan Terbaik) = 4, Butir 5 (Responsif) = 4<br>
+              <em>Rata-rata Atasan</em> = (5 + 4 + 5 + 4 + 4) / 5 = <strong>4.40</strong>
             </li>
             <br>
             <li>
               <strong>2. Penilaian Rekan Sejawat (3 Rater):</strong><br>
-              - Rekan Sejawat 1: Memberikan nilai [4, 4, 4, 4] $\rightarrow$ Rerata = 4.00<br>
-              - Rekan Sejawat 2: Memberikan nilai [5, 4, 4, 3] $\rightarrow$ Rerata = 4.00<br>
-              - Rekan Sejawat 3: Memberikan nilai [4, 5, 4, 5] $\rightarrow$ Rerata = 4.50<br>
-              <em>Rerata Kelompok Rekan Sejawat</em> = (4.00 + 4.00 + 4.50) / 3 = 12.50 / 3 = <strong>4.17</strong>
+              - Rekan Sejawat 1: Memberikan nilai [4, 4, 4, 4, 4] $\rightarrow$ Rerata = 4.00<br>
+              - Rekan Sejawat 2: Memberikan nilai [5, 4, 4, 3, 4] $\rightarrow$ Rerata = 4.00<br>
+              - Rekan Sejawat 3: Memberikan nilai [4, 5, 4, 5, 5] $\rightarrow$ Rerata = 4.60<br>
+              <em>Rerata Kelompok Rekan Sejawat</em> = (4.00 + 4.00 + 4.60) / 3 = 12.60 / 3 = <strong>4.20</strong>
             </li>
           </ul>
           
           <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
 Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%)
-Skor_Dimensi = (4.50 * 0.60) + (4.17 * 0.40)
-Skor_Dimensi = 2.70 + 1.668 = 4.368 (Skala 5)
+Skor_Dimensi = (4.40 * 0.60) + (4.20 * 0.40)
+Skor_Dimensi = 2.64 + 1.68 = 4.320 (Skala 5)
 
-Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 (Dibulatkan menjadi 87)
+Konversi Skala 100 = (4.320 / 5) * 100 = 86.40 (Dibulatkan menjadi 86)
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>87.36 (Predikat: BAIK)</strong> karena berada pada interval interval nilai 76 - 89.</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>86.40 (Predikat: BAIK)</strong> karena berada pada interval interval nilai 76 - 89.</p>
         </div>
 
         <!-- CONTOH 2 -->
@@ -472,38 +473,38 @@ Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 (Dibulatkan menjadi 87)
           <div class="example-header">KASUS SIMULASI 2: Pejabat Struktural (Memiliki Bawahan Langsung)</div>
           <p><strong>Subjek Pegawai:</strong> Rikson B Sihombing, S.Psi (Kepala Bidang Pembinaan dan Pengembangan Sumber Daya Manusia, Has Subordinates = True)</p>
           <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsWithSub.Atasan}%, Sejawat = ${state.period.weightsWithSub.Peer}%, Bawahan = ${state.period.weightsWithSub.Bawahan || 0}%</p>
-          <p><strong>Dimensi Pengukuran:</strong> Akuntabel (Menyelesaikan tugas sesuai tanggung jawab, Jujur dalam melaporkan hasil kerja, Mematuhi aturan dan prosedur kerja, Menggunakan sumber daya organisasi secara bertanggung jawab)</p>
+          <p><strong>Dimensi Pengukuran:</strong> Akuntabel (Bertanggung Jawab, Transparan Tugas, Transparan Sumber Daya, Konsisten Tenggat Waktu, Patuh Aturan/Prosedur)</p>
           <ul>
             <li>
               <strong>1. Penilaian Atasan Langsung (Yon Henrik, AP, M.Si - Kepala Badan):</strong><br>
-              - Butir 1 (Tanggung Jawab) = 4, Butir 2 (Kejujuran Laporan) = 4, Butir 3 (Aturan Prosedur) = 4, Butir 4 (Sumber Daya) = 4<br>
-              <em>Rerata Atasan</em> = (4 + 4 + 4 + 4) / 4 = <strong>4.00</strong>
+              - Butir 1 (Tanggung Jawab) = 4, Butir 2 (Transparan Tugas) = 4, Butir 3 (Transparan Sumber Daya) = 4, Butir 4 (Konsisten Tenggat) = 4, Butir 5 (SOP) = 4<br>
+              <em>Rerata Atasan</em> = (4 + 4 + 4 + 4 + 4) / 5 = <strong>4.00</strong>
             </li>
             <br>
             <li>
               <strong>2. Penilaian Rekan Sejawat (2 Rater):</strong><br>
-              - Rekan Sejawat 1 (Try Saputra Sinaga, S.STP, M.Si - Kabid Pengadaan, Mutasi dan Informasi): Memberikan nilai [4, 5, 4, 5] $\rightarrow$ Rerata = 4.50<br>
-              - Rekan Sejawat 2 (Roy Karya Marco Sinaga, S.IP, M.Si - Sekretaris Badan): Memberikan nilai [3, 4, 3, 4] $\rightarrow$ Rerata = 3.50<br>
-              <em>Rerata Kelompok Rekan Sejawat</em> = (4.50 + 3.50) / 2 = <strong>4.00</strong>
+              - Rekan Sejawat 1 (Try Saputra Sinaga, S.STP, M.Si - Kabid Pengadaan, Mutasi dan Informasi): Memberikan nilai [4, 5, 4, 5, 4] $\rightarrow$ Rerata = 4.40<br>
+              - Rekan Sejawat 2 (Roy Karya Marco Sinaga, S.IP, M.Si - Sekretaris Badan): Memberikan nilai [3, 4, 3, 4, 4] $\rightarrow$ Rerata = 3.60<br>
+              <em>Rerata Kelompok Rekan Sejawat</em> = (4.40 + 3.60) / 2 = <strong>4.00</strong>
             </li>
             <br>
             <li>
               <strong>3. Penilaian Bawahan Langsung (2 Rater):</strong><br>
-              - Bawahan 1 (Bobby Johan Purba, S.STP, M.A.P - Penelaah Teknis Kebijakan): Memberikan nilai [5, 4, 5, 4] $\rightarrow$ Rerata = 4.50<br>
-              - Bawahan 2 (Melda Heni Indrawati Sagala, S.IP - Penelaah Teknis Kebijakan): Memberikan nilai [4, 4, 4, 5] $\rightarrow$ Rerata = 4.30<br>
-              <em>Rerata Kelompok Bawahan Langsung</em> = (4.50 + 4.30) / 2 = <strong>4.40</strong>
+              - Bawahan 1 (Bobby Johan Purba, S.STP, M.A.P - Penelaah Teknis Kebijakan): Memberikan nilai [5, 4, 5, 4, 5] $\rightarrow$ Rerata = 4.60<br>
+              - Bawahan 2 (Melda Heni Indrawati Sagala, S.IP - Penelaah Teknis Kebijakan): Memberikan nilai [4, 4, 4, 5, 4] $\rightarrow$ Rerata = 4.20<br>
+              <em>Rerata Kelompok Bawahan Langsung</em> = (4.60 + 4.20) / 2 = <strong>4.40</strong>
             </li>
           </ul>
           
           <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
 Skor_Dimensi = (Skor_Atasan * ${state.period.weightsWithSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsWithSub.Peer}%) + (Skor_Bawahan * ${state.period.weightsWithSub.Bawahan || 0}%)
-Skor_Dimensi = (4.00 * 0.60) + (4.00 * 0.15) + (4.40 * 0.25)
-Skor_Dimensi = 2.40 + 0.60 + 1.10 = 4.10 (Skala 5)
+Skor_Dimensi = (4.00 * 0.60) + (4.00 * 0.20) + (4.40 * 0.20)
+Skor_Dimensi = 2.40 + 0.80 + 0.88 = 4.08 (Skala 5)
 
-Konversi Skala 100 = (4.10 / 5) * 100 = 82.00
+Konversi Skala 100 = (4.08 / 5) * 100 = 81.60
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>82.00 (Predikat: BAIK)</strong> karena berada pada interval nilai 76 - 89.</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>81.60 (Predikat: BAIK)</strong> karena berada pada interval nilai 76 - 89.</p>
         </div>
 
         <!-- CONTOH 3 -->
@@ -511,32 +512,32 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00
           <div class="example-header">KASUS SIMULASI 3: Jabatan Fungsional/Pelaksana (Tanpa Bawahan, Evaluasi Kurang Memuaskan)</div>
           <p><strong>Subjek Pegawai:</strong> Richad Mika Sinaga, S.Tr.IP (Analis SDM Aparatur, Has Subordinates = False)</p>
           <p><strong>Bobot Evaluasi:</strong> Atasan = ${state.period.weightsNoSub.Atasan}%, Rekan Sejawat = ${state.period.weightsNoSub.Peer}%</p>
-          <p><strong>Dimensi Pengukuran:</strong> Adaptif (Terbuka terhadap perubahan, Cepat menyesuaikan diri dengan sistem atau kebijakan baru, Mencari cara kerja yang lebih efektif, Proaktif menghadapi masalah pekerjaan)</p>
+          <p><strong>Dimensi Pengukuran:</strong> Adaptif (Sesuai Perubahan, Terbuka Ide Baru, Bekerja di Bawah Tekanan, Solusi Kreatif, Manfaatkan Teknologi)</p>
           <ul>
             <li>
               <strong>1. Penilaian Atasan Langsung (Rikson B Sihombing, S.Psi - Kepala Bidang Pembinaan dan Pengembangan SDM):</strong><br>
-              - Butir 1 (Terbuka Ubah) = 3, Butir 2 (Cepat Sesuai) = 2, Butir 3 (Cara Efektif) = 3, Butir 4 (Proaktif) = 2<br>
-              <em>Rerata Atasan</em> = (3 + 2 + 3 + 2) / 4 = <strong>2.50</strong>
+              - Butir 1 (Sesuai Perubahan) = 3, Butir 2 (Ide Baru) = 2, Butir 3 (Tekanan) = 3, Butir 4 (Solusi Kreatif) = 2, Butir 5 (Teknologi) = 2<br>
+              <em>Rerata Atasan</em> = (3 + 2 + 3 + 2 + 2) / 5 = <strong>2.40</strong>
             </li>
             <br>
             <li>
               <strong>2. Penilaian Rekan Sejawat (3 Rater):</strong><br>
               - Rekan Sejawat 1 (Hendra Supreddi Simaremare, S.I.P - Analis SDM Aparatur): Rerata rincian = 2.00<br>
-              - Rekan Sejawat 2 (Maria Morina Seniwaty Simbolon, S.M - Analis SDM Aparatur): Rerata rincian = 2.50<br>
-              - Rekan Sejawat 3 (Musa Sembiring, S.Kom - Analis SDM Aparatur): Rerata rincian = 1.50<br>
-              <em>Rerata Kelompok Rekan Sejawat</em> = (2.00 + 2.50 + 1.50) / 3 = <strong>2.00</strong>
+              - Rekan Sejawat 2 (Maria Morina Seniwaty Simbolon, S.M - Analis SDM Aparatur): Rerata rincian = 2.40<br>
+              - Rekan Sejawat 3 (Musa Sembiring, S.Kom - Analis SDM Aparatur): Rerata rincian = 1.60<br>
+              <em>Rerata Kelompok Rekan Sejawat</em> = (2.00 + 2.40 + 1.60) / 3 = <strong>2.00</strong>
             </li>
           </ul>
           
           <p><strong>Langkah Perhitungan Agregasi Akhir Berbobot (Skala 5 & 100):</strong></p>
           <div class="formula-box">
 Skor_Dimensi = (Skor_Atasan * ${state.period.weightsNoSub.Atasan}%) + (Skor_Sejawat * ${state.period.weightsNoSub.Peer}%)
-Skor_Dimensi = (2.50 * 0.60) + (2.00 * 0.40)
-Skor_Dimensi = 1.50 + 0.80 = 2.30 (Skala 5)
+Skor_Dimensi = (2.40 * 0.60) + (2.00 * 0.40)
+Skor_Dimensi = 1.44 + 0.80 = 2.24 (Skala 5)
 
-Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
+Konversi Skala 100 = (2.24 / 5) * 100 = 44.80
           </div>
-          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>46.00 (Predikat: SANGAT KURANG)</strong> karena berada di bawah 51. Pegawai membutuhkan pembinaan intensif atau coaching khusus dari pihak pimpinan unit kerja.</p>
+          <p><strong>Hasil Penilaian Akhir Dimensi:</strong> <strong>44.80 (Predikat: SANGAT KURANG)</strong> karena berada di bawah 51. Pegawai membutuhkan pembinaan intensif atau coaching khusus dari pihak pimpinan unit kerja.</p>
         </div>
 
         <h2>2.6 Klasifikasi Kategori Penilaian Perilaku (Skala 100 & Skala 5)</h2>
@@ -1151,7 +1152,7 @@ Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
           <div class="slide-title">6. Tata Cara Pengisian Kuesioner BerAKHLAK</div>
         </div>
         <div class="slide-content">
-          <p style="font-size: 11pt; margin-top: 0; margin-bottom: 5px;">Kuesioner mengadopsi <strong>Metodologi Likert Berpangkat (Skala 1 s.d 5)</strong> yang terdiri dari 4 butir indikator perilaku per dimensi BerAKHLAK (total 28 butir utama), ditambah 5 butir khusus untuk dimensi Kepemimpinan (bagi pegawai dengan bawahan):</p>
+          <p style="font-size: 11pt; margin-top: 0; margin-bottom: 5px;">Kuesioner mengadopsi <strong>Metodologi Likert Berpangkat (Skala 1 s.d 5)</strong> yang terdiri dari 5 butir indikator perilaku per dimensi BerAKHLAK (total 35 butir utama), ditambah 5 butir khusus untuk dimensi Kepemimpinan (bagi pegawai pimpinan/memiliki bawahan dengan total 40 butir):</p>
           <table class="table-slide">
             <thead>
               <tr>
@@ -1247,25 +1248,25 @@ Konversi Skala 100 = (2.30 / 5) * 100 = 46.00
               <tbody>
                 <tr>
                   <td><strong>Atasan (1 orang)</strong></td>
-                  <td>Butir 1: 5 (Sangat Sering), Butir 2: 4 (Sering), Butir 3: 5, Butir 4: 4</td>
-                  <td><strong>4.50</strong></td>
+                  <td>Butir 1: 5 (Sangat Sering), Butir 2: 4 (Sering), Butir 3: 5, Butir 4: 4, Butir 5: 4</td>
+                  <td><strong>4.40</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Rekan Sejawat (3 Peers)</strong></td>
                   <td>
-                    Peer 1: [4, 4, 4, 4] &rarr; Rerata 4.00<br>
-                    Peer 2: [5, 4, 4, 3] &rarr; Rerata 4.00<br>
-                    Peer 3: [4, 5, 4, 5] &rarr; Rerata 4.50
+                    Peer 1: [4, 4, 4, 4, 4] &rarr; Rerata 4.00<br>
+                    Peer 2: [5, 4, 4, 3, 4] &rarr; Rerata 4.00<br>
+                    Peer 3: [4, 5, 4, 5, 5] &rarr; Rerata 4.60
                   </td>
-                  <td><strong>4.17</strong> (Agregat)</td>
+                  <td><strong>4.20</strong> (Agregat)</td>
                 </tr>
               </tbody>
             </table>
             
             <p style="margin: 10px 0 0 0; font-size: 10pt; font-weight: bold; color: #1e3a8a;">Langkah Kalkulasi Aturan Terpadu:</p>
             <div class="formula-text" style="margin-top: 3px;">
-Skor_Dimensi = (4.50 * \${state.period.weightsNoSub.Atasan / 100}) + (4.17 * \${state.period.weightsNoSub.Peer / 100}) = 2.70 + 1.668 = 4.368 (Skala 5)
-Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 &rarr; Predikat Capaian: BAIK (Interval 76 s.d 89)
+Skor_Dimensi = (4.40 * \${state.period.weightsNoSub.Atasan / 100}) + (4.20 * \${state.period.weightsNoSub.Peer / 100}) = 2.64 + 1.68 = 4.320 (Skala 5)
+Konversi Skala 100 = (4.320 / 5) * 100 = 86.40 &rarr; Predikat Capaian: BAIK (Interval 76 s.d 89)
             </div>
           </div>
         </div>
@@ -1294,17 +1295,17 @@ Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 &rarr; Predikat Capaian: BAIK (In
               <tbody>
                 <tr>
                   <td><strong>Atasan (1 orang)</strong></td>
-                  <td>Yon Henrik, AP, M.Si (Kepala BKPSDM) memberi nilai: [4, 4, 4, 4]</td>
+                  <td>Yon Henrik, AP, M.Si (Kepala BKPSDM) memberi nilai: [4, 4, 4, 4, 4]</td>
                   <td><strong>4.00</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Rekan Sejawat (2 Peers)</strong></td>
-                  <td>Kabid Pengadaan: 4.50 (Baik) & Sekban: 3.50 (Cukup)</td>
+                  <td>Kabid Pengadaan: 4.40 (Baik) & Sekban: 3.60 (Cukup)</td>
                   <td><strong>4.00</strong> (Agregat Peers)</td>
                 </tr>
                 <tr>
                   <td><strong>Bawahan (2 orang)</strong></td>
-                  <td>Penelaah Teknis 1: 4.50 (Sangat Baik) & Penelaah 2: 4.30 (Baik)</td>
+                  <td>Penelaah Teknis 1: 4.60 (Sangat Baik) & Penelaah 2: 4.20 (Baik)</td>
                   <td><strong>4.40</strong> (Agregat Subs)</td>
                 </tr>
               </tbody>
@@ -1312,8 +1313,8 @@ Konversi Skala 100 = (4.368 / 5) * 100 = 87.36 &rarr; Predikat Capaian: BAIK (In
             
             <p style="margin: 8px 0 0 0; font-size: 10pt; font-weight: bold; color: #16a34a;">Langkah Kalkulasi Bobot Sempurna:</p>
             <div class="formula-text" style="margin-top: 3px;">
-Skor_Dimensi = (4.00 * \${state.period.weightsWithSub.Atasan / 100}) + (4.00 * \${state.period.weightsWithSub.Peer / 100}) + (4.40 * \${(state.period.weightsWithSub.Bawahan || 0) / 100}) = 2.40 + 0.60 + 1.10 = 4.10 (Skala 5)
-Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Skala Resmi E-Kinerja)
+Skor_Dimensi = (4.00 * \${state.period.weightsWithSub.Atasan / 100}) + (4.00 * \${state.period.weightsWithSub.Peer / 100}) + (4.40 * \${(state.period.weightsWithSub.Bawahan || 0) / 100}) = 2.40 + 0.80 + 0.88 = 4.08 (Skala 5)
+Konversi Skala 100 = (4.08 / 5) * 100 = 81.60 &rarr; Predikat Capaian: BAIK (Skala Resmi E-Kinerja)
             </div>
           </div>
         </div>
@@ -1732,7 +1733,7 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
                     <ol className="list-decimal pl-5 space-y-1">
                       <li>Buka menu <strong>Kuesioner Penilaian</strong>. Amati pembagian list: Diri Sendiri, Atasan, Sejawat, dan Bawahan (jika ada).</li>
                       <li>Target penilai yang belum diisi memiliki tanda tombol merah <strong>Isi Penilaian</strong>. Klik tombol tersebut.</li>
-                      <li>Isikan jawaban sejujur mungkin (Sangat Jarang s.d Sangat Sering) untuk 14 butir implementasi dimensi perilaku ditiap klaster BerAKHLAK.</li>
+                      <li>Isikan jawaban sejujur mungkin (Sangat Jarang s.d Sangat Sering) untuk seluruh butir pertanyaan (35 butir untuk pegawai biasa, 40 butir untuk pegawai pimpinan) implementasi dimensi perilaku ditiap klaster BerAKHLAK.</li>
                       <li>Tulis ulasan konstruktif pada kolom masukan komentar perbaikan, lalu tekan <strong>Kirim Kuesioner Penilaian</strong>.</li>
                     </ol>
                   </div>
@@ -1768,7 +1769,7 @@ Konversi Skala 100 = (4.10 / 5) * 100 = 82.00 &rarr; Predikat Capaian: BAIK (Ska
                   <div className="bg-white border-2 border-slate-300 rounded-xl p-3.5 space-y-2">
                     <span className="text-[10px] bg-sky-200 text-sky-950 font-black px-2 py-0.5 rounded border border-sky-400">Tahap A</span>
                     <h4 className="font-extrabold text-[#0f172a] text-[11px]">Rata-rata Dimensi per Rater Kepegawaian</h4>
-                    <p className="text-slate-600 text-[11px] font-sans">Setiap dimensi memiliki 4 butir kuesioner (5 butir untuk dimensi Kepemimpinan). Skor rater individu dihitung:</p>
+                    <p className="text-slate-600 text-[11px] font-sans">Setiap dimensi memiliki 5 butir kuesioner. Skor rater individu dihitung:</p>
                     <div className="bg-slate-100 border border-slate-200 p-2.5 rounded font-mono text-[10.5px] text-indigo-950">
                       Skor_Dimensi = (Σ Butir_i) / Jumlah_Butir
                     </div>

@@ -66,14 +66,103 @@ export const initialEmployees: Employee[] = [
 ];
 
 export const dimensions = [
-  { key: "pelayanan", name: "Berorientasi Pelayanan", icon: "🫱🏻‍🫲🏼", questions: ["Merespons kebutuhan layanan dengan cepat dan tepat.", "Menunjukkan sikap ramah dalam memberikan pelayanan.", "Memberikan solusi atas kebutuhan atau keluhan pemangku kepentingan.", "Menindaklanjuti permintaan layanan secara jelas."] },
-  { key: "akuntabel", name: "Akuntabel", icon: "⚖️", questions: ["Menyelesaikan tugas sesuai tanggung jawab.", "Jujur dalam melaporkan hasil kerja.", "Mematuhi aturan dan prosedur kerja.", "Menggunakan sumber daya organisasi secara bertanggung jawab."] },
-  { key: "kompeten", name: "Kompeten", icon: "📚", questions: ["Berusaha meningkatkan kemampuan diri.", "Menyelesaikan pekerjaan dengan kualitas terbaik.", "Membantu rekan kerja memahami tugas.", "Terbuka terhadap masukan untuk perbaikan kinerja."] },
-  { key: "harmonis", name: "Harmonis", icon: "🌿", questions: ["Menghargai perbedaan pendapat.", "Menjaga hubungan kerja yang kondusif.", "Tidak menciptakan konflik yang merugikan tim.", "Mendukung suasana kerja yang saling menghormati."] },
-  { key: "loyal", name: "Loyal", icon: "🛡️", questions: ["Menjaga nama baik instansi.", "Menjaga kerahasiaan data dan informasi jabatan.", "Mendukung kebijakan organisasi.", "Menunjukkan dedikasi terhadap tugas kedinasan."] },
-  { key: "adaptif", name: "Adaptif", icon: "⚡", questions: ["Terbuka terhadap perubahan.", "Cepat menyesuaikan diri dengan sistem atau kebijakan baru.", "Mencari cara kerja yang lebih efektif.", "Proaktif menghadapi masalah pekerjaan."] },
-  { key: "kolaboratif", name: "Kolaboratif", icon: "🧩", questions: ["Bersedia bekerja sama lintas bidang.", "Berbagi informasi yang dibutuhkan tim.", "Mendukung pencapaian tujuan bersama.", "Menghargai kontribusi orang lain."] },
-  { key: "kepemimpinan", name: "Kepemimpinan", icon: "🎯", leadershipOnly: true, questions: ["Memberikan arahan kerja yang jelas kepada bawahan.", "Membina bawahan secara adil dan objektif.", "Mengambil keputusan dengan pertimbangan yang matang.", "Melakukan pengawasan tanpa intimidasi.", "Memberikan teladan perilaku kerja yang baik."] },
+  {
+    key: "pelayanan",
+    name: "Berorientasi Pelayanan",
+    icon: "🫱🏻‍🫲🏼",
+    questions: [
+      "Apakah ASN komunikatif dalam memberikan layanan yang tepat dan efektif?",
+      "Seberapa proaktif ASN dalam memberikan solusi dan inisiatif untuk meningkatkan kualitas pelayanan?",
+      "Apakah ASN menunjukkan sikap ramah, sopan, dan kooperatif dalam berinteraksi dengan Anda dan rekan kerja lainnya?",
+      "Apakah ASN selalu berusaha memberikan pelayanan yang terbaik kepada Anda dan rekan kerja lainnya?",
+      "Apakah ASN sudah responsif dalam memberikan dukungan dan bantuan ketika Anda menghadapi kesulitan?"
+    ]
+  },
+  {
+    key: "akuntabel",
+    name: "Akuntabel",
+    icon: "⚖️",
+    questions: [
+      "Apakah ASN bertanggung jawab atas keputusan yang diambil dan konsekuensi yang timbul?",
+      "Apakah ASN transparan dalam menjalankan tugas dan menyampaikan informasi?",
+      "Apakah Anda merasa ASN transparan dalam penggunaan sumber daya yang ada?",
+      "Apakah ASN konsisten dalam memenuhi tenggat waktu yang ditetapkan untuk tugas yang diberikan?",
+      "Apakah ASN mematuhi aturan dan prosedur kerja?"
+    ]
+  },
+  {
+    key: "kompeten",
+    name: "Kompeten",
+    icon: "📚",
+    questions: [
+      "Apakah ASN memiliki pengetahuan dan keterampilan yang memadai untuk menjalankan tugasnya?",
+      "Apakah ASN selalu berusaha mengembangkan diri dan meningkatkan kompetensinya?",
+      "Apakah ASN mampu menyelesaikan tugas dengan kualitas yang baik?",
+      "Apakah ASN kreatif dan inovatif dalam mencari solusi atas masalah yang dihadapi?",
+      "Apakah ASN mampu bekerja secara mandiri dan mengambil inisiatif?"
+    ]
+  },
+  {
+    key: "harmonis",
+    name: "Harmonis",
+    icon: "🌿",
+    questions: [
+      "Apakah ASN mampu bekerja sama dengan baik dalam tim?",
+      "Apakah ASN menghargai perbedaan pendapat dan mampu membangun hubungan yang baik dengan rekan kerja?",
+      "Apakah ASN mampu menciptakan suasana kerja yang kondusif dan positif?",
+      "Apakah ASN mampu menyelesaikan konflik dengan cara yang konstruktif?",
+      "Apakah ASN peduli terhadap kesejahteraan rekan kerja dan lingkungan kerja?"
+    ]
+  },
+  {
+    key: "loyal",
+    name: "Loyal",
+    icon: "🛡️",
+    questions: [
+      "Apakah ASN setia kepada Pancasila, UUD 1945, NKRI, dan Pemerintah?",
+      "Apakah ASN menjunjung tinggi nilai-nilai etika dan moral dalam menjalankan tugas?",
+      "Apakah ASN menjaga nama baik instansi dan profesi ASN?",
+      "Apakah ASN berani menolak tindakan yang melanggar hukum dan etika?",
+      "Apakah ASN dapat menjaga kerahasiaan informasi yang seharusnya tidak diungkapkan?"
+    ]
+  },
+  {
+    key: "adaptif",
+    name: "Adaptif",
+    icon: "⚡",
+    questions: [
+      "Apakah ASN mampu menyesuaikan diri dengan perubahan lingkungan kerja dan teknologi?",
+      "Apakah ASN terbuka terhadap ide-ide baru dan mau belajar hal-hal baru?",
+      "Apakah ASN mampu bekerja di bawah tekanan dan menghadapi tantangan dengan baik?",
+      "Apakah ASN mampu mencari solusi kreatif atas masalah yang belum pernah dihadapi sebelumnya?",
+      "Apakah ASN mampu memanfaatkan teknologi untuk meningkatkan kinerja dan efisiensi?"
+    ]
+  },
+  {
+    key: "kolaboratif",
+    name: "Kolaboratif",
+    icon: "🧩",
+    questions: [
+      "Apakah ASN mampu membangun jaringan kerja yang luas dan efektif?",
+      "Apakah ASN mampu bekerja sama dengan pihak eksternal untuk mencapai tujuan bersama?",
+      "Apakah ASN mampu berbagi pengetahuan dan pengalaman dengan rekan kerja?",
+      "Apakah ASN mampu memberikan kontribusi positif dalam kegiatan kelompok atau pekerjaan yang dilakukan secara bersama sama?",
+      "Apakah ASN mampu membangun kepercayaan dan kemitraan dengan pihak lain?"
+    ]
+  },
+  {
+    key: "kepemimpinan",
+    name: "Kepemimpinan",
+    icon: "🎯",
+    leadershipOnly: true,
+    questions: [
+      "Apakah Atasan Memberikan arahan kerja yang jelas kepada bawahan?",
+      "Apakah Atasan ini membina bawahan secara adil dan objektif?",
+      "Apakah Atasan ini mengambil keputusan dengan pertimbangan yang matang?",
+      "Apakah Atasan ini melakukan pengawasan tanpa intimidasi?",
+      "Apakah Atasan ini memberikan teladan perilaku kerja yang baik?"
+    ]
+  }
 ];
 
 export const initialAssignments: Assignment[] = [
