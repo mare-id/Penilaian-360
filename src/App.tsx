@@ -670,7 +670,68 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
 
       {/* SECTION 2: PERCENTAGE WEIGHTS */}
       <Card>
-        <h2 className="text-lg font-black font-display mb-3 text-slate-900">Bobot Persentase Penilai</h2>
+        <div className="border-b pb-3 mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-black font-display text-slate-900">Bobot Persentase Penilai (360°)</h2>
+            <p className="text-xs text-slate-500 font-medium">Konfigurasi bobot pengali untuk masing-masing rumpun evaluator. Total penjumlahan pada masing-masing jenis wajib berjumlah 100%.</p>
+          </div>
+          <span className="text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-mono text-center">
+            Dengan Bawahan: {period.weightsWithSub.Atasan}%/{period.weightsWithSub.Peer}%/{period.weightsWithSub.Bawahan}% • Tanpa: {period.weightsNoSub.Atasan}%/{period.weightsNoSub.Peer}%
+          </span>
+        </div>
+
+        {/* PRESET SYSTEM CHIPS */}
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 font-display">
+          <div>
+            <span className="block font-bold text-xs text-slate-900">⚡ Preset Pembobotan Cepat (Regulasi)</span>
+            <span className="block text-[11px] text-slate-500">Pilih skema standar regulasi resmi atau kustomisasi secara mandiri di bawah ini.</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5 self-stretch sm:self-auto justify-start">
+            <button
+              type="button"
+              onClick={() => {
+                setPeriod({
+                  ...period,
+                  weightsWithSub: { Atasan: 60, Peer: 20, Bawahan: 20 },
+                  weightsNoSub: { Atasan: 60, Peer: 40 }
+                });
+                toast("Preset Regulasi Terbaru Permenpan RB 6/2022 diterapkan! (Dengan Bawahan: 60-20-20, Tanpa Bawahan: 60-40)");
+              }}
+              className="px-3 py-1.5 text-[10px] font-extrabold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-sm"
+            >
+              ⭐ Regulasi BKN Terbaru (60-20-20 %)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPeriod({
+                  ...period,
+                  weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
+                  weightsNoSub: { Atasan: 60, Peer: 40 }
+                });
+                toast("Preset BKPSDM Klasik diterapkan! (Dengan Bawahan: 60-15-25, Tanpa Bawahan: 60-40)");
+              }}
+              className="px-3 py-1.5 text-[10px] font-extrabold bg-white hover:bg-slate-100 text-slate-800 border rounded-lg transition-all shadow-sm"
+            >
+              BKPSDM Klasik (60-15-25 %)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPeriod({
+                  ...period,
+                  weightsWithSub: { Atasan: 50, Peer: 25, Bawahan: 25 },
+                  weightsNoSub: { Atasan: 50, Peer: 50 }
+                });
+                toast("Preset Seimbang diterapkan! (Dengan Bawahan: 50-25-25, Tanpa Bawahan: 50-50)");
+              }}
+              className="px-3 py-1.5 text-[10px] font-extrabold bg-white hover:bg-slate-100 text-slate-800 border rounded-lg transition-all shadow-sm"
+            >
+              Sama Rata (50-25-25 %)
+            </button>
+          </div>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100 font-display">
             <h3 className="font-bold text-slate-800 mb-3 text-xs uppercase tracking-wider">Jenis ASN Memiliki Bawahan (%)</h3>

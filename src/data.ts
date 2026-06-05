@@ -240,10 +240,8 @@ export const initialState: AppState = {
     enforceMaxBawahan: false,
     autoFillPeers: true,
     randomizePeers: false,
-    weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
-    weightsNoSub: { Atasan: 40, Peer: 60 }, // Wait, user CSV weightsNoSub: {"Peer":40,"Atasan":60} -> wait, wait! 
-    // From CSV: "weightsNoSub":{"Peer":40,"Atasan":60}
-    // "weightsWithSub":{"Peer":15,"Atasan":60,"Bawahan":25}
+    weightsWithSub: { Atasan: 60, Peer: 20, Bawahan: 20 },
+    weightsNoSub: { Atasan: 60, Peer: 40 }, // BKN/Permenpan latest standard
     type: "Triwulan",
     selectedMonth: "01",
     selectedQuarter: "Q2",
@@ -262,7 +260,7 @@ export const initialState: AppState = {
       enforceMaxBawahan: false,
       autoFillPeers: true,
       randomizePeers: false,
-      weightsWithSub: { Atasan: 60, Peer: 15, Bawahan: 25 },
+      weightsWithSub: { Atasan: 60, Peer: 20, Bawahan: 20 },
       weightsNoSub: { Atasan: 60, Peer: 40 },
       type: "Triwulan",
       selectedMonth: "01",

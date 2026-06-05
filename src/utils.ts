@@ -57,7 +57,7 @@ export function getEvaluatorConditionAndWeights(
   period?: Period
 ) {
   // Use period configurations as the base if provided, otherwise standard fallbacks
-  const defaultWeightsWithSub = { Atasan: 60, Peer: 15, Bawahan: 25 };
+  const defaultWeightsWithSub = { Atasan: 60, Peer: 20, Bawahan: 20 };
   const defaultWeightsNoSub = { Atasan: 60, Peer: 40 };
 
   const wWithSub = period?.weightsWithSub || defaultWeightsWithSub;
