@@ -132,6 +132,8 @@ export interface AppState {
   periods?: Period[];
   admins?: AdminUser[];
   dimensions?: BehaviorDimension[];
+  enableSupervisorVerification?: boolean;
+  enableRaterManagementMenu?: boolean;
 }
 
 export interface DemoAccount {

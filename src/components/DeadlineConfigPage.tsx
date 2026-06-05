@@ -854,21 +854,6 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                     <input
                       type="checkbox"
                       className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 mt-0.5 cursor-pointer"
-                      checked={period.autoFillPeers !== false}
-                      onChange={(e) => setPeriod({ ...period, autoFillPeers: e.target.checked })}
-                    />
-                    <div className="font-display">
-                      <span className="block font-bold text-[11px] text-slate-900 leading-tight">Penilaian Sejawat (Peer) Otomatis</span>
-                      <span className="block text-[10px] text-slate-500 mt-0.5 leading-normal">
-                        Generate rekan sejawat secara acak jika pegawai yang bersangkutan lalai untuk mengusulkan secara manual sampai mendekati masa tenggat.
-                      </span>
-                    </div>
-                  </label>
-
-                  <label className="flex items-start gap-2.5 cursor-pointer mt-1">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 mt-0.5 cursor-pointer"
                       checked={!!period.randomizePeers}
                       onChange={(e) => setPeriod({ ...period, randomizePeers: e.target.checked })}
                     />

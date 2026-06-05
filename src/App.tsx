@@ -28,7 +28,7 @@ import {
   getSupabaseSQLScript,
   checkServerConfig
 } from "./utils/supabase";
-import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle, Calendar, Trash2, Plus, RotateCcw } from "lucide-react";
+import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle, Calendar, Trash2, Plus, RotateCcw, ClipboardCheck, Users } from "lucide-react";
 
 const STORAGE_KEY = "bkpsdm-dairi-360-app-v2";
 
@@ -368,6 +368,138 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
           </div>
         )}
       </Card>
+
+      {/* SECTION 4: MENU VERIFICATION CONFIGURATION */}
+      <Card className="border-t-4 border-indigo-500 overflow-hidden relative">
+        <div className="absolute right-4 top-4 opacity-5 pointer-events-none">
+          <ClipboardCheck className="w-24 h-24 text-indigo-900" />
+        </div>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 mb-4 gap-3 font-display">
+          <div>
+            <h2 className="text-lg font-black font-display text-slate-900 flex items-center gap-2">
+              <ClipboardCheck className="w-5 h-5 text-indigo-500 stroke-[2.5]" />
+              Pengaturan Menu Verifikasi Atasan
+            </h2>
+            <p className="text-xs text-slate-500 font-sans">
+              Kontrol visibilitas menu verifikasi rater di dasbor akun atasan langsung (supervisor).
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-600">Status Menu Verifikasi:</span>
+            <button
+              type="button"
+              onClick={() => {
+                const updatedVal = !(state.enableSupervisorVerification !== false);
+                setState(prev => ({
+                  ...prev,
+                  enableSupervisorVerification: updatedVal
+                }));
+                toast(`Menu Verifikasi Atasan berhasil ${updatedVal ? "DIAKTIFKAN" : "DINONAKTIFKAN"} secara global!`);
+              }}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                (state.enableSupervisorVerification !== false) ? "bg-emerald-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  (state.enableSupervisorVerification !== false) ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-xl border flex items-start gap-3 text-xs leading-relaxed font-display ${
+          (state.enableSupervisorVerification !== false) 
+            ? "bg-slate-50 text-slate-800 border-slate-200" 
+            : "bg-amber-50 text-amber-900 border-amber-200"
+          }`}
+        >
+          <ClipboardCheck className="w-5 h-5 text-indigo-500 shrink-0 stroke-[2]" />
+          <div>
+            <span className="font-extrabold block mb-0.5 text-slate-900 uppercase">
+              {(state.enableSupervisorVerification !== false) ? "Menu Verifikasi: AKTIF" : "Menu Verifikasi: NONAKTIF"}
+            </span>
+            {(state.enableSupervisorVerification !== false) ? (
+              <p>
+                Atasan langsung dapat memeriksa rater rekan sejawat (peer) bawahan melalui sidebar menu **Verifikasi Atasan** dan tombol pintasan di dasbor.
+              </p>
+            ) : (
+              <p>
+                Halaman verifikasi dan pintasan usulan disembunyikan dari atasan langsung. Seluruh usulan rater bawahan langsung aktif tanpa memerlukan persetujuan manual.
+              </p>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* SECTION 5: MENU RATERS CONFIGURATION */}
+      <Card className="border-t-4 border-violet-500 overflow-hidden relative">
+        <div className="absolute right-4 top-4 opacity-5 pointer-events-none">
+          <Users className="w-24 h-24 text-violet-900" />
+        </div>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 mb-4 gap-3 font-display">
+          <div>
+            <h2 className="text-lg font-black font-display text-slate-900 flex items-center gap-2">
+              <Users className="w-5 h-5 text-violet-500 stroke-[2.5]" />
+              Pengaturan Menu Manajemen Evaluator
+            </h2>
+            <p className="text-xs text-slate-500 font-sans">
+              Kontrol visibilitas menu manajemen evaluator (Rekan Sejawat) di sidebar dan halaman utama akun ASN.
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-600">Status Menu Evaluator:</span>
+            <button
+              type="button"
+              onClick={() => {
+                const updatedVal = !(state.enableRaterManagementMenu !== false);
+                setState(prev => ({
+                  ...prev,
+                  enableRaterManagementMenu: updatedVal
+                }));
+                toast(`Menu Manajemen Evaluator berhasil ${updatedVal ? "DIAKTIFKAN" : "DINONAKTIFKAN"} secara global bagi akun ASN!`);
+              }}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                (state.enableRaterManagementMenu !== false) ? "bg-emerald-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  (state.enableRaterManagementMenu !== false) ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-xl border flex items-start gap-3 text-xs leading-relaxed font-display ${
+          (state.enableRaterManagementMenu !== false) 
+            ? "bg-slate-50 text-slate-800 border-slate-200" 
+            : "bg-amber-50 text-amber-900 border-amber-200"
+          }`}
+        >
+          <Users className="w-5 h-5 text-violet-500 shrink-0 stroke-[2]" />
+          <div>
+            <span className="font-extrabold block mb-0.5 text-slate-900 uppercase">
+              {(state.enableRaterManagementMenu !== false) ? "Menu Manajemen Evaluator: AKTIF" : "Menu Manajemen Evaluator: NONAKTIF"}
+            </span>
+            {(state.enableRaterManagementMenu !== false) ? (
+              <p>
+                Seluruh pegawai ASN dapat mengakses menu **Manajemen Evaluator** di sidebar untuk meninjau, mengusulkan, atau memverifikasi rekan sejawat yang akan melakukan audit perilaku 360°.
+              </p>
+            ) : (
+              <p>
+                Menu dan akses **Manajemen Evaluator** disembunyikan seluruhnya dari akun ASN. Ini membatasi akses rater manual dan mengarahkan pengguna hanya pada kewajiban pengisian instan.
+              </p>
+            )}
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
@@ -396,6 +528,12 @@ export default function App() {
       if (!parsed.dimensions || parsed.dimensions.length === 0) {
         parsed.dimensions = initialState.dimensions;
       }
+      if (parsed.enableSupervisorVerification === undefined) {
+        parsed.enableSupervisorVerification = true;
+      }
+      if (parsed.enableRaterManagementMenu === undefined) {
+        parsed.enableRaterManagementMenu = true;
+      }
       const synced = syncMandatoryAssignments(
         parsed.employees, 
         parsed.assignments, 
@@ -418,7 +556,7 @@ export default function App() {
         initialState.period?.autoFillPeers !== false,
         !!initialState.period?.randomizePeers
       );
-      return { ...initialState, admins: initialState.admins, assignments: synced };
+      return { ...initialState, admins: initialState.admins, assignments: synced, enableSupervisorVerification: true, enableRaterManagementMenu: true };
     }
   });
 
@@ -599,6 +737,9 @@ export default function App() {
       case "profile":
         return <Profile {...pageProps} />;
       case "raters":
+        if (state.enableRaterManagementMenu === false) {
+          return <DashboardView state={state} user={user} setActive={setActive} />;
+        }
         return <RaterManagement {...pageProps} />;
       case "verification":
         return <Verification {...pageProps} />;

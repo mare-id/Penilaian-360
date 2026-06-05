@@ -375,4 +375,6 @@ export const initialState: AppState = {
     { id: "admin", username: "admin", name: "Administrator BKPSDM Utama", password: "Mare123.", role: "Admin BKPSDM" }
   ],
   dimensions: dimensions,
+  enableSupervisorVerification: true,
+  enableRaterManagementMenu: true,
 };

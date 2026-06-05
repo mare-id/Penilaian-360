@@ -260,8 +260,8 @@ export function Sidebar({ user, active, setActive, onLogout, open, setOpen, stat
   const menus = [
     { key: "dashboard", label: "Dashboard Utama", icon: Home, show: true },
     { key: "profile", label: "Profil ASN", icon: UserCheck, show: user.role === "ASN" },
-    { key: "raters", label: "Manajemen Evaluator", icon: Users, show: user.role === "ASN" && !isKepalaBadan },
-    { key: "verification", label: "Verifikasi Atasan", icon: ClipboardCheck, show: user.role === "ASN" && isAtasan },
+    { key: "raters", label: "Manajemen Evaluator", icon: Users, show: user.role === "ASN" && !isKepalaBadan && state?.enableRaterManagementMenu !== false },
+    { key: "verification", label: "Verifikasi Atasan", icon: ClipboardCheck, show: user.role === "ASN" && isAtasan && state?.enableSupervisorVerification !== false },
     { key: "assessment", label: "Kuesioner Penilaian", icon: FileText, show: user.role === "ASN" },
     { key: "results", label: "Indeks Penilaian 360", icon: Star, show: user.role === "ASN" },
     { key: "progress", label: "Mata Kepatuhan Unit", icon: BarChart3, show: user.role === "Admin BKPSDM" || isAtasan || isKepalaBadan },

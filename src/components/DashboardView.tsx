@@ -94,18 +94,24 @@ export function DashboardView({ state, user, setActive }: DashboardProps) {
       (p) => subordinates.some((s) => s.id === p.evalueeId) && p.status === "Menunggu Verifikasi"
     ).length;
 
+    const showVerification = state.enableSupervisorVerification !== false;
+
     return (
       <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-3 font-display">
+        <div className={`grid gap-4 font-display ${showVerification ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
           <StatCard icon={Users} label="Personel Bawahan Langsung" value={subordinates.length} />
-          <StatCard icon={ClipboardCheck} label="Daftar Rater Menunggu Verifikasi" value={pendingCount} tone="yellow" />
+          {showVerification && (
+            <StatCard icon={ClipboardCheck} label="Daftar Rater Menunggu Verifikasi" value={pendingCount} tone="yellow" />
+          )}
           <StatCard icon={FileText} label="Menunggu Tanggapan Anda" value={myAssignments.length - (myAssignments.length - unfinished.length)} tone="blue" />
         </div>
         
         <Card>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-black font-display">Daftar Anggota Tim Bawahan</h2>
-            <Button variant="secondary" onClick={() => setActive("verification")}>Klik Verifikasi Rater</Button>
+            {showVerification && (
+              <Button variant="secondary" onClick={() => setActive("verification")}>Klik Verifikasi Rater</Button>
+            )}
           </div>
           <div className="overflow-auto font-display">
             <table className="w-full min-w-[760px] text-left text-sm">
@@ -153,6 +159,23 @@ export function DashboardView({ state, user, setActive }: DashboardProps) {
   // STANDARD ASN / EVALUATOR
   return (
     <div className="space-y-6">
+      {state.period.randomizePeers && (
+        <div className="rounded-xl border border-violet-200 bg-violet-50/40 p-4 font-display flex items-start gap-3 shadow-sm">
+          <div className="rounded-lg bg-violet-100 p-2 text-violet-700">
+            <Users className="h-5 w-5 stroke-[2.5]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-sm text-violet-950 uppercase tracking-wide">⚡ Fitur Acak Rater Rekan Sejawat & Auto-Approve Aktif</span>
+              <Badge className="bg-violet-600 text-white font-extrabold text-[9px] uppercase tracking-wide border-none px-1.5 py-0.5 rounded">Sistem Aktif</Badge>
+            </div>
+            <p className="text-xs text-violet-900 mt-1.5 leading-relaxed font-semibold">
+              Rekan sejawat (Peer Evaluator) Anda saat ini ditentukan dan disetujui secara acak & otomatis oleh sistem untuk menjamin objektivitas penuh. Anda tidak perlu mengajukan usul rater secara manual. Daftar rater & evaluasi Anda dapat dipantau langsung pada menu Manajemen Evaluator.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className={`rounded-md border p-4 font-display ${unfinished.length > 0 ? "border-[#D6D9DE] bg-[#FFFFFF]" : "border-[#D6D9DE] bg-[#FFFFFF]"}`}>
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
