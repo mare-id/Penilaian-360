@@ -4,6 +4,7 @@ import { initialState } from "./data";
 import { ThemeStyles, Toast, Card, Field, Button, Badge } from "./components/UIComponents";
 import { Login, Sidebar, Topbar } from "./components/AuthComponents";
 import { DashboardView } from "./components/DashboardView";
+import { DeadlineWarningBanner } from "./components/DeadlineWarningBanner";
 import { syncMandatoryAssignments, assignmentsEqual, isEligiblePeer } from "./utils";
 import {
   Profile,
@@ -1357,7 +1358,10 @@ export default function App() {
             state={state}
           />
           <main className="flex-1 overflow-y-auto p-4 lg:p-6 w-full min-w-0">
-            <div className="mx-auto max-w-7xl w-full">{renderActiveView()}</div>
+            <div className="mx-auto max-w-7xl w-full">
+              <DeadlineWarningBanner state={state} user={user} setActive={setActive} />
+              {renderActiveView()}
+            </div>
           </main>
         </div>
         <Toast message={toastMsg} onClose={() => setToastMsg("")} />
