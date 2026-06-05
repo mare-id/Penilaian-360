@@ -276,7 +276,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           <li><strong>Manajemen Evaluator (Rater Proposal):</strong> Fitur mandiri pegawai mengajukan rater (rekan sejawat) untuk disetujui atasan langsung guna menjaga independensi pengisian.</li>
           <li><strong>Verifikasi Atasan:</strong> Fitur khusus bagi atasan langsung untuk meninjau, menyetujui, maupun menolak pengusulan rater rekan sejawat yang diajukan bawahannya.</li>
           <li><strong>Kuesioner Penilaian:</strong> Halaman interaktif untuk melakukan input penilaian secara anonim terhadap target penilaian (Atasan, Rekan, Bawahan, atau Evaluasi Diri).</li>
-          <li><strong>Laporan Indeks Penilaian 360:</strong> Memetakan rekap skor per dimensi BerAKHLAK lengkap dengan diagram/card, analisis kelebihan-kelemahan (bento layout), saran pembinaan fungsional, s.d pengisian form sengketa keberatan langsung.</li>
+          <li><strong>Laporan Indeks Penilaian 360:</strong> Memetakan rekap skor per dimensi BerAKHLAK lengkap dengan diagram/card, analisis kelebihan-kelemahan (bento layout), dan saran pembinaan fungsional secara komparatif.</li>
         </ul>
 
         <div class="info-box">
@@ -1009,7 +1009,7 @@ Konversi Skala 100 = (2.24 / 5) * 100 = 44.80
                     <li>Mengusulkan kuota rekan sejawat (Peer).</li>
                     <li>Mengisi Evaluasi Diri (Self).</li>
                     <li>Mengisi kuesioner rahasia untuk target.</li>
-                    <li>Meninjau Laporan & rekap sengketa.</li>
+                    <li>Meninjau Laporan Indeks Penilaian.</li>
                   </ul>
                 </td>
                 <td>
@@ -1028,7 +1028,7 @@ Konversi Skala 100 = (2.24 / 5) * 100 = 44.80
                     <li>Menyaring audit anomali pengisian.</li>
                     <li>Mengelola master data ASN secara nasional.</li>
                     <li>Merekap ekspor file instansi (Excel & PDF).</li>
-                    <li>Memproses banding formulir sengketa.</li>
+                    <li>Mengelola konfigurasi bobot penilaian.</li>
                   </ul>
                 </td>
               </tr>
@@ -1373,43 +1373,6 @@ Konversi Skala 100 = (4.08 / 5) * 100 = 81.60 &rarr; Predikat Capaian: BAIK (Ska
         <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 11</span></div>
       </div>
 
-      <!-- SLIDE 12: TRANSPARANSI & SENGKETA -->
-      <div class="slide">
-        <div class="slide-title-box">
-          <div class="slide-title">11. Garansi Keadilan: Menu Sengketa Keberatan</div>
-        </div>
-        <div class="slide-content">
-          <table class="table-clean" style="width: 100%;">
-            <tr>
-              <td class="col-left">
-                <div class="warning-card">
-                  <div class="card-title">Mengapa Menu Keberatan Sangat Vital?</div>
-                  <p style="margin: 5px 0 0 0; font-size: 10.5pt; line-height: 1.5;">
-                    Untuk mengimbangi penilaian yang tidak berimbang, jahat, atau bersifat personal (personal dislike) dari rater terpilih. 
-                  </p>
-                  <p style="margin: 5px 0 0 0; font-size: 10.5pt; line-height: 1.5;">
-                    Sistem memberikan hak sanggah dwi-pihak beradab bagi setiap pegawai untuk menyampaikan argumentasi rill pembelaan perilaku kerja mereka.
-                  </p>
-                </div>
-              </td>
-              <td class="col-right">
-                <div class="highlight-card">
-                  <div class="card-title">Alur Proses Sengketa/Keberatan ASN</div>
-                  <ol style="margin-left: 15px; margin-top: 5px;">
-                    <li>Pegawai mengunduh laporan & klik tombol <strong>"Ajukan Sengketa"</strong> jika tidak setuju.</li>
-                    <li>Isikan deskripsi argumentasi bukti konkrit (Contoh: Prestasi kerja rill).</li>
-                    <li>Status laporan diklasifikasikan menjadi <strong>"Sedang Ditinjau Tim"</strong>.</li>
-                    <li>Admin BKPSDM & Atasan mereviu laporan sanggahan pegawai secara jeli.</li>
-                    <li>Tim berhak menyesuaikan atau menolak sangkalan tersebut sesuai asas kepantasan.</li>
-                  </ol>
-                </div>
-              </td>
-            </tr>
-          </table>
-        </div>
-        <div class="slide-footer">Sosialisasi E-Kinerja 360° | BKPSDM Kabupaten Dairi <span class="footer-logo">Halaman 12</span></div>
-      </div>
-
       <!-- SLIDE 13: PEMELIHARAAN DATA ADMIN -->
       <div class="slide">
         <div class="slide-title-box">
@@ -1474,8 +1437,8 @@ Konversi Skala 100 = (4.08 / 5) * 100 = 81.60 &rarr; Predikat Capaian: BAIK (Ska
                     <p style="font-size: 9.5pt; text-align: left; margin-top: 5px;">Membuka survei kuesioner rahasia. Rater melakukan pengisian secara objektif melalui dwi-aspek antarmuka web.</p>
                   </td>
                   <td style="text-align: center;">
-                    <strong>REKAP & BANDING</strong><br>
-                    <p style="font-size: 9.5pt; text-align: left; margin-top: 5px;">Penutupan kuesioner, verifikasi indeks agregasi akhir, pelayanan pengaduan keberatan, dan ekspor formal ke dokumen administrasi.</p>
+                    <strong>REKAP & LAPORAN AKHIR</strong><br>
+                    <p style="font-size: 9.5pt; text-align: left; margin-top: 5px;">Penutupan kuesioner, verifikasi indeks agregasi akhir, serta ekspor formal ke dokumen administrasi (Excel & PDF).</p>
                   </td>
                 </tr>
               </tbody>

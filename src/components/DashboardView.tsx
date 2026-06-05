@@ -24,7 +24,6 @@ export function DashboardView({ state, user, setActive }: DashboardProps) {
   const completeEmployees = allResults.filter((r) => r.result.completed === r.result.total && r.result.total > 0);
   const averageScore = Math.round(average(completeEmployees.map((r) => r.result.final)) || 0);
   const overallProgress = Math.round((state.responses.length / Math.max(1, state.assignments.length)) * 100);
-  const objectionsOpen = state.objections.filter((o) => !["Selesai", "Ditolak"].includes(o.status)).length;
   const anomaliesCount = buildAnomalies(state).length;
 
   const isKepalaBadan = user.role !== "Admin BKPSDM" && employee && (
@@ -36,10 +35,9 @@ export function DashboardView({ state, user, setActive }: DashboardProps) {
   if (isAdmin || isKepalaBadan) {
     return (
       <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 font-display">
+        <div className="grid gap-4 md:grid-cols-3 font-display">
           <StatCard icon={Users} label="Total ASN Terdaftar" value={state.employees.length} />
           <StatCard icon={CheckCircle2} label="Rasio Partisipasi" value={`${overallProgress}%`} tone="emerald" />
-          <StatCard icon={AlertTriangle} label="Sengketa Keberatan Aktif" value={objectionsOpen} tone="yellow" />
           <StatCard icon={EyeOff} label="Indikasi Anomali Nilai" value={anomaliesCount} tone="red" />
         </div>
         

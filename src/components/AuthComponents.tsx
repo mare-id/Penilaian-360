@@ -264,7 +264,6 @@ export function Sidebar({ user, active, setActive, onLogout, open, setOpen, stat
     { key: "verification", label: "Verifikasi Atasan", icon: ClipboardCheck, show: user.role === "ASN" && isAtasan },
     { key: "assessment", label: "Kuesioner Penilaian", icon: FileText, show: user.role === "ASN" },
     { key: "results", label: "Indeks Penilaian 360", icon: Star, show: user.role === "ASN" },
-    { key: "objections", label: "Sengketa Keberatan", icon: AlertTriangle, show: true },
     { key: "progress", label: "Mata Kepatuhan Unit", icon: BarChart3, show: user.role === "Admin BKPSDM" || isAtasan || isKepalaBadan },
     { key: "reports", label: "Rekap Laporan", icon: Download, show: user.role === "Admin BKPSDM" || isKepalaBadan },
     { key: "dataAsn", label: "Master Data ASN", icon: UserCheck, show: user.role === "Admin BKPSDM" },

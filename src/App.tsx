@@ -12,7 +12,6 @@ import {
   Verification,
   Assessment,
   Results,
-  Objections,
   ProgressPage,
   Reports,
   ChangePasswordPage,
@@ -1628,7 +1627,6 @@ export default function App() {
     verification: "Verifikasi Atasan",
     assessment: "Formulir Kuesioner",
     results: "Laporan Indeks Penilaian 360",
-    objections: "Sengketa Keberatan",
     progress: "Mata Kepatuhan Unit Kerja",
     reports: "Rekap Laporan",
     dataAsn: "Master Data ASN",
@@ -1657,8 +1655,6 @@ export default function App() {
         return <Assessment {...pageProps} />;
       case "results":
         return <Results state={state} user={user} />;
-      case "objections":
-        return <Objections {...pageProps} />;
       case "progress":
         return <ProgressPage state={state} />;
       case "reports":
