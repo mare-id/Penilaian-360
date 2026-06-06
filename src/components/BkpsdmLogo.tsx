@@ -25,7 +25,7 @@ export function BkpsdmLogo({
   
   const textColorBk = isLight ? "text-cyan-300" : "text-[#0089a3]"; // teal for "bk"
   const textColorPsdm = isLight ? "text-white" : "text-[#2e3131]"; // dark gray/white for "psdm"
-  const textColorDairi = isLight ? "text-slate-100" : "text-[#0089a3]"; // teal/light-slate for "Kabupaten Dairi"
+  const textColorDairi = isLight ? "logo-dairi-text-light" : "logo-dairi-text-colored"; // custom classes to override aggressive .font-display
 
   return (
     <div className={`inline-flex items-center ${className} select-none`} id="bkpsdm-logo-container">

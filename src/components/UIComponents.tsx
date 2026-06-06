@@ -53,6 +53,14 @@ export function ThemeStyles() {
         color: #0b1329 !important;
       }
 
+      .logo-dairi-text-light.font-display {
+        color: #ffffff !important;
+      }
+
+      .logo-dairi-text-colored.font-display {
+        color: #0089a3 !important;
+      }
+
       .font-mono {
         font-family: "JetBrains Mono", monospace !important;
       }
