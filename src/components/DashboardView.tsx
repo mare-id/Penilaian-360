@@ -23,7 +23,14 @@ export function DashboardView({ state, user, setActive }: DashboardProps) {
   
   const completeEmployees = allResults.filter((r) => r.result.completed === r.result.total && r.result.total > 0);
   const averageScore = Math.round(average(completeEmployees.map((r) => r.result.final)) || 0);
-  const overallProgress = Math.round((state.responses.length / Math.max(1, state.assignments.length)) * 100);
+  
+  const activePeriodId = state.period.id;
+  const periodAssignments = state.assignments.filter((a) => a.periodId === activePeriodId);
+  const periodResponses = state.responses.filter((r) => 
+    periodAssignments.some((a) => a.id === r.assignmentId)
+  );
+  const overallProgress = Math.round((periodResponses.length / Math.max(1, periodAssignments.length)) * 100);
+  
   const anomaliesCount = buildAnomalies(state).length;
 
   const isKepalaBadan = user.role !== "Admin BKPSDM" && employee && (

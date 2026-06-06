@@ -786,6 +786,7 @@ export function AssessmentForm({ state, setState, assignment, onBack, toast }: A
   const visibleDims = (state.dimensions || dimensions).filter((d) => includeLeadership || !d.leadershipOnly);
   
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   // Initialize from draft if it exists in localStorage
   const [scores, setScores] = useState<Record<string, number>>(() => {
@@ -850,7 +851,10 @@ export function AssessmentForm({ state, setState, assignment, onBack, toast }: A
   };
   
   const submit = () => {
-    if (answered < totalQuestions) return toast("Semua pertanyaan kuesioner wajib diberi penilaian.");
+    if (answered < totalQuestions) {
+      setShowWarningModal(true);
+      return;
+    }
     setShowConfirmModal(true);
   };
 
@@ -966,6 +970,63 @@ export function AssessmentForm({ state, setState, assignment, onBack, toast }: A
             <div className="mt-4 flex justify-end gap-2 text-xs">
               <Button type="button" variant="secondary" onClick={() => setShowConfirmModal(false)}>Batal</Button>
               <Button type="button" onClick={processSubmit}>Ya, Kirim Sekarang</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showWarningModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm animate-fade-in font-display">
+          <div className="w-full max-w-md rounded-xl border border-red-200 bg-white p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-red-600"></div>
+            
+            <div className="flex items-start gap-4 mt-1">
+              <div className="rounded-full bg-red-100 p-2 text-red-600 shrink-0">
+                <AlertTriangle className="h-6 w-6 stroke-[2.5]" />
+              </div>
+              
+              <div className="flex-1">
+                <h3 className="text-base font-black text-slate-950 uppercase tracking-wide flex items-center gap-2">
+                  Penilaian Belum Lengkap!
+                </h3>
+                
+                <p className="mt-2 text-xs text-slate-600 leading-relaxed font-semibold">
+                  Penilaian kuesioner Anda tidak dapat dikirimkan ke server karena masih ada butir pertanyaan yang belum dinilai.
+                </p>
+
+                <div className="mt-4 rounded-xl bg-red-50/60 border border-red-100 p-3.5 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-black text-red-950">
+                    <span>Kemajuan Pengisian:</span>
+                    <span>{pct}% Selesai</span>
+                  </div>
+                  
+                  <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-red-600 h-full rounded-full transition-all duration-500 ease-out" 
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-[11px] text-red-800 font-bold pt-1">
+                    <span>Telah Dinilai: {answered} butir</span>
+                    <span>Sisa: {totalQuestions - answered} butir</span>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-xs text-slate-500 leading-relaxed font-medium">
+                  Harap lengkapi seluruh butir penilaian dengan memilih skor <strong className="text-slate-800">1 sampai 5</strong> pada setiap dimensi perilaku di atas sebelum melanjutkan pengiriman.
+                </p>
+
+                <div className="mt-6 flex justify-end">
+                  <Button 
+                    type="button" 
+                    className="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-red-100 transition-all active:scale-95" 
+                    onClick={() => setShowWarningModal(false)}
+                  >
+                    Lengkapi Penilaian Sekarang
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

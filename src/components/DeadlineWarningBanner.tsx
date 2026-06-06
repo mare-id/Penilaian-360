@@ -310,20 +310,28 @@ END:VCALENDAR`;
                       </div>
                     )}
 
-                    {isAdmin && (
-                      <div className="mt-3">
-                        <div className="flex justify-between items-center text-[10.5px] font-bold text-slate-600 mb-1">
-                          <span>Target Partisipasi Instansi (Live)</span>
-                          <span>{Math.round((state.responses.length / Math.max(1, state.assignments.length)) * 100)}%</span>
+                    {isAdmin && (() => {
+                      const activePeriodId = state.period.id;
+                      const activePeriodAssignments = state.assignments.filter((a) => a.periodId === activePeriodId);
+                      const activePeriodResponses = state.responses.filter((r) => 
+                        activePeriodAssignments.some((a) => a.id === r.assignmentId)
+                      );
+                      const overallProgress = Math.round((activePeriodResponses.length / Math.max(1, activePeriodAssignments.length)) * 100);
+                      return (
+                        <div className="mt-3">
+                          <div className="flex justify-between items-center text-[10.5px] font-bold text-slate-600 mb-1">
+                            <span>Target Partisipasi Instansi (Live)</span>
+                            <span>{overallProgress}%</span>
+                          </div>
+                          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border">
+                            <div 
+                              className="h-full bg-cyan-600 rounded-full transition-all duration-500"
+                              style={{ width: `${overallProgress}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border">
-                          <div 
-                            className="h-full bg-cyan-600 rounded-full transition-all duration-500"
-                            style={{ width: `${(state.responses.length / Math.max(1, state.assignments.length)) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
 
                   {/* Right Column: Urgency Information and calendar actions */}
