@@ -372,7 +372,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
         <ul>
           <li><strong>Atasan Langsung:</strong> Ditentukan secara otomatis dan mandatory berdasarkan data struktural atasan di profil.</li>
           <li><strong>Diri Sendiri (Self):</strong> Wajib diisi oleh ASN bersangkutan secara mandiri.</li>
-          <li><strong>Rekan Sejawat (Peer):</strong> Diajukan oleh ASN bersangkutan minimal sesuai batas ketentuan (misal ${state.period.minPeer} orang) yang merupakan ASN satu unit kerja dengan klasifikasi jabatan yang setara. Usulan ini harus disetujui Atasan Langsung Anda.</li>
+          <li><strong>Rekan Sejawat (Peer):</strong> Diajukan oleh ASN bersangkutan (maksimal ${state.period.maxPeer} orang) yang merupakan ASN satu unit kerja dengan klasifikasi jabatan yang setara. Usulan ini harus disetujui Atasan Langsung Anda.</li>
           <li><strong>Bawahan Langsung:</strong> Jika ASN menjabat posisi berpimpinan pangkat struktural (hasSub = true), bawahannya secara otomatis didaftarkan oleh sistem sebagai penilai wajib.</li>
         </ul>
 
@@ -395,7 +395,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           </li>
           <li>Pilih jawaban skala Likert berpangkat dari <strong>Skala 1 (Sangat Jarang/Buruk)</strong> s.d <strong>Skala 5 (Sangat Sering/Sempurna)</strong>.</li>
           <li>Tulis masukan konstruktif (opsional) pada kotak komentar di bagian paling bawah.</li>
-          <li>Klik <strong>"Kirim Kuesioner Penilaian"</strong>.</li>
+          <li>Klik <strong>"Kirim Kuesioner Penilaian"</strong>. Sistem akan melakukan validasi kelengkapan kuesioner Anda secara ketat. Jika terdapat butir pertanyaan yang belum dinilai, sistem secara otomatis akan menahan pengiriman dan menampilkan jendela peringatan yang memvisualisasikan butir tersisa beserta progres penyelesaian Anda agar dapat dilengkapi terlebih dahulu.</li>
         </ol>
       </div>
 
@@ -422,7 +422,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
             <tr class="tr-even">
               <td><strong>Rekan Sejawat (Peer)</strong></td>
               <td>Kamera harian interaksi kerja, budaya kolaborasi se-level.</td>
-              <td>Ditentukan admin (${state.period.minPeer} s.d ${state.period.maxPeer} orang)</td>
+              <td>Hingga ${state.period.maxPeer} orang (Maksimal rater ditentukan admin)</td>
             </tr>
             <tr>
               <td><strong>Bawahan Langsung</strong></td>
@@ -657,7 +657,7 @@ Konversi Skala 100 = (${ex3Score.toFixed(3)} / 5) * 100 = ${ex3Score100.toFixed(
         <h2>3.1 Panduan Manajemen Pengaturan & Manajemen Periode</h2>
         <p>Bagi Administrator Sistem (Admin BKPSDM), halaman <strong>"Setelan Sistem"</strong> merupakan kontrol pusat aplikasi:</p>
         <ul>
-          <li><strong>Membuat Periode Penilaian Baru:</strong> Masukkan nama periode, rentang waktu mulai s.d selesai, ubah detail parameter rater (Min Peer, Max Peer, Max Bawahan struktural). Gunakan opsi pencarian periode bulanan/triwulan instan.</li>
+          <li><strong>Membuat Periode Penilaian Baru:</strong> Masukkan nama periode, rentang waktu mulai s.d selesai, ubah detail parameter rater (Max Peer, Max Bawahan struktural). Gunakan opsi pencarian periode bulanan/triwulan instan.</li>
           <li><strong>Kustomisasi Bobot Penilaian:</strong> Atur persentase bobot dengan maupun tanpa bawahan langsung pada kolom isian numerik yang disediakan. Pastikan total penjumlahan bobot = 100%.</li>
           <li><strong>Aktivasi Periode Global:</strong> Anda dapat mengaktifkan salah satu periode historis yang tersimpan agar seluruh antarmuka pengisian kuesioner dan ekspor dinonjolkan pada rentang periode sasaran tersebut secara nasional.</li>
         </ul>
@@ -1152,7 +1152,7 @@ Konversi Skala 100 = (${ex3Score.toFixed(3)} / 5) * 100 = ${ex3Score100.toFixed(
                     <li>Harus bersumber dari <strong>satu unit kerja</strong> (atau urusan tupoksi sejenis yang intensitas kerjanya tumpang-tindih).</li>
                     <li>Tingkatan klasifikasi pangkat atau jabatan setara/se-level.</li>
                     <li>Memiliki integritas perilaku kerja yang netral.</li>
-                    <li>Jumlah pengusulan kuota: minimal <strong>${state.period.minPeer} orang</strong> dan maksimal <strong>${state.period.maxPeer} orang</strong>.</li>
+                    <li>Jumlah pengusulan kuota: maksimal <strong>${state.period.maxPeer} orang</strong>.</li>
                   </ul>
                 </div>
               </td>
