@@ -559,17 +559,65 @@ export function assignmentsEqual(a: Assignment[], b: Assignment[]): boolean {
 export function isEligiblePeer(evaluator: Employee, evaluee: Employee): boolean {
   if (evaluator.id === evaluee.id) return false;
   if (evaluator.id === evaluee.atasanId) return false;
+  if (evaluee.id === evaluator.atasanId) return false;
   
-  // 1. Peer rater hanya yang berada dalam unit kerja yang sama
+  // 1. ASN hanya boleh menilai rekan sejawat dalam satu unit kerja
   if (evaluator.unit !== evaluee.unit) return false;
   
-  // 2. Tingkat jabatan setingkat, ATAU Jabatan Fungsional dengan Pelaksana (vice versa)
-  const isSameJenis = evaluator.jenis === evaluee.jenis;
-  const isFungsionalAndPelaksana = 
-    (evaluator.jenis === "Fungsional" && evaluee.jenis === "Pelaksana") ||
-    (evaluator.jenis === "Pelaksana" && evaluee.jenis === "Fungsional");
-    
-  return isSameJenis || isFungsionalAndPelaksana;
+  // Resolve jenjang for evaluator and evaluee cleanly
+  const getJenjang = (emp: Employee) => {
+    if (emp.jenjang) return emp.jenjang;
+    const j = jobCatalog.find((x) => x.name === emp.jabatan);
+    return j?.jenjang || "";
+  };
+
+  const evalJenjang = getJenjang(evaluator);
+  const evalueeJenjang = getJenjang(evaluee);
+
+  // Group 1: Pelaksana, Jabatan Fungsional Jenjang Mahir, Jabatan Fungsional Jenjang Ahli Pertama
+  const isGroup1 = (emp: Employee, jenjang: string) => {
+    return (
+      emp.jenis === "Pelaksana" ||
+      (emp.jenis === "Fungsional" && (jenjang === "Mahir" || jenjang === "Ahli Pertama"))
+    );
+  };
+
+  // Group 2: Jabatan Fungsional Jenjang Ahli Muda
+  const isGroup2 = (emp: Employee, jenjang: string) => {
+    return emp.jenis === "Fungsional" && jenjang === "Ahli Muda";
+  };
+
+  // Group 3: Jabatan Fungsional Jenjang Ahli Madya
+  const isGroup3 = (emp: Employee, jenjang: string) => {
+    return emp.jenis === "Fungsional" && jenjang === "Ahli Madya";
+  };
+
+  const isEvalInG1 = isGroup1(evaluator, evalJenjang);
+  const isEvalueeInG1 = isGroup1(evaluee, evalueeJenjang);
+
+  const isEvalInG2 = isGroup2(evaluator, evalJenjang);
+  const isEvalueeInG2 = isGroup2(evaluee, evalueeJenjang);
+
+  const isEvalInG3 = isGroup3(evaluator, evalJenjang);
+  const isEvalueeInG3 = isGroup3(evaluee, evalueeJenjang);
+
+  // 2. ASN Pelaksana, JF Mahir, dan JF Ahli Pertama hanya menilai kasta yang sama
+  if (isEvalInG1 || isEvalueeInG1) {
+    return isEvalInG1 && isEvalueeInG1;
+  }
+
+  // 3. ASN JF Ahli Muda hanya menilai sesama JF Ahli Muda
+  if (isEvalInG2 || isEvalueeInG2) {
+    return isEvalInG2 && isEvalueeInG2;
+  }
+
+  // 4. ASN JF Ahli Madya hanya menilai sesama JF Ahli Madya
+  if (isEvalInG3 || isEvalueeInG3) {
+    return isEvalInG3 && isEvalueeInG3;
+  }
+
+  // Fallback default setingkat untuk jabatan kepemimpinan (JPT Pratama, Administrator, Pengawas)
+  return evaluator.jenis === evaluee.jenis;
 }
 
 export function seededShuffle<T>(array: T[], seed: number): T[] {

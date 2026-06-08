@@ -157,7 +157,7 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
     });
 
     if (invalidSelected) {
-      return toast("Seluruh peer evaluator terpilih wajib berada di unit kerja yang sama dan memiliki tingkat jabatan setingkat, atau kombinasi jabatan Fungsional & Pelaksana.");
+      return toast("Seluruh peer evaluator terpilih wajib di satu unit kerja & sesuai aturan klaster jabatan (Pelaksana/Mahir/Pertama vs Ahli Muda vs Ahli Madya).");
     }
 
     if (!confirm("Apakah Anda yakin ingin menyimpan dan mengirimkan usulan rater rekan sejawat (peer) ini untuk proses penilaian?")) {
@@ -298,7 +298,7 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
               Penilaian Rekan Sejawat Acak (Otomatis) Aktif
             </h2>
             <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-              Sistem telah memilih dan menetapkan Rekan Sejawat (Peer Evaluator) Anda secara acak dan otomatis sesuai dengan kriteria regulasi (Unit Kerja Sama: <b>{employee.unit}</b> & Jabatan Setingkat / Fungsional ↔️ Pelaksana).
+              Sistem telah memilih dan menetapkan Rekan Sejawat (Peer Evaluator) Anda secara acak dan otomatis sesuai dengan kriteria regulasi (Satu Unit Kerja & Klaster Jabatan sepadan).
             </p>
             <div className="mt-3 p-3 bg-white rounded-xl border border-violet-100/50 text-xs text-slate-500 leading-relaxed font-semibold shadow-sm">
               💡 <b>Informasi Regulasi:</b> Sesuai kebijakan penatausahaan penilaian kinerja periode ini, Anda tidak diperkenankan untuk memilih rater rekan sejawat Anda sendiri demi objektivitas penilaian 360 derajat. Pilihan dari sistem ini bersifat acak, final, dan langsung disetujui otomatis secara tersistem.
@@ -389,9 +389,12 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
                   ? `Anda memiliki ${sortedPeers.length} rekan kerja satu unit yang dapat dipilih. Silakan pilih hingga ${Math.min(state.period.maxPeer, sortedPeers.length)} orang tersebut.`
                   : "Anda tidak memiliki rekan kerja satu unit yang memenuhi syarat."}
               </p>
-              <div className="mt-1.5">
+              <div className="mt-1.5 flex flex-col gap-1 items-start">
                 <Badge className="bg-indigo-50 border-indigo-200 text-indigo-700 text-[10px] font-semibold">
-                  Sesuai Aturan: Unit Kerja Sama ({employee.unit}) & Jabatan Setingkat / Fungsional ↔️ Pelaksana
+                  Aturan Unit: Wajib Satu Unit Kerja ({employee.unit})
+                </Badge>
+                <Badge className="bg-emerald-50 border-emerald-200 text-emerald-700 text-[10px] font-semibold">
+                  Aturan Jabatan: Klaster sesuai jenjang (Pelaksana/Mahir/Pertama vs Ahli Muda vs Ahli Madya)
                 </Badge>
               </div>
             </div>
@@ -403,7 +406,7 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
               <Users className="mx-auto h-12 w-12 text-slate-400 stroke-[1.5] mb-2" />
               <h3 className="text-sm font-black text-slate-750 font-display">Tidak Mempunyai Rekan Kerja yang Memenuhi Syarat</h3>
               <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
-                Anda tidak memiliki rekan kerja dengan level pangkat/jenis jabatan setingkat, atau kombinasi Fungsional-Pelaksana di unit kerja yang sama ({employee.unit}). Sesuai regulasi, Anda dikecualikan dari penilaian peer.
+                Anda tidak memiliki rekan kerja dengan rumpun/klaster jabatan atau jenjang yang sama di unit kerja yang sama ({employee.unit}). Sesuai regulasi, Anda dikecualikan dari penilaian peer.
               </p>
             </div>
           ) : (
