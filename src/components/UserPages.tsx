@@ -25,6 +25,9 @@ export function Profile({ state, setState, user, toast }: PageProps) {
 
   const save = () => {
     if (!/^\d{18}$/.test(form.nip)) return toast("NIP wajib 18 digit angka.");
+    if (!confirm("Apakah Anda yakin ingin menyimpan perubahan data profil Anda?")) {
+      return;
+    }
     setState((s) => ({
       ...s,
       employees: s.employees.map((e) => (e.id === employee.id ? { ...e, ...form } : e)),
@@ -155,6 +158,10 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
 
     if (invalidSelected) {
       return toast("Seluruh peer evaluator terpilih wajib berada di unit kerja yang sama dan memiliki tingkat jabatan setingkat, atau kombinasi jabatan Fungsional & Pelaksana.");
+    }
+
+    if (!confirm("Apakah Anda yakin ingin menyimpan dan mengirimkan usulan rater rekan sejawat (peer) ini untuk proses penilaian?")) {
+      return;
     }
 
     const isRandomized = !!state.period.randomizePeers;
@@ -466,6 +473,10 @@ export function Verification({ state, setState, user, toast }: PageProps) {
   const items = state.pendingRaters.filter((p) => subordinates.some((s) => s.id === p.evalueeId));
 
   const approve = (item: PendingRaters) => {
+    const evaluee = state.employees.find((e) => e.id === item.evalueeId);
+    if (!confirm(`Apakah Anda yakin ingin menyetujui usulan rater rekan sejawat untuk pegawai "${evaluee?.nama || "Bawahan"}"?`)) {
+      return;
+    }
     setState((s) => {
       const newAssignments: Assignment[] = item.proposedIds.map((pid) => ({
         id: Date.now() + pid,
@@ -486,6 +497,10 @@ export function Verification({ state, setState, user, toast }: PageProps) {
   };
 
   const reject = (item: PendingRaters) => {
+    const evaluee = state.employees.find((e) => e.id === item.evalueeId);
+    if (!confirm(`Apakah Anda yakin ingin menolak usulan rater rekan sejawat untuk pegawai "${evaluee?.nama || "Bawahan"}"?`)) {
+      return;
+    }
     const reason = prompt("Masukkan alasan penolakan evaluator:");
     if (!reason) return toast("Alasan penolakan wajib diisi.");
     setState((s) => ({
@@ -2159,6 +2174,9 @@ export function ChangePasswordPage({ state, setState, user, setUser, toast }: Ch
   const [show, setShow] = useState(false);
 
   const save = () => {
+    if (!confirm("Apakah Anda yakin ingin memperbarui dan menyimpan password baru Anda?")) {
+      return;
+    }
     if (isAdmin) {
       if (!adminAccount) return toast("Sesi admin tidak ditemukan.");
       const currentPassword = adminAccount.password || "admin123";

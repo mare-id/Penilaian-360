@@ -84,6 +84,9 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
   const [enabledInput, setEnabledInput] = useState(dbConfig.isEnabled);
 
   const saveConfig = () => {
+    if (!confirm("Apakah Anda yakin ingin menyimpan konfigurasi database Supabase ini?")) {
+      return;
+    }
     const updated = {
       url: urlInput.trim(),
       anonKey: anonKeyInput.trim(),
@@ -704,6 +707,9 @@ export default function App() {
   const toast = (msg: string) => setToastMsg(msg);
   
   const reset = () => {
+    if (!confirm("⚠️ PERINGATAN: Apakah Anda yakin ingin menghapus seluruh progres dan menyetel ulang semua data simulasi ke kondisi bawaan awal?")) {
+      return;
+    }
     setState(initialState);
     toast("Seluruh data simulasi berhasil direset ke kondisi awal.");
   };

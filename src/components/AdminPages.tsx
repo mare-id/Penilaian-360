@@ -104,6 +104,9 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
   };
 
   const save = () => {
+    if (!confirm(editing ? "Apakah Anda yakin ingin menyimpan perubahan data ASN ini?" : "Apakah Anda yakin ingin menambahkan data ASN baru ini?")) {
+      return;
+    }
     if (!form.nama.trim()) return toast("Nama ASN wajib diisi.");
     if (!validNip(form.nip)) return toast("NIP wajib 18 digit angka.");
     const duplicate = state.employees.some((e) => e.nip === form.nip && e.id !== form.id);
@@ -166,6 +169,9 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
 
   const confirmDelete = () => {
     if (!asnToDelete) return;
+    if (!confirm(`Apakah Anda benar-benar yakin ingin menghapus data ASN "${asnToDelete.nama}" dari sistem secara permanen?`)) {
+      return;
+    }
     const targetId = asnToDelete.id;
 
     setState((s) => ({
@@ -195,6 +201,9 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
   };
 
   const saveAdmin = () => {
+    if (!confirm(editingAdmin ? "Apakah Anda yakin ingin menyimpan perubahan kewenangan admin ini?" : "Apakah Anda yakin ingin mendaftarkan admin baru ini?")) {
+      return;
+    }
     if (!adminForm.username.trim()) return toast("Username admin wajib diisi.");
     if (!adminForm.name.trim()) return toast("Nama admin wajib diisi.");
     if (!adminForm.password.trim() || adminForm.password.length < 6) return toast("Password admin minimal 6 karakter.");
@@ -236,6 +245,9 @@ export function DataASNPage({ state, setState, toast, user }: PageProps) {
   const removeAdmin = (adm: any) => {
     if (user && user.role === "Admin BKPSDM" && user.username === adm.username) {
       return toast("Anda tidak dapat menghapus akun admin yang sedang aktif Anda gunakan.");
+    }
+    if (!confirm(`Apakah Anda yakin ingin menghapus kewenangan admin "${adm.name}" secara permanen?`)) {
+      return;
     }
     setState((s) => ({
       ...s,
@@ -567,6 +579,9 @@ export function UnitCrudPage({ state, setState, toast }: PageProps) {
   const [unitToDelete, setUnitToDelete] = useState<OrgUnit | null>(null);
 
   const save = () => {
+    if (!confirm(editing ? "Apakah Anda yakin ingin menyimpan perubahan unit kerja ini?" : "Apakah Anda yakin ingin menambahkan unit kerja baru ini?")) {
+      return;
+    }
     if (!form.name.trim()) return toast("Nama unit kerja wajib diisi.");
     const duplicate = currentUnits.some((u) => u.name.toLowerCase() === form.name.toLowerCase() && u.id !== form.id);
     if (duplicate) return toast("Nama unit kerja sudah ada.");
@@ -610,6 +625,9 @@ export function UnitCrudPage({ state, setState, toast }: PageProps) {
 
   const confirmDeleteUnit = () => {
     if (!unitToDelete) return;
+    if (!confirm(`Apakah Anda benar-benar yakin ingin menghapus Unit Kerja "${unitToDelete.name}" secara permanen?`)) {
+      return;
+    }
     setState((s) => ({
       ...s,
       orgUnits: (s.orgUnits && s.orgUnits.length > 0 ? s.orgUnits : orgUnitCatalog).filter((u) => u.id !== unitToDelete.id),
@@ -754,6 +772,9 @@ export function JobCrudPage({ state, setState, toast }: PageProps) {
   const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
 
   const save = () => {
+    if (!confirm(editing ? "Apakah Anda yakin ingin menyimpan perubahan jabatan ini?" : "Apakah Anda yakin ingin menambahkan jabatan baru ini?")) {
+      return;
+    }
     if (!form.name.trim()) return toast("Nama jabatan wajib diisi.");
     if (form.type === "Fungsional" && !form.jenjang) {
       return toast("Jenjang jabatan fungsional wajib dipilih.");
@@ -798,6 +819,9 @@ export function JobCrudPage({ state, setState, toast }: PageProps) {
 
   const confirmDeleteJob = () => {
     if (!jobToDelete) return;
+    if (!confirm(`Apakah Anda benar-benar yakin ingin menghapus Jabatan "${jobToDelete.name}" secara permanen?`)) {
+      return;
+    }
     setState((s) => ({
       ...s,
       jobs: (s.jobs && s.jobs.length > 0 ? s.jobs : jobCatalog).filter((j) => j.id !== jobToDelete.id),
@@ -1026,6 +1050,9 @@ export function DimensionCrudPage({ state, setState, toast }: PageProps) {
   const handleAddQuestion = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newQuestionText.trim()) return toast("Teks butir pertanyaan tidak boleh kosong.");
+    if (!confirm(`Apakah Anda yakin ingin menambahkan butir kuesioner baru pada dimensi "${selectedDim.name}"?`)) {
+      return;
+    }
 
     const updated = activeDims.map((d) => {
       if (d.key === selectedDimKey) {
@@ -1053,6 +1080,9 @@ export function DimensionCrudPage({ state, setState, toast }: PageProps) {
   const handleSaveQuestionEdit = () => {
     if (editingIndex === null) return;
     if (!editingQuestionText.trim()) return toast("Teks butir pertanyaan tidak boleh kosong.");
+    if (!confirm("Apakah Anda yakin ingin menyimpan perubahan butir pertanyaan kuesioner ini?")) {
+      return;
+    }
 
     const updated = activeDims.map((d) => {
       if (d.key === selectedDimKey) {
@@ -1136,6 +1166,9 @@ export function DimensionCrudPage({ state, setState, toast }: PageProps) {
     e.preventDefault();
     if (!dimForm.name.trim()) return toast("Nama dimensi kuesioner tidak boleh kosong.");
     if (!dimForm.key.trim()) return toast("Kunci (key) identifikasi tidak boleh kosong.");
+    if (!confirm(isEditingDimMeta ? `Apakah Anda yakin ingin menyimpan perubahan metadata dimensi kuesioner "${dimForm.name}"?` : `Apakah Anda yakin ingin menambahkan dimensi baru "${dimForm.name}"?`)) {
+      return;
+    }
 
     // Validate alphanumeric keys to prevent calculation failures
     const keyRegex = /^[a-zA-Z0-9_]+$/;

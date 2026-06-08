@@ -273,6 +273,9 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
 
   // Save changes to system state
   const handleSaveDeadline = () => {
+    if (!confirm(`Apakah Anda yakin ingin menyimpan perubahan data periode, pembobotan, dan batas waktu untuk "${period.name}"?`)) {
+      return;
+    }
     const w = period.weightsWithSub;
     const n = period.weightsNoSub;
     const c3 = period.weightsCond3 || { Atasan: 75, Peer: 0, Bawahan: 25 };
@@ -359,6 +362,9 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
   };
 
   const handleSaveAsNew = () => {
+    if (!confirm(`Apakah Anda yakin ingin mempublikasikan dan menyimpan periode penilaian baru "${period.name}"?`)) {
+      return;
+    }
     const w = period.weightsWithSub;
     const n = period.weightsNoSub;
     const c3 = period.weightsCond3 || { Atasan: 75, Peer: 0, Bawahan: 25 };
@@ -1297,10 +1303,26 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                   </span>
                 </Field>
 
-                <div className="col-span-1 md:col-span-2 mt-2 p-3 bg-indigo-50 border border-indigo-100/90 rounded-xl text-[10.5px] text-indigo-950 font-medium">
+                <div className="col-span-1 md:col-span-2 mt-2 p-3 bg-indigo-50 border border-indigo-100/90 rounded-xl text-[10.5px] text-indigo-950 font-medium pb-2.5">
                   💡 <b>Logika Rumus Terpadu:</b> Nilai Akhir Perilaku = (Skor Perilaku × <b>{period.weightBehavior ?? 80}%</b>) + (Skor Kepatuhan × <b>{period.weightCompliance ?? 20}%</b>)
                 </div>
               </div>
+            </div>
+
+            {/* ACTION FOOTER CARD 2 */}
+            <div className="mt-5 pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
+              <span className="text-[10px] text-slate-500 font-semibold italic">
+                *Pastikan total persentase kondisi bobot di atas berselisih tepat 100% sebelum disimpan.
+              </span>
+              <Button 
+                type="button"
+                variant="primary" 
+                onClick={handleSaveDeadline}
+                className="flex items-center gap-1.5 py-2 px-5 text-xs font-black shadow-md shrink-0"
+              >
+                <Save className="w-4 h-4 font-bold" />
+                Simpan Bobot &amp; Aturan Kepatuhan
+              </Button>
             </div>
           </Card>
         </div>
