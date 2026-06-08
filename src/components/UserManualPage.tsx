@@ -114,7 +114,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
       <html>
       <head>
         <meta charset="utf-8">
-        <title>Panduan E-Kinerja 360 BKPSDM Kabupaten Dairi</title>
+        <title>Panduan Penilaian 360 BKPSDM Kabupaten Dairi</title>
         <style>
           @media print {
             body {
@@ -306,7 +306,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
       <!-- HALAMAN SAMPUL -->
       <div class="cover">
         <div class="logo-box">🏢 BKPSDM DAIRI</div>
-        <div class="title">PANDUAN PENGGUNAAN & DOKUMENTASI SISTEM<br>E-KINERJA PENILAIAN PERILAKU 360° ASN</div>
+        <div class="title">PANDUAN PENGGUNAAN & DOKUMENTASI SISTEM<br> PENILAIAN PERILAKU 360° ASN</div>
         <div class="subtitle">Manual Operasional Lengkap Untuk Pegawai ASN dan Administrator Sistem</div>
         
         <div class="meta-info">
@@ -320,8 +320,8 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
       <!-- KATA PENGANTAR -->
       <div class="page-break">
         <h1>KATA PENGANTAR</h1>
-        <p>Puji dan syukur kita panjatkan ke hadirat Tuhan Yang Maha Esa atas tersusunnya <strong>Buku Panduan Penggunaan Aplikasi E-Kinerja Penilaian Perilaku 360° ASN</strong>.</p>
-        <p>Aplikasi ini dikembangkan untuk mereformasi tata cara pengukuran kinerja perilaku pegawai sesuai konsep Core Values ASN BerAKHLAK (Berorientasi Pelayanan, Akuntabel, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) dengan metode umpan balik 360 derajat secara transparan, anonim, terukur, dan aman.</p>
+        <p>Puji dan syukur kita panjatkan ke hadirat Tuhan Yang Maha Esa atas tersusunnya <strong>Buku Panduan Penggunaan Aplikasi Penilaian Perilaku 360° ASN</strong>.</p>
+        <p>Aplikasi ini dikembangkan untuk mereformasi tata cara pengukuran perilaku pegawai sesuai konsep Core Values ASN BerAKHLAK (Berorientasi Pelayanan, Akuntabel, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) dengan metode umpan balik 360 derajat secara transparan, anonim, terukur, dan aman.</p>
         <p>Dengan adanya panduan komprehensif ini, diharapkan seluruh ASN di lingkungan Kabupaten Dairi dapat memahami dan memanfaatkan aplikasi ini dengan optimal. Akhir kata, BKPSDM senantiasa berupaya menyempurnakan sistem ini guna mewujudkan meritokrasi dan profesionalisme ASN.</p>
         <p style="margin-top: 40px; text-align: right;"><strong>Hormat Kami,</strong></p>
         <p style="text-align: right;"><strong>BKPSDM Kabupaten Dairi</strong></p>
@@ -332,7 +332,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
         <h1>BAB I: PENGENALAN FITUR & PETUNJUK USER ASN</h1>
         
         <h2>1.1 Pengenalan Fitur Utama Aplikasi</h2>
-        <p>Aplikasi E-Kinerja 360° memiliki beberapa fitur modular yang disesuaikan dengan posisi kedudukan pegawai (ASN biasa vs ASN Atasan Langsung/Kepala Unit):</p>
+        <p>Aplikasi Penilaian 360° memiliki beberapa fitur modular yang disesuaikan dengan posisi kedudukan pegawai (ASN biasa vs ASN Atasan Langsung/Kepala Unit):</p>
         <ul>
           <li><strong>Dashboard Utama:</strong> Memuat rangkuman interaktif real-time mengenai periode penilaian, profil, status rater, kelengkapan pengisian, ringkasan skor radar chart, hingga analisis anomali personal.</li>
           <li><strong>Profil ASN:</strong> Menu melihat dan memperbarui identitas pribadi (Nama, NIP, Golongan, Jabatan, Unit Kerja, status memiliki bawahan, dsb).</li>
@@ -447,8 +447,8 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
           <li><strong>Skor 1: Sangat Jarang / Sangat Kurang</strong> - Hampir tidak pernah berperilaku positif.</li>
         </ul>
 
-        <h2>2.3 Metode & Rumus Aljabar Perhitungan Skor Perilaku (E-Kinerja)</h2>
-        <p>Penghitungan skor perilaku 360-degree feedback pada Sistem Informasi E-Kinerja BKPSDM Kabupaten Dairi dilakukan melalui 3 tahapan matematis berurutan tanpa memasukkan unsur penilaian diri sendiri (Evaluasi Diri bernilai bobot 0% / dikeluarkan dari kalkulasi untuk menjaga objektivitas murni rekan sejawat, bawahan, dan atasan):</p>
+        <h2>2.3 Metode & Rumus Aljabar Perhitungan Skor Penilaian 360</h2>
+        <p>Penghitungan skor perilaku 360-degree feedback pada Sistem Informasi BKPSDM Kabupaten Dairi dilakukan melalui 3 tahapan matematis berurutan tanpa memasukkan unsur penilaian diri sendiri (Evaluasi Diri bernilai bobot 0% / dikeluarkan dari kalkulasi untuk menjaga objektivitas murni rekan sejawat, bawahan, dan atasan):</p>
 
         <h3>Tahap A: Perhitungan Rata-rata Skor per Dimensi dari Rater Individu</h3>
         <p>Setiap dimensi perilaku terdiri dari 5 butir pertanyaan kuesioner berskala Likert (1 s.d 5). Rata-rata nilai dimensi dari satu rater dihitung dengan menjumlahkan seluruh skor butir pertanyaan pada dimensi tersebut lalu dibagi dengan 5:</p>
