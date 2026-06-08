@@ -312,7 +312,7 @@ export function UserManualPage({ state, user, toast }: { state: AppState; user: 
         <div class="meta-info">
           <p><strong>Diterbitkan Oleh:</strong> Badan Kepegawaian dan Pengembangan Sumber Daya Manusia (BKPSDM) Kabupaten Dairi</p>
           <p><strong>Sasar Sistem:</strong> Perilaku Core Values BerAKHLAK (Aparatur Sipil Negara)</p>
-          <p><strong>Versi Dokumen:</strong> 2.4.2 PREMIUM NAVY EDITION</p>
+          <p><strong>Versi Dokumen:</strong> 2.4.2 BKPSDM 360 EDITION</p>
           <p><strong>Tanggal Cetak:</strong> ${todayStr}</p>
         </div>
       </div>

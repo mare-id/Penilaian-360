@@ -329,7 +329,7 @@ export function Sidebar({ user, active, setActive, onLogout, open, setOpen, stat
             Keluar Sistem
           </button>
           <div className="mt-3 text-[9px] text-blue-300 text-center font-mono font-bold">
-            v2.4.2 PREMIUM NAVY ⚡
+            v2.4.2 BKPSDM 360 ⚡
           </div>
         </div>
       </div>
