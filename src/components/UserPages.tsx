@@ -589,7 +589,7 @@ export function Assessment({ state, setState, user, toast }: PageProps) {
           <div>
             <h2 className="text-xl font-black font-display text-slate-950">Dashboard Evaluasi Kuesioner</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Sesuai SKP Terpadu e-Kinerja, Anda memiliki peran evaluasi berdasarkan struktur organisasi dan usulan peer.
+              Anda memiliki peran evaluasi berdasarkan struktur organisasi dan usulan peer.
             </p>
           </div>
           <div className="flex gap-4 text-xs font-semibold">

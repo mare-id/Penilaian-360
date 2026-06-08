@@ -1566,7 +1566,7 @@ Konversi Skala 100 = (${ex2Score.toFixed(3)} / 5) * 100 = ${ex2Score100.toFixed(
               Pusat Pengetahuan & Bantuan 💎
             </span>
             <h1 className="text-2xl font-black font-display text-white" style={{ color: "#ffffff !important" }}>
-              Dokumentasi & Panduan E-Kinerja 360
+              Dokumentasi & Panduan Penilaian 360
             </h1>
             <p className="text-xs text-blue-200 max-w-2xl font-bold leading-relaxed">
               Panduan operasional lengkap, penjelasan detail metodologi perhitungan skor indeks perilaku, konfigurasi server database administrator, s.d catatan rekayasa rilis ter-update.
