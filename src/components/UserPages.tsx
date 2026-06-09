@@ -10,12 +10,13 @@ interface PageProps {
   setState: React.Dispatch<React.SetStateAction<AppState>>;
   user: DemoAccount;
   toast: (msg: string) => void;
+  logAction?: (username: string, name: string, role: string, action: string, details: string) => void;
 }
 
 // ---------------------------------------------
 // PROFILE PAGE
 // ---------------------------------------------
-export function Profile({ state, setState, user, toast }: PageProps) {
+export function Profile({ state, setState, user, toast, logAction }: PageProps) {
   const employee = state.employees.find((e) => e.id === user.userId) || state.employees[0];
   const [form, setForm] = useState({
     ...employee,
@@ -33,6 +34,18 @@ export function Profile({ state, setState, user, toast }: PageProps) {
       employees: s.employees.map((e) => (e.id === employee.id ? { ...e, ...form } : e)),
     }));
     toast("Profil ASN berhasil diperbarui.");
+    if (logAction) {
+      const isKepala = user.role !== "Admin BKPSDM" && (employee.jabatan.toLowerCase() === "kepala badan" || employee.id === 1);
+      const isAtasan = user.role !== "Admin BKPSDM" && employee.hasSub;
+      const displayRole = user.role === "Admin BKPSDM"
+        ? "Admin BKPSDM"
+        : isKepala
+        ? "Kepala Badan"
+        : isAtasan
+        ? "Atasan Langsung"
+        : "Pegawai ASN";
+      logAction(user.username || user.nip, user.name, displayRole, "Ubah Profil", `Memperbarui detail data profil mandiri.`);
+    }
   };
 
   return (
@@ -115,7 +128,7 @@ export function Profile({ state, setState, user, toast }: PageProps) {
 // ---------------------------------------------
 // RATER MANAGEMENT PAGE
 // ---------------------------------------------
-export function RaterManagement({ state, setState, user, toast }: PageProps) {
+export function RaterManagement({ state, setState, user, toast, logAction }: PageProps) {
   const employee = state.employees.find((e) => e.id === user.userId) || state.employees[0];
   const directBoss = state.employees.find((e) => e.id === employee.atasanId);
   const pending = state.pendingRaters.find((p) => p.evalueeId === employee.id);
@@ -228,6 +241,24 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
       toast("Rekan sejawat berhasil disimpan dan langsung disetujui otomatis!");
     } else {
       toast("Usulan evaluator dikirim ke atasan langsung.");
+    }
+    if (logAction) {
+      const isKepala = user.role !== "Admin BKPSDM" && (employee.jabatan.toLowerCase() === "kepala badan" || employee.id === 1);
+      const isAtasan = user.role !== "Admin BKPSDM" && employee.hasSub;
+      const displayRole = user.role === "Admin BKPSDM"
+        ? "Admin BKPSDM"
+        : isKepala
+        ? "Kepala Badan"
+        : isAtasan
+        ? "Atasan Langsung"
+        : "Pegawai ASN";
+      logAction(
+        user.username || user.nip,
+        user.name,
+        displayRole,
+        "Manajemen Evaluator",
+        `Mengusulkan ${selected.length} orang rekan sejawat sebagai rater penilaian 360 derajat (${isRandomized ? "Langsung Disetujui Otomatis" : "Status: Menunggu Verifikasi Atasan"}).`
+      );
     }
   };
 
@@ -470,7 +501,7 @@ export function RaterManagement({ state, setState, user, toast }: PageProps) {
 // ---------------------------------------------
 // VERIFICATION PAGE
 // ---------------------------------------------
-export function Verification({ state, setState, user, toast }: PageProps) {
+export function Verification({ state, setState, user, toast, logAction }: PageProps) {
   const boss = state.employees.find((e) => e.id === user.userId);
   const subordinates = state.employees.filter((e) => e.atasanId === boss?.id);
   const items = state.pendingRaters.filter((p) => subordinates.some((s) => s.id === p.evalueeId));
@@ -497,6 +528,15 @@ export function Verification({ state, setState, user, toast }: PageProps) {
       };
     });
     toast("Evaluator disetujui dan daftar dikunci.");
+    if (logAction) {
+      logAction(
+        user.username || user.nip,
+        user.name,
+        "Atasan Langsung",
+        "Verifikasi Rater",
+        `Menyetujui usulan rater rekan sejawat (peer) untuk bawahan: ${evaluee?.nama}.`
+      );
+    }
   };
 
   const reject = (item: PendingRaters) => {
@@ -511,6 +551,15 @@ export function Verification({ state, setState, user, toast }: PageProps) {
       pendingRaters: s.pendingRaters.map((p) => (p.id === item.id ? { ...p, status: "Ditolak", rejectionReason: reason } : p)),
     }));
     toast("Usulan evaluator ditolak.");
+    if (logAction) {
+      logAction(
+        user.username || user.nip,
+        user.name,
+        "Atasan Langsung",
+        "Verifikasi Rater",
+        `Menolak usulan rater rekan sejawat (peer) untuk bawahan: ${evaluee?.nama} dengan alasan: "${reason}".`
+      );
+    }
   };
 
   return (
@@ -564,7 +613,7 @@ export function Verification({ state, setState, user, toast }: PageProps) {
 // ---------------------------------------------
 // ASSESSMENT PAGE & ASSESSMENTFORM
 // ---------------------------------------------
-export function Assessment({ state, setState, user, toast }: PageProps) {
+export function Assessment({ state, setState, user, toast, logAction }: PageProps) {
   const employee = state.employees.find((e) => e.id === user.userId);
   const assignments = state.assignments.filter((a) => a.evaluatorId === employee?.id && a.periodId === state.period.id);
   const [activeAssignment, setActiveAssignment] = useState<Assignment | null>(null);
@@ -577,6 +626,8 @@ export function Assessment({ state, setState, user, toast }: PageProps) {
         assignment={activeAssignment}
         onBack={() => setActiveAssignment(null)}
         toast={toast}
+        logAction={logAction}
+        user={user}
       />
     );
   }
@@ -796,9 +847,11 @@ interface AssessmentFormProps {
   assignment: Assignment;
   onBack: () => void;
   toast: (msg: string) => void;
+  logAction?: (username: string, name: string, role: string, action: string, details: string) => void;
+  user: DemoAccount;
 }
 
-export function AssessmentForm({ state, setState, assignment, onBack, toast }: AssessmentFormProps) {
+export function AssessmentForm({ state, setState, assignment, onBack, toast, logAction, user }: AssessmentFormProps) {
   const evaluee = state.employees.find((e) => e.id === assignment.evalueeId)!;
   const includeLeadership = ["Struktural", "JPT Pratama", "Administrator", "Pengawas"].includes(evaluee.jenis) || evaluee.hasSub;
   const visibleDims = (state.dimensions || dimensions).filter((d) => includeLeadership || !d.leadershipOnly);
@@ -904,6 +957,26 @@ export function AssessmentForm({ state, setState, assignment, onBack, toast }: A
     }
 
     toast("Penilaian final berhasil dikirim.");
+    if (logAction) {
+      const isKepala = user.role !== "Admin BKPSDM" && (state.employees.find(e => e.id === user.userId)?.jabatan?.toLowerCase() === "kepala badan" || user.userId === 1);
+      const isAtasan = user.role !== "Admin BKPSDM" && state.employees.find(e => e.id === user.userId)?.hasSub;
+      const displayRole = user.role === "Admin BKPSDM"
+        ? "Admin BKPSDM"
+        : isKepala
+        ? "Kepala Badan"
+        : isAtasan
+        ? "Atasan Langsung"
+        : "Pegawai ASN";
+      
+      const typeLabel = assignment.type === "Diri" ? "Diri Sendiri" : assignment.type;
+      logAction(
+        user.username || user.nip,
+        user.name,
+        displayRole,
+        "Pengisian Kuesioner",
+        `Mengisi kuesioner penilaian Kategori: ${typeLabel} untuk pegawai: ${evaluee.nama || "ASN Team"}.`
+      );
+    }
     setShowConfirmModal(false);
     onBack();
   };

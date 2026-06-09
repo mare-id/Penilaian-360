@@ -1,4 +1,4 @@
-import { DemoAccount, OrgUnit, Job, Employee, Assignment, Response, Objection, PendingRaters, AppState } from "./types";
+import { DemoAccount, OrgUnit, Job, Employee, Assignment, Response, Objection, PendingRaters, AppState, ActivityLog } from "./types";
 
 export const demoAccounts: DemoAccount[] = [
   { nip: "", username: "admin", password: "Mare123.", role: "Admin BKPSDM", name: "Administrator BKPSDM Utama", userId: 0 },
@@ -309,6 +309,79 @@ export const initialPendingRaters: PendingRaters[] = [
   { id: 3, evalueeId: 15, proposedIds: [13], status: "Ditolak", submittedAt: "2026-05-30", rejectionReason: "Sistem mendeteksi perubahan jabatan atau unit kerja. Jumlah rater sejawat satu unit tidak lagi memenuhi batas minimum." }
 ];
 
+export const initialActivityLogs: ActivityLog[] = [
+  {
+    id: "log_1",
+    timestamp: "2026-06-08T08:30:15Z",
+    username: "admin",
+    name: "Administrator BKPSDM Utama",
+    role: "Admin BKPSDM",
+    action: "Autentikasi",
+    details: "Berhasil login ke Dashboard Admin Utama BKPSDM.",
+    ipAddress: "10.0.12.45"
+  },
+  {
+    id: "log_2",
+    timestamp: "2026-06-08T09:15:22Z",
+    username: "admin",
+    name: "Administrator BKPSDM Utama",
+    role: "Admin BKPSDM",
+    action: "Konfigurasi Sistem",
+    details: "Mengubah parameter bobot evaluasi perilaku (80% Perilaku, 20% Kepatuhan).",
+    ipAddress: "10.0.12.45"
+  },
+  {
+    id: "log_3",
+    timestamp: "2026-06-08T10:02:11Z",
+    username: "197310191993111001",
+    name: "Yon Henrik, AP, M.Si",
+    role: "Kepala Badan",
+    action: "Autentikasi",
+    details: "Berhasil login ke sistem via NIP Kepegawaian.",
+    ipAddress: "192.168.1.100"
+  },
+  {
+    id: "log_4",
+    timestamp: "2026-06-08T11:45:30Z",
+    username: "198803152007011004",
+    name: "Roy Karya Marco Sinaga, S.IP, M.Si",
+    role: "Atasan Langsung",
+    action: "Verifikasi Rater",
+    details: "Menyetujui usulan rater rekan sejawat (peer) untuk pegawai Buha Pasaribu.",
+    ipAddress: "192.168.1.102"
+  },
+  {
+    id: "log_5",
+    timestamp: "2026-06-08T14:22:05Z",
+    username: "199908232021081003",
+    name: "Richad Mika Sinaga, S.Tr.IP",
+    role: "Pegawai ASN",
+    action: "Pengisian Kuesioner",
+    details: "Menyelesaikan pengisian kuesioner penilaian 360-derajat untuk rekan Hendra Supreddi.",
+    ipAddress: "192.168.1.215"
+  },
+  {
+    id: "log_6",
+    timestamp: "2026-06-09T01:10:45Z",
+    username: "admin",
+    name: "Administrator BKPSDM Utama",
+    role: "Admin BKPSDM",
+    action: "Master Data ASN",
+    details: "Menambahkan data ASN baru atas nama 'Dina Intisari Sihombing, S.Kom' (Pranata Komputer).",
+    ipAddress: "10.0.12.45"
+  },
+  {
+    id: "log_7",
+    timestamp: "2026-06-09T02:45:00Z",
+    username: "198005082006041007",
+    name: "Rikson B Sihombing, S.Psi",
+    role: "Atasan Langsung",
+    action: "Ubah Password",
+    details: "Mengubah kata sandi akun personal demi faktor keamanan.",
+    ipAddress: "192.168.1.110"
+  }
+];
+
 export const initialState: AppState = {
   employees: initialEmployees,
   assignments: initialAssignments,
@@ -317,6 +390,7 @@ export const initialState: AppState = {
   pendingRaters: initialPendingRaters,
   orgUnits: orgUnitCatalog,
   jobs: jobCatalog,
+  activityLogs: initialActivityLogs,
   period: {
     id: 2,
     name: "Periode Triwulan II (April - Juni) 2026",

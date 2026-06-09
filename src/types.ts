@@ -120,6 +120,17 @@ export interface BehaviorDimension {
   leadershipOnly?: boolean;
 }
 
+export interface ActivityLog {
+  id: string;
+  timestamp: string;
+  username: string; // NIP or username
+  name: string; // Actor's name
+  role: string; // Admin, Atasan, Pegawai, Kepala Badan
+  action: string; // e.g., "Login", "Tambah ASN", "Update Profil"
+  details: string; // Details of what occurred
+  ipAddress?: string;
+}
+
 export interface AppState {
   employees: Employee[];
   assignments: Assignment[];
@@ -134,6 +145,7 @@ export interface AppState {
   dimensions?: BehaviorDimension[];
   enableSupervisorVerification?: boolean;
   enableRaterManagementMenu?: boolean;
+  activityLogs?: ActivityLog[];
 }
 
 export interface DemoAccount {

@@ -17,6 +17,7 @@ import {
   ChangePasswordPage,
 } from "./components/UserPages";
 import { DataASNPage, UnitCrudPage, JobCrudPage, DimensionCrudPage } from "./components/AdminPages";
+import { ActivityLogsPage } from "./components/ActivityLogsPage";
 import { UserManualPage } from "./components/UserManualPage";
 import { DeadlineConfigPage } from "./components/DeadlineConfigPage";
 import {
@@ -705,6 +706,23 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState("");
 
   const toast = (msg: string) => setToastMsg(msg);
+
+  const logAction = (username: string, name: string, role: string, action: string, details: string) => {
+    const newLog = {
+      id: "log_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+      timestamp: new Date().toISOString(),
+      username,
+      name,
+      role,
+      action,
+      details,
+      ipAddress: "192.168.1." + Math.floor(Math.random() * 254 + 1)
+    };
+    setState(prev => ({
+      ...prev,
+      activityLogs: [newLog, ...(prev.activityLogs || [])]
+    }));
+  };
   
   const reset = () => {
     if (!confirm("⚠️ PERINGATAN: Apakah Anda yakin ingin menghapus seluruh progres dan menyetel ulang semua data simulasi ke kondisi bawaan awal?")) {
@@ -727,6 +745,7 @@ export default function App() {
     unitCrud: "Master Unit Kerja",
     jobCrud: "Master Jabatan",
     dimensionCrud: "Pengaturan Butir Dimensi Kuesioner",
+    activityLogs: "Log Aktivitas User",
     settings: "Setelan Sistem",
     deadlineConfig: "Pengaturan Batas Waktu Penilaian",
     changePassword: "Ganti Kata Sandi",
@@ -734,11 +753,24 @@ export default function App() {
   };
 
   if (!user) {
-    return <Login state={state} onLogin={(u) => { setUser(u); setActive("dashboard"); }} />;
+    return <Login state={state} onLogin={(u) => {
+      setUser(u);
+      setActive("dashboard");
+      const isKepala = u.role !== "Admin BKPSDM" && (state.employees.find(e => e.id === u.userId)?.jabatan?.toLowerCase() === "kepala badan" || u.userId === 1);
+      const isAtasan = u.role !== "Admin BKPSDM" && state.employees.find(e => e.id === u.userId)?.hasSub;
+      const displayRole = u.role === "Admin BKPSDM"
+        ? "Admin BKPSDM"
+        : isKepala
+        ? "Kepala Badan"
+        : isAtasan
+        ? "Atasan Langsung"
+        : "Pegawai ASN";
+      logAction(u.username || u.nip, u.name, displayRole, "Autentikasi", `Berhasil masuk ke aplikasi (Otoritas ${displayRole}).`);
+    }} />;
   }
 
   const renderActiveView = () => {
-    const pageProps = { state, setState, user, toast };
+    const pageProps = { state, setState, user, toast, logAction };
     switch (active) {
       case "profile":
         return <Profile {...pageProps} />;
@@ -765,6 +797,8 @@ export default function App() {
         return <JobCrudPage {...pageProps} />;
       case "dimensionCrud":
         return <DimensionCrudPage state={state} setState={setState} toast={toast} />;
+      case "activityLogs":
+        return <ActivityLogsPage {...pageProps} />;
       case "settings":
         return <SettingsPage state={state} setState={setState} toast={toast} />;
       case "deadlineConfig":
