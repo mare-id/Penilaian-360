@@ -335,7 +335,8 @@ export function syncMandatoryAssignments(
   maxPeer: number = 4,
   enforceMaxBawahan: boolean = false,
   autoFillPeers: boolean = true,
-  randomizePeers: boolean = false
+  randomizePeers: boolean = false,
+  disablePeerLimit: boolean = false
 ): Assignment[] {
   // Update hasSub dynamically based on actual subordinates in the organization tree
   employees.forEach((emp) => {
@@ -465,16 +466,11 @@ export function syncMandatoryAssignments(
   // 3. Rule 3: Automatically generate peer assignments for employees who have no approved/pending peer assignments (only if autoFillPeers is enabled)
   if (autoFillPeers) {
     employees.forEach((emp) => {
-      const hasPeerAssignments = assignments.some(
-        (a) => a.evaluatorId === emp.id && a.type === "Peer" && a.periodId === periodId
-      );
-      if (!hasPeerAssignments) {
-        const eligiblePeers = employees.filter((other) => isEligiblePeer(emp, other));
-        const selectedPeers = randomizePeers 
-          ? seededShuffle(eligiblePeers, emp.id * 1000 + periodId).slice(0, maxPeer)
-          : [...eligiblePeers].sort((a, b) => a.id - b.id).slice(0, maxPeer);
-        
-        selectedPeers.forEach((peer) => {
+      const eligiblePeers = employees.filter((other) => isEligiblePeer(emp, other));
+      
+      if (disablePeerLimit) {
+        // When peer limit is disabled, all eligible peers in the same unit must review each other
+        eligiblePeers.forEach((peer) => {
           // Emp evaluates Peer
           const exists1 = assignments.some(
             (a) => a.evalueeId === peer.id && a.evaluatorId === emp.id && a.type === "Peer" && a.periodId === periodId
@@ -490,7 +486,6 @@ export function syncMandatoryAssignments(
               approved: true,
             });
           }
-          
           // Peer evaluates Emp
           const exists2 = assignments.some(
             (a) => a.evalueeId === emp.id && a.evaluatorId === peer.id && a.type === "Peer" && a.periodId === periodId
@@ -507,6 +502,49 @@ export function syncMandatoryAssignments(
             });
           }
         });
+      } else {
+        const hasPeerAssignments = assignments.some(
+          (a) => a.evaluatorId === emp.id && a.type === "Peer" && a.periodId === periodId
+        );
+        if (!hasPeerAssignments) {
+          const selectedPeers = randomizePeers 
+            ? seededShuffle(eligiblePeers, emp.id * 1000 + periodId).slice(0, maxPeer)
+            : [...eligiblePeers].sort((a, b) => a.id - b.id).slice(0, maxPeer);
+          
+          selectedPeers.forEach((peer) => {
+            // Emp evaluates Peer
+            const exists1 = assignments.some(
+              (a) => a.evalueeId === peer.id && a.evaluatorId === emp.id && a.type === "Peer" && a.periodId === periodId
+            );
+            if (!exists1) {
+              assignments.push({
+                id: periodId * 100000 + 70000 + peer.id * 1000 + emp.id,
+                periodId: periodId,
+                evalueeId: peer.id,
+                evaluatorId: emp.id,
+                type: "Peer",
+                status: "Belum Mulai",
+                approved: true,
+              });
+            }
+            
+            // Peer evaluates Emp
+            const exists2 = assignments.some(
+              (a) => a.evalueeId === emp.id && a.evaluatorId === peer.id && a.type === "Peer" && a.periodId === periodId
+            );
+            if (!exists2) {
+              assignments.push({
+                id: periodId * 100000 + 70000 + emp.id * 1000 + peer.id,
+                periodId: periodId,
+                evalueeId: emp.id,
+                evaluatorId: peer.id,
+                type: "Peer",
+                status: "Belum Mulai",
+                approved: true,
+              });
+            }
+          });
+        }
       }
     });
   }

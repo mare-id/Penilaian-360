@@ -310,7 +310,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
     if ((c5.Bawahan || 0) !== 100) {
       return toast("Total bobot Kondisi 5 (Tanpa Atasan, Tanpa Sejawat, Ada Bawahan) harus 100% pada Bawahan.");
     }
-    if (period.maxPeer < 1 || period.maxPeer > 12) {
+    if (!period.disablePeerLimit && (period.maxPeer < 1 || period.maxPeer > 12)) {
       return toast("Aturan rekan sejawat (Peer) harus valid (Maksimal rater 1 s.d. 12).");
     }
     if (!period.maxBawahan || period.maxBawahan < 1 || period.maxBawahan > 30) {
@@ -392,7 +392,7 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
     if ((c5.Bawahan || 0) !== 100) {
       return toast("Total bobot Kondisi 5 (Tanpa Atasan, Tanpa Sejawat, Ada Bawahan) harus 100% pada Bawahan.");
     }
-    if (period.maxPeer < 1 || period.maxPeer > 12) {
+    if (!period.disablePeerLimit && (period.maxPeer < 1 || period.maxPeer > 12)) {
       return toast("Aturan rekan sejawat (Peer) harus valid (Maksimal rater 1 s.d. 12).");
     }
     if (!period.maxBawahan || period.maxBawahan < 1 || period.maxBawahan > 30) {
@@ -813,7 +813,8 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
                   <Field label="Max Peer Rater">
                     <input
                       type="number"
-                      className="w-full rounded-xl border p-2.5 font-semibold text-xs bg-white"
+                      disabled={!!period.disablePeerLimit}
+                      className="w-full rounded-xl border p-2.5 font-semibold text-xs bg-white disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                       value={period.maxPeer}
                       min="1"
                       max="12"
@@ -834,6 +835,21 @@ export function DeadlineConfigPage({ state, setState, toast }: DeadlineConfigPag
 
                 <div className="grid gap-3 grid-cols-1 border-t border-slate-200 pt-3 mt-3">
                   <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 mt-0.5 cursor-pointer"
+                      checked={!period.disablePeerLimit}
+                      onChange={(e) => setPeriod({ ...period, disablePeerLimit: !e.target.checked })}
+                    />
+                    <div className="font-display">
+                      <span className="block font-bold text-[11px] text-slate-900 leading-tight">Batasi Jumlah Rater Rekan Sejawat (Peer)</span>
+                      <span className="block text-[10px] text-slate-500 mt-0.5 leading-normal">
+                        Bila aktif, rekan sejawat dibatasi maksimal {period.maxPeer} orang per pegawai. Bila dimatikan, seluruh rekan sejawat dalam satu unit kerja wajib menilai semua rekan sejawatnya tanpa batasan jumlah.
+                      </span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer mt-1">
                     <input
                       type="checkbox"
                       className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 mt-0.5 cursor-pointer"

@@ -89,6 +89,7 @@ export interface Period {
   maxPeer: number;
   maxBawahan?: number;
   enforceMaxBawahan?: boolean;
+  disablePeerLimit?: boolean;
   autoFillPeers?: boolean;
   randomizePeers?: boolean;
   weightsWithSub: Weights;

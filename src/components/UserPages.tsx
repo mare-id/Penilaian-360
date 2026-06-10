@@ -307,7 +307,12 @@ export function RaterManagement({ state, setState, user, toast, logAction }: Pag
         </Card>
         <Card>
           <h3 className="font-black">Status Usulan</h3>
-          {state.period.randomizePeers ? (
+          {state.period.disablePeerLimit ? (
+            <>
+              <p className="mt-3 text-sm text-slate-600 font-medium">Seluruh rekan sejawat satu unit diwajibkan saling menilai.</p>
+              <Badge className="mt-4 border-indigo-200 bg-indigo-50 text-indigo-700 font-semibold uppercase">Menyeluruh 🔄</Badge>
+            </>
+          ) : state.period.randomizePeers ? (
             <>
               <p className="mt-3 text-sm text-slate-600 font-medium">Berdasarkan acak otomatis oleh sistem.</p>
               <Badge className="mt-4 border-violet-200 bg-violet-50 text-violet-700 font-semibold uppercase">Otomatis ⚡</Badge>
@@ -321,7 +326,105 @@ export function RaterManagement({ state, setState, user, toast, logAction }: Pag
         </Card>
       </div>
 
-      {state.period.randomizePeers ? (
+      {state.period.disablePeerLimit ? (
+        <Card className="border-indigo-200 bg-indigo-50/20">
+          <div className="mb-4">
+            <h2 className="text-lg font-black font-display text-slate-950 flex items-center gap-2">
+              <UsersRound className="w-5 h-5 text-indigo-600" />
+              Penilaian Rekan Sejawat Tanpa Batasan (Wajib Menyeluruh)
+            </h2>
+            <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+              BKPSDM telah menonaktifkan pembatasan jumlah peer rater. Seluruh rekan sejawat yang sepadan di unit kerja Anda wajib saling memberikan penilaian 360 derajat secara merata.
+            </p>
+            <div className="mt-3 p-3 bg-white rounded-xl border border-indigo-100/50 text-xs text-slate-500 leading-relaxed font-semibold shadow-sm">
+              💡 <b>Informasi Regulasi:</b> Rater terpilih ditentukan secara mutlak oleh sistem yang mencakup seluruh pegawai setingkat di Unit Kerja Anda ({employee.unit}).
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <h3 className="font-extrabold text-xs tracking-wider text-slate-500 mb-3 uppercase font-display">1. Daftar Rekan Kerja Yang Menilai Anda (Peer Evaluator):</h3>
+            {state.showPeerRaterNames === false ? (
+              <div className="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/25 p-5 text-center font-display">
+                <Shield className="mx-auto h-10 w-10 text-emerald-600 stroke-[1.5] mb-2" />
+                <p className="text-xs text-slate-800 font-extrabold uppercase tracking-wide">Identitas Evaluator Pendukung Dirahasiakan</p>
+                <p className="text-[11px] text-slate-500 mt-1 leading-relaxed font-semibold max-w-sm mx-auto">
+                  Sesuai kebijakan penatausahaan dari BKPSDM, nama-nama rekan sejawat yang menilai Anda **sengaja disembunyikan (anonim)** demi asas objektivitas penilaian 360 derajat. Anda hanya dapat melihat total draf penyelesaian rater Anda tanpa rincian identitas.
+                </p>
+                <div className="mt-3 inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 font-bold text-[9px] uppercase tracking-wider px-2 py-0.5 rounded border border-emerald-200/50">
+                  <span>🔒</span> Mode Evaluasi Anonim Aktif
+                </div>
+              </div>
+            ) : state.assignments.filter((a) => a.periodId === state.period.id && a.evalueeId === employee.id && a.type === "Peer").length === 0 ? (
+              <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-6 text-center select-none">
+                <Users className="mx-auto h-10 w-10 text-slate-300 stroke-[1.5] mb-2" />
+                <p className="text-xs text-slate-400 font-semibold font-display">Tidak Memiliki Rekan Sejawat Setingkat</p>
+                <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">
+                  Berdasarkan database, Anda tidak memiliki rekan kerja dengan jenis jabatan setingkat di unit kerja ini ({employee.unit}). Anda dibebaskan dari kewajiban penilaian peer.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2">
+                {state.assignments
+                  .filter((a) => a.periodId === state.period.id && a.evalueeId === employee.id && a.type === "Peer")
+                  .map((a) => {
+                    const p = state.employees.find((e) => e.id === a.evaluatorId);
+                    if (!p) return null;
+                    return (
+                      <div key={p.id} className="rounded-2xl border border-indigo-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-sm tracking-tight text-slate-900">{p.nama}</span>
+                          <Badge className="border-indigo-100 bg-indigo-50 text-indigo-700 text-[9px] py-0 px-1 font-semibold uppercase">Wajib Unit 🔄</Badge>
+                        </div>
+                        <div className="text-xs mt-1.5 font-medium text-slate-500">
+                          NIP. {p.nip} • Gol. {p.gol}
+                        </div>
+                        <div className="text-[11px] font-medium mt-0.5 text-slate-400">
+                          {p.jabatan} • {p.unit}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 pt-5 border-t border-indigo-100">
+            <h3 className="font-extrabold text-xs tracking-wider text-slate-500 mb-3 uppercase font-display">2. Daftar Rekan Kerja Yang Anda Nilai (Evaluee Anda):</h3>
+            <p className="text-xs text-slate-500 mb-3 leading-relaxed">
+              Tugas pengerjaan kuesioner Anda untuk rekan kerja di bawah ini dapat diakses pada tab menu utama <b>"Form Kuesioner"</b> di atas.
+            </p>
+            {state.assignments.filter((a) => a.periodId === state.period.id && a.evaluatorId === employee.id && a.type === "Peer").length === 0 ? (
+              <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-6 text-center select-none">
+                <Users className="mx-auto h-10 w-10 text-slate-300 stroke-[1.5] mb-2" />
+                <p className="text-xs text-slate-400 font-semibold font-display">Tidak Ada Rekan Kerja Yang Harus Anda Nilai</p>
+              </div>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2">
+                {state.assignments
+                  .filter((a) => a.periodId === state.period.id && a.evaluatorId === employee.id && a.type === "Peer")
+                  .map((a) => {
+                    const p = state.employees.find((e) => e.id === a.evalueeId);
+                    if (!p) return null;
+                    return (
+                      <div key={p.id} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-sm tracking-tight text-slate-900">{p.nama}</span>
+                          <Badge className="border-slate-100 bg-slate-50 text-slate-600 text-[9px] py-0 px-1 font-semibold uppercase">Evaluee Anda 📝</Badge>
+                        </div>
+                        <div className="text-xs mt-1.5 font-medium text-slate-500">
+                          NIP. {p.nip} • Gol. {p.gol}
+                        </div>
+                        <div className="text-[11px] font-medium mt-0.5 text-slate-400">
+                          {p.jabatan} • {p.unit}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+        </Card>
+      ) : state.period.randomizePeers ? (
         <Card className="border-violet-200 bg-violet-50/20">
           <div className="mb-4">
             <h2 className="text-lg font-black font-display text-slate-950 flex items-center gap-2">

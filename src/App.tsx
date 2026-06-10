@@ -626,7 +626,8 @@ export default function App() {
         parsed.period?.maxPeer || 4,
         !!parsed.period?.enforceMaxBawahan,
         parsed.period?.autoFillPeers !== false,
-        !!parsed.period?.randomizePeers
+        !!parsed.period?.randomizePeers,
+        !!parsed.period?.disablePeerLimit
       );
       return { ...parsed, assignments: synced };
     } catch {
@@ -638,7 +639,8 @@ export default function App() {
         initialState.period?.maxPeer || 4,
         !!initialState.period?.enforceMaxBawahan,
         initialState.period?.autoFillPeers !== false,
-        !!initialState.period?.randomizePeers
+        !!initialState.period?.randomizePeers,
+        !!initialState.period?.disablePeerLimit
       );
       return { ...initialState, admins: initialState.admins, assignments: synced, enableSupervisorVerification: true, enableRaterManagementMenu: true, showPeerRaterNames: true };
     }
@@ -686,7 +688,8 @@ export default function App() {
       state.period?.maxPeer || 4,
       !!state.period?.enforceMaxBawahan,
       state.period?.autoFillPeers !== false,
-      !!state.period?.randomizePeers
+      !!state.period?.randomizePeers,
+      !!state.period?.disablePeerLimit
     );
     
     // Sinkronkan juga pendingRaters agar proposedIds hanya berisi peer setingkat (jenis)
