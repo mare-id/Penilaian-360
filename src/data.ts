@@ -451,4 +451,5 @@ export const initialState: AppState = {
   dimensions: dimensions,
   enableSupervisorVerification: true,
   enableRaterManagementMenu: true,
+  showPeerRaterNames: true,
 };

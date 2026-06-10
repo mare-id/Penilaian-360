@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EyeOff, Search, Users, CheckCircle2, AlertTriangle, ClipboardCheck, Lock, ChevronRight, BarChart3, FileText, ArrowUpCircle, ArrowDownCircle, UsersRound } from "lucide-react";
+import { EyeOff, Search, Users, CheckCircle2, AlertTriangle, ClipboardCheck, Lock, ChevronRight, BarChart3, FileText, ArrowUpCircle, ArrowDownCircle, UsersRound, Shield } from "lucide-react";
 import { AppState, Employee, Assignment, Response, Objection, PendingRaters, DemoAccount, Period } from "../types";
 import { dimensions, orgUnitCatalog } from "../data";
 import { Badge, Card, Button, Field, ProgressBar, Empty, StatCard } from "./UIComponents";
@@ -338,7 +338,18 @@ export function RaterManagement({ state, setState, user, toast, logAction }: Pag
 
           <div className="mt-6">
             <h3 className="font-extrabold text-xs tracking-wider text-slate-500 mb-3 uppercase font-display">1. Daftar Rekan Kerja Yang Menilai Anda (Peer Evaluator):</h3>
-            {state.assignments.filter((a) => a.periodId === state.period.id && a.evalueeId === employee.id && a.type === "Peer").length === 0 ? (
+            {state.showPeerRaterNames === false ? (
+              <div className="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/25 p-5 text-center font-display">
+                <Shield className="mx-auto h-10 w-10 text-emerald-600 stroke-[1.5] mb-2" />
+                <p className="text-xs text-slate-800 font-extrabold uppercase tracking-wide">Identitas Evaluator Pendukung Dirahasiakan</p>
+                <p className="text-[11px] text-slate-500 mt-1 leading-relaxed font-semibold max-w-sm mx-auto">
+                  Sesuai kebijakan penatausahaan dari BKPSDM, nama-nama rekan sejawat yang menilai Anda **sengaja disembunyikan (anonim)** demi asas objektivitas penilaian 360 derajat. Anda hanya dapat melihat total draf penyelesaian rater Anda tanpa rincian identitas.
+                </p>
+                <div className="mt-3 inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 font-bold text-[9px] uppercase tracking-wider px-2 py-0.5 rounded border border-emerald-200/50">
+                  <span>🔒</span> Mode Evaluasi Anonim Aktif
+                </div>
+              </div>
+            ) : state.assignments.filter((a) => a.periodId === state.period.id && a.evalueeId === employee.id && a.type === "Peer").length === 0 ? (
               <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-6 text-center select-none">
                 <Users className="mx-auto h-10 w-10 text-slate-300 stroke-[1.5] mb-2" />
                 <p className="text-xs text-slate-400 font-semibold font-display">Tidak Memiliki Rekan Sejawat Setingkat</p>

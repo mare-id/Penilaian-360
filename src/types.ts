@@ -145,6 +145,7 @@ export interface AppState {
   dimensions?: BehaviorDimension[];
   enableSupervisorVerification?: boolean;
   enableRaterManagementMenu?: boolean;
+  showPeerRaterNames?: boolean;
   activityLogs?: ActivityLog[];
 }
 

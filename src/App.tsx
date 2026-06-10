@@ -29,7 +29,7 @@ import {
   getSupabaseSQLScript,
   checkServerConfig
 } from "./utils/supabase";
-import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle, Calendar, Trash2, Plus, RotateCcw, ClipboardCheck, Users } from "lucide-react";
+import { Database, CloudLightning, Copy, Check, Server, RefreshCw, AlertCircle, HelpCircle, Calendar, Trash2, Plus, RotateCcw, ClipboardCheck, Users, Eye } from "lucide-react";
 
 const STORAGE_KEY = "bkpsdm-dairi-360-app-v2";
 
@@ -67,9 +67,10 @@ interface SettingsPageProps {
   state: AppState;
   setState: React.Dispatch<React.SetStateAction<AppState>>;
   toast: (msg: string) => void;
+  logAction?: (username: string, name: string, role: string, action: string, details: string) => void;
 }
 
-function SettingsPage({ state, setState, toast }: SettingsPageProps) {
+function SettingsPage({ state, setState, toast, logAction }: SettingsPageProps) {
   // Supabase states
   const [dbConfig, setDbConfig] = useState(() => getSupabaseConfig());
   const [testing, setTesting] = useState(false);
@@ -504,6 +505,82 @@ function SettingsPage({ state, setState, toast }: SettingsPageProps) {
           </div>
         </div>
       </Card>
+
+      {/* SECTION 6: PEER RATER VISIBILITY CONFIGURATION */}
+      <Card className="border-t-4 border-emerald-500 overflow-hidden relative">
+        <div className="absolute right-4 top-4 opacity-5 pointer-events-none">
+          <Eye className="w-24 h-24 text-emerald-900" />
+        </div>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 mb-4 gap-3 font-display">
+          <div>
+            <h2 className="text-lg font-black font-display text-slate-900 flex items-center gap-2">
+              <Eye className="w-5 h-5 text-emerald-500 stroke-[2.5]" />
+              Pengaturan Visibilitas Identitas Peer Rater
+            </h2>
+            <p className="text-xs text-slate-500 font-sans">
+              Tentukan apakah pegawai ASN diperkenankan melihat nama-nama rekan sejawat yang menilai dirinya.
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-600">Status Visibilitas:</span>
+            <button
+              type="button"
+              onClick={() => {
+                const updatedVal = !(state.showPeerRaterNames !== false);
+                setState(prev => ({
+                  ...prev,
+                  showPeerRaterNames: updatedVal
+                }));
+                const statusStr = updatedVal ? "DITAMPILKAN" : "DISEMBUNYIKAN (ANONIM TOTAL)";
+                toast(`Visibilitas Nama Peer Rater berhasil diubah menjadi: ${statusStr}!`);
+                if (logAction) {
+                  logAction(
+                    "admin",
+                    "Administrator BKPSDM Utama",
+                    "Admin BKPSDM",
+                    "Konfigurasi Sistem",
+                    `Mengubah hak akses visibilitas identitas rater sejawat menjadi: ${statusStr}.`
+                  );
+                }
+              }}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                (state.showPeerRaterNames !== false) ? "bg-emerald-500" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  (state.showPeerRaterNames !== false) ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-xl border flex items-start gap-3 text-xs leading-relaxed font-display ${
+          (state.showPeerRaterNames !== false) 
+            ? "bg-slate-50 text-slate-800 border-slate-200" 
+            : "bg-amber-50 text-amber-900 border-amber-200"
+          }`}
+        >
+          <Eye className="w-5 h-5 text-emerald-500 shrink-0 stroke-[2]" />
+          <div>
+            <span className="font-extrabold block mb-0.5 text-slate-900 uppercase">
+              {(state.showPeerRaterNames !== false) ? "Status: NAMA PEER RATER DITAMPILKAN" : "Status: NAMA PEER RATER DISEMBUNYIKAN"}
+            </span>
+            {(state.showPeerRaterNames !== false) ? (
+              <p>
+                Pegawai ASN **dapat melihat secara transparan** nama-nama rekan sejawat (peer rater) yang ditugaskan menilai mereka pada daftar manajemen evaluator.
+              </p>
+            ) : (
+              <p>
+                Identitas rekan sejawat yang menilai **dirahasiakan total (disembunyikan)**. Pegawai ASN hanya bisa melihat skor evaluasi gabungan tanpa dapat melihat nama, NIP, atau jabatan rekan sejawat yang menilai mereka.
+              </p>
+            )}
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
@@ -538,6 +615,9 @@ export default function App() {
       if (parsed.enableRaterManagementMenu === undefined) {
         parsed.enableRaterManagementMenu = true;
       }
+      if (parsed.showPeerRaterNames === undefined) {
+        parsed.showPeerRaterNames = true;
+      }
       const synced = syncMandatoryAssignments(
         parsed.employees, 
         parsed.assignments, 
@@ -560,7 +640,7 @@ export default function App() {
         initialState.period?.autoFillPeers !== false,
         !!initialState.period?.randomizePeers
       );
-      return { ...initialState, admins: initialState.admins, assignments: synced, enableSupervisorVerification: true, enableRaterManagementMenu: true };
+      return { ...initialState, admins: initialState.admins, assignments: synced, enableSupervisorVerification: true, enableRaterManagementMenu: true, showPeerRaterNames: true };
     }
   });
 
@@ -800,7 +880,7 @@ export default function App() {
       case "activityLogs":
         return <ActivityLogsPage {...pageProps} />;
       case "settings":
-        return <SettingsPage state={state} setState={setState} toast={toast} />;
+        return <SettingsPage state={state} setState={setState} toast={toast} logAction={logAction} />;
       case "deadlineConfig":
         return <DeadlineConfigPage state={state} setState={setState} toast={toast} />;
       case "changePassword":
